@@ -7,6 +7,9 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.RData
+.Rhistory
+.Rproj.user/
 
 # Local model backends, downloads, checkpoints, and training state
 third_party/

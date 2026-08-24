@@ -1,6 +1,6 @@
 {
   "artifact": "publication_figure_manifest",
-  "figure": "rgb_accuracy_vs_speed",
+  "figure": "rgb_per_class_ap",
   "generator": "ggplot2",
   "generator_script": "tools/publication/figures.R",
   "r_version": "4.6.1",
@@ -21,17 +21,17 @@
   "dispersion": "sample_standard_deviation",
   "outputs": {
     "pdf": {
-      "path": "results/RGB/summary/figures/accuracy_vs_speed.pdf",
-      "sha256": "dd477f24ff6b900d51d205ac41f78a7e0d3b75d60b40e28e81b68360103aafd8"
+      "path": "results/RGB/summary/figures/per_class_ap.pdf",
+      "sha256": "0d81c38c472024dab00c8e300b270dcdbf02de7e213c48b5dd923ad1a2c17fa9"
     },
     "svg": {
-      "path": "results/RGB/summary/figures/accuracy_vs_speed.svg",
-      "sha256": "b0b60b766a27b78661a754ecdaa48ba8effba38335675121855f31eba9e03e49"
+      "path": "results/RGB/summary/figures/per_class_ap.svg",
+      "sha256": "deccd6e0e85c6f627230e3038397ac21ed09a298efcea796eab12a57be5827a5"
     },
     "png": {
-      "path": "results/RGB/summary/figures/accuracy_vs_speed.png",
-      "sha256": "aa5fec9021af1ecca35b85ccd69f3253ecbc2fe6bb638f39d8c658c8eb94adfc"
+      "path": "results/RGB/summary/figures/per_class_ap.png",
+      "sha256": "aa51054ab4b710ec06117fbc99aa104df1ab21f75c53ecccf3000dfde9b128d7"
     }
   },
-  "bubble_area": "inference_artifact_bytes"
+  "metric": "per_class_ap_50_95"
 }

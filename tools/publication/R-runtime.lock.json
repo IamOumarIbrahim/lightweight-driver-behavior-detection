@@ -1,0 +1,18 @@
+{
+  "r_version": "4.6.1",
+  "cran_binary_series": "4.6",
+  "installer": {
+    "url": "https://cran.r-project.org/bin/windows/base/R-4.6.1-win.exe",
+    "md5": "7907f3a20ec8ec88cd0da279024b8e27",
+    "sha256": "c5424c40cd70ef85765a55d2ff96bb602b5f30ed536938ff004f14db5db3c2df"
+  },
+  "install_directory": "third_party/R-4.6.1",
+  "library_directory": "third_party/R-library-4.6",
+  "package_cache": "third_party/R-package-cache-4.6",
+  "package_lock": "tools/publication/R-packages.lock.csv",
+  "required_packages": [
+    "ggplot2",
+    "jsonlite",
+    "digest"
+  ]
+}
