@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="./docs/manuscript/main.pdf"><img src="https://img.shields.io/badge/📄_Manuscript-PDF-e02424?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Download the manuscript PDF"></a>
+  <a href="https://raw.githubusercontent.com/IamOumarIbrahim/lightweight-driver-behavior-detection/main/docs/manuscript/main.pdf" download="main.pdf"><img src="https://img.shields.io/badge/📄_Manuscript-Download_PDF-e02424?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Download the manuscript PDF"></a>
 </p>
 
 ## Table of Contents
