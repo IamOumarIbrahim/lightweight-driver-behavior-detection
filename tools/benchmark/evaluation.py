@@ -6,6 +6,7 @@ import contextlib
 import io
 import json
 import math
+import re
 from collections import defaultdict
 from collections.abc import Iterable
 from pathlib import Path
@@ -180,6 +181,156 @@ def operating_point_metrics(
         "far_per_100_negative_frames": far,
         "threshold": threshold,
         "iou_threshold": iou_threshold,
+    }
+
+
+def snippet_operating_point_metrics(
+    ground_truth: dict[str, Any],
+    predictions: Iterable[dict[str, Any]],
+    threshold: float,
+    iou_threshold: float = 0.50,
+) -> dict[str, Any]:
+    """Aggregate ten-frame NIR snippets into class-presence localization decisions.
+
+    A class is a snippet-level true positive when at least one above-threshold
+    prediction matches a same-class ground-truth box at the required IoU in any
+    frame. Repeated detections of that class within the snippet count once.
+    """
+
+    if not 0.0 <= threshold <= 1.0:
+        raise ProtocolError("Threshold must be in [0, 1]")
+    image_ids = {int(image["id"]) for image in ground_truth["images"]}
+    predictions = validate_predictions(predictions, image_ids)
+    category_ids = [
+        int(category["id"]) for category in ground_truth.get("categories", [])
+    ]
+    if not category_ids:
+        raise ProtocolError("Snippet metrics require named categories")
+
+    snippet_pattern = re.compile(r"^(task_\d+)_frame_\d+\.[A-Za-z0-9]+$")
+    snippet_by_image: dict[int, str] = {}
+    images_by_snippet: dict[str, list[int]] = defaultdict(list)
+    for image in ground_truth["images"]:
+        match = snippet_pattern.match(Path(image["file_name"]).name)
+        if match is None:
+            raise ProtocolError(
+                f"Snippet metric cannot parse image name: {image['file_name']}"
+            )
+        image_id = int(image["id"])
+        snippet_id = match.group(1)
+        snippet_by_image[image_id] = snippet_id
+        images_by_snippet[snippet_id].append(image_id)
+    if any(len(image_ids_for_snippet) != 10 for image_ids_for_snippet in images_by_snippet.values()):
+        raise ProtocolError("Every NIR snippet must contain exactly ten frames")
+
+    gt_by_image: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    pred_by_image: dict[int, list[dict[str, Any]]] = defaultdict(list)
+    for annotation in ground_truth["annotations"]:
+        gt_by_image[int(annotation["image_id"])].append(annotation)
+    for prediction in predictions:
+        if float(prediction["score"]) >= threshold:
+            pred_by_image[int(prediction["image_id"])].append(prediction)
+
+    totals = {category_id: {"tp": 0, "fp": 0, "fn": 0} for category_id in category_ids}
+    negative_snippets = false_positive_snippets = 0
+    for snippet_id in sorted(images_by_snippet):
+        snippet_image_ids = images_by_snippet[snippet_id]
+        true_categories = {
+            int(annotation["category_id"])
+            for image_id in snippet_image_ids
+            for annotation in gt_by_image[image_id]
+        }
+        predicted_categories = {
+            int(prediction["category_id"])
+            for image_id in snippet_image_ids
+            for prediction in pred_by_image[image_id]
+        }
+        matched_categories: set[int] = set()
+        for image_id in snippet_image_ids:
+            for prediction in pred_by_image[image_id]:
+                category_id = int(prediction["category_id"])
+                prediction_box = xywh_to_xyxy(prediction["bbox"])
+                if any(
+                    int(annotation["category_id"]) == category_id
+                    and compute_iou(
+                        prediction_box, xywh_to_xyxy(annotation["bbox"])
+                    )
+                    >= iou_threshold
+                    for annotation in gt_by_image[image_id]
+                ):
+                    matched_categories.add(category_id)
+        if not true_categories:
+            negative_snippets += 1
+            if predicted_categories:
+                false_positive_snippets += 1
+        for category_id in category_ids:
+            if category_id in matched_categories:
+                totals[category_id]["tp"] += 1
+            elif category_id in true_categories:
+                totals[category_id]["fn"] += 1
+            if category_id in predicted_categories and category_id not in matched_categories:
+                totals[category_id]["fp"] += 1
+
+    per_class = {}
+    names = {
+        int(category["id"]): category["name"]
+        for category in ground_truth.get("categories", [])
+    }
+    for category_id in category_ids:
+        counts = totals[category_id]
+        precision = (
+            counts["tp"] / (counts["tp"] + counts["fp"])
+            if counts["tp"] + counts["fp"]
+            else 0.0
+        )
+        recall = (
+            counts["tp"] / (counts["tp"] + counts["fn"])
+            if counts["tp"] + counts["fn"]
+            else 0.0
+        )
+        f1 = (
+            2.0 * precision * recall / (precision + recall)
+            if precision + recall
+            else 0.0
+        )
+        per_class[names[category_id]] = {
+            **counts,
+            "precision": precision,
+            "recall": recall,
+            "f1": f1,
+        }
+    tp = sum(item["tp"] for item in totals.values())
+    fp = sum(item["fp"] for item in totals.values())
+    fn = sum(item["fn"] for item in totals.values())
+    precision = tp / (tp + fp) if tp + fp else 0.0
+    recall = tp / (tp + fn) if tp + fn else 0.0
+    micro_f1 = (
+        2.0 * precision * recall / (precision + recall)
+        if precision + recall
+        else 0.0
+    )
+    macro_f1 = float(np.mean([item["f1"] for item in per_class.values()]))
+    return {
+        "snippets": len(images_by_snippet),
+        "frames_per_snippet": 10,
+        "aggregation": "any_frame_same_class_iou_match_repeated_class_counts_once",
+        "tp": tp,
+        "fp": fp,
+        "fn": fn,
+        "precision": precision,
+        "recall": recall,
+        "micro_f1": micro_f1,
+        "macro_f1": macro_f1,
+        "negative_snippets": negative_snippets,
+        "false_positive_snippets": false_positive_snippets,
+        "false_positive_snippets_per_100_negative_snippets": (
+            100.0 * false_positive_snippets / negative_snippets
+            if negative_snippets
+            else 0.0
+        ),
+        "threshold": threshold,
+        "iou_threshold": iou_threshold,
+        "per_class": per_class,
     }
 
 

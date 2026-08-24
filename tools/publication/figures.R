@@ -26,6 +26,7 @@ suppressPackageStartupMessages({
   library(digest)
   library(ggplot2)
   library(jsonlite)
+  library(png)
 })
 
 expected_models <- c("yolo11n", "yolo26n", "dfine_n")
@@ -46,6 +47,13 @@ source_path <- file.path(
   "RGB",
   "summary",
   "final_benchmark_aggregate.json"
+)
+qualitative_source_path <- file.path(
+  repo_root,
+  "results",
+  "RGB",
+  "summary",
+  "qualitative_examples.json"
 )
 output_dir <- file.path(repo_root, "results", "RGB", "summary", "figures")
 dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
@@ -172,6 +180,14 @@ publication_theme <- function() {
     )
 }
 
+draw_figure <- function(plot) {
+  if (inherits(plot, "grob")) {
+    grid::grid.draw(plot)
+  } else {
+    print(plot)
+  }
+}
+
 write_svg <- function(plot, path, width, height) {
   grDevices::svg(
     filename = path,
@@ -182,7 +198,7 @@ write_svg <- function(plot, path, width, height) {
     family = "Times New Roman",
     bg = "white"
   )
-  print(plot)
+  draw_figure(plot)
   invisible(grDevices::dev.off())
   lines <- sub(
     "[[:blank:]]+$",
@@ -198,7 +214,7 @@ write_svg <- function(plot, path, width, height) {
   )
 }
 
-normalize_pdf_metadata <- function(path, title, figure_id) {
+normalize_pdf_metadata <- function(path, title, figure_id, metadata_source) {
   python <- Sys.getenv("PYTHON", unset = "python")
   normalizer <- file.path(repo_root, "tools", "publication", "pdf_metadata.py")
   arguments <- c(
@@ -206,7 +222,7 @@ normalize_pdf_metadata <- function(path, title, figure_id) {
     shQuote(path),
     shQuote(title),
     shQuote(figure_id),
-    sha256_file(source_path)
+    sha256_file(metadata_source)
   )
   output <- system2(python, arguments, stdout = TRUE, stderr = TRUE)
   status <- attr(output, "status")
@@ -218,7 +234,15 @@ normalize_pdf_metadata <- function(path, title, figure_id) {
   }
 }
 
-write_pdf <- function(plot, path, width, height, title, figure_id) {
+write_pdf <- function(
+  plot,
+  path,
+  width,
+  height,
+  title,
+  figure_id,
+  metadata_source
+) {
   grDevices::cairo_pdf(
     filename = path,
     width = width,
@@ -228,9 +252,9 @@ write_pdf <- function(plot, path, width, height, title, figure_id) {
     bg = "white",
     antialias = "subpixel"
   )
-  print(plot)
+  draw_figure(plot)
   invisible(grDevices::dev.off())
-  normalize_pdf_metadata(path, title, figure_id)
+  normalize_pdf_metadata(path, title, figure_id, metadata_source)
 }
 
 write_png <- function(plot, path, width, height) {
@@ -246,17 +270,33 @@ write_png <- function(plot, path, width, height) {
     type = "cairo-png",
     antialias = "subpixel"
   )
-  print(plot)
+  draw_figure(plot)
   invisible(grDevices::dev.off())
 }
 
-export_figure <- function(plot, stem, width, height, title, figure_id) {
+export_figure <- function(
+  plot,
+  stem,
+  width,
+  height,
+  title,
+  figure_id,
+  metadata_source = source_path
+) {
   outputs <- list(
     pdf = file.path(output_dir, paste0(stem, ".pdf")),
     svg = file.path(output_dir, paste0(stem, ".svg")),
     png = file.path(output_dir, paste0(stem, ".png"))
   )
-  write_pdf(plot, outputs$pdf, width, height, title, figure_id)
+  write_pdf(
+    plot,
+    outputs$pdf,
+    width,
+    height,
+    title,
+    figure_id,
+    metadata_source
+  )
   write_svg(plot, outputs$svg, width, height)
   write_png(plot, outputs$png, width, height)
   outputs
@@ -268,12 +308,14 @@ write_manifest <- function(
   outputs,
   models,
   pending_models,
-  details
+  details,
+  manifest_source = source_path
 ) {
   package_versions <- list(
     ggplot2 = as.character(packageVersion("ggplot2")),
     jsonlite = as.character(packageVersion("jsonlite")),
-    digest = as.character(packageVersion("digest"))
+    digest = as.character(packageVersion("digest")),
+    png = as.character(packageVersion("png"))
   )
   output_records <- lapply(outputs, function(path) {
     list(path = relative_path(path), sha256 = sha256_file(path))
@@ -286,8 +328,8 @@ write_manifest <- function(
       generator_script = "tools/publication/figures.R",
       r_version = paste(R.version$major, R.version$minor, sep = "."),
       packages = package_versions,
-      source = relative_path(source_path),
-      source_sha256 = sha256_file(source_path),
+      source = relative_path(manifest_source),
+      source_sha256 = sha256_file(manifest_source),
       models = as.list(models),
       pending_models = as.list(pending_models),
       dispersion = "sample_standard_deviation",
@@ -433,10 +475,10 @@ build_per_class_ap <- function(data) {
     "phone_use"
   )
   class_labels <- c(
-    hand_over_mouth = "Hand over mouth",
-    yawning = "Yawning",
-    drinking = "Drinking",
-    phone_use = "Phone use"
+    hand_over_mouth = "Hand over mouth (n=28)",
+    yawning = "Yawning (n=33)",
+    drinking = "Drinking (n=56)",
+    phone_use = "Phone use (n=497)"
   )
   plot_data$model_id <- factor(plot_data$model_id, levels = expected_models)
   plot_data$class_name <- factor(plot_data$class_name, levels = class_order)
@@ -481,6 +523,65 @@ build_per_class_ap <- function(data) {
     )
 }
 
+load_qualitative_examples <- function(path) {
+  payload <- jsonlite::fromJSON(path, simplifyVector = FALSE)
+  if (!identical(payload$artifact, "rgb_qualitative_figure_source")) {
+    stop("Unexpected qualitative source type in ", path)
+  }
+  if (length(payload$examples) != 6L) {
+    stop("The qualitative grid requires exactly six examples")
+  }
+  payload$examples
+}
+
+build_qualitative_grid <- function(examples) {
+  plot <- ggplot()
+  for (index in seq_along(examples)) {
+    example <- examples[[index]]
+    image_path <- file.path(repo_root, as.character(example$path))
+    if (!file.exists(image_path)) {
+      stop("Qualitative image is missing: ", image_path)
+    }
+    column <- (index - 1L) %% 3L
+    row <- (index - 1L) %/% 3L
+    image_ymin <- if (row == 0L) 1.08 else 0.02
+    image_ymax <- if (row == 0L) 1.93 else 0.87
+    title_y <- if (row == 0L) 2.01 else 0.95
+    label <- paste(
+      unname(model_labels[as.character(example$model_id)]),
+      as.character(example$case),
+      sep = " - "
+    )
+    plot <- plot +
+      annotation_custom(
+        grid::rasterGrob(png::readPNG(image_path), interpolate = TRUE),
+        xmin = column + 0.02,
+        xmax = column + 0.98,
+        ymin = image_ymin,
+        ymax = image_ymax
+      ) +
+      annotate(
+        "text",
+        x = column + 0.5,
+        y = title_y,
+        label = label,
+        family = "Times New Roman",
+        fontface = "bold",
+        size = 2.45
+      )
+  }
+  plot +
+    coord_fixed(
+      ratio = 1,
+      xlim = c(0, 3),
+      ylim = c(0, 2.06),
+      expand = FALSE,
+      clip = "off"
+    ) +
+    theme_void(base_family = "Times New Roman") +
+    theme(plot.margin = margin(1, 1, 1, 1, unit = "pt"))
+}
+
 data <- load_rgb_aggregate(source_path)
 completed_models <- as.character(data$overall$model_id)
 pending_models <- expected_models[!expected_models %in% completed_models]
@@ -519,6 +620,37 @@ class_manifest <- write_manifest(
   list(metric = "per_class_ap_50_95")
 )
 
+qualitative_examples <- load_qualitative_examples(qualitative_source_path)
+qualitative_plot <- build_qualitative_grid(qualitative_examples)
+qualitative_outputs <- export_figure(
+  qualitative_plot,
+  "qualitative_examples",
+  width = 7.16,
+  height = 4.78,
+  title = "RGB qualitative successes and errors",
+  figure_id = "rgb_qualitative_examples",
+  metadata_source = qualitative_source_path
+)
+qualitative_inputs <- lapply(qualitative_examples, function(example) {
+  image_path <- file.path(repo_root, as.character(example$path))
+  list(
+    model_id = example$model_id,
+    case = example$case,
+    image_id = example$image_id,
+    path = relative_path(image_path),
+    sha256 = sha256_file(image_path)
+  )
+})
+qualitative_manifest <- write_manifest(
+  "qualitative_examples",
+  "rgb_qualitative_examples",
+  qualitative_outputs,
+  completed_models,
+  pending_models,
+  list(inputs = qualitative_inputs, training_seed = 13L),
+  manifest_source = qualitative_source_path
+)
+
 cat(
   "Built ggplot2 publication figures for:",
   paste(completed_models, collapse = ", "),
@@ -535,7 +667,9 @@ output_paths <- c(
   unlist(accuracy_outputs),
   accuracy_manifest,
   unlist(class_outputs),
-  class_manifest
+  class_manifest,
+  unlist(qualitative_outputs),
+  qualitative_manifest
 )
 for (path in output_paths) {
   cat(normalizePath(path, winslash = "/", mustWork = TRUE), "\n")

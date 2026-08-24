@@ -1,0 +1,43 @@
+{
+  "artifact": "rgb_qualitative_figure_source",
+  "schema_version": 1,
+  "selection": "predeclared_seed_13_examples_from_frozen_protected_test_analysis",
+  "examples": [
+    {
+      "model_id": "yolo11n",
+      "case": "Correct localization",
+      "image_id": 12759,
+      "path": "results/RGB/yolo11n/seed_13/images/correct_detection-02-image-12759.png"
+    },
+    {
+      "model_id": "yolo11n",
+      "case": "False positive",
+      "image_id": 13355,
+      "path": "results/RGB/yolo11n/seed_13/images/false_positive_negative_frame-01-image-13355.png"
+    },
+    {
+      "model_id": "yolo11n",
+      "case": "False negative",
+      "image_id": 4597,
+      "path": "results/RGB/yolo11n/seed_13/images/false_negative-01-image-4597.png"
+    },
+    {
+      "model_id": "yolo26n",
+      "case": "Correct localization",
+      "image_id": 4644,
+      "path": "results/RGB/yolo26n/seed_13/images/correct_detection-01-image-4644.png"
+    },
+    {
+      "model_id": "yolo26n",
+      "case": "False positive",
+      "image_id": 13304,
+      "path": "results/RGB/yolo26n/seed_13/images/false_positive_negative_frame-02-image-13304.png"
+    },
+    {
+      "model_id": "yolo26n",
+      "case": "False negative",
+      "image_id": 4597,
+      "path": "results/RGB/yolo26n/seed_13/images/false_negative-01-image-4597.png"
+    }
+  ]
+}

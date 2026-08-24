@@ -7,7 +7,8 @@
   "packages": {
     "ggplot2": "4.0.3",
     "jsonlite": "2.0.0",
-    "digest": "0.6.39"
+    "digest": "0.6.39",
+    "png": "0.1.9"
   },
   "source": "results/RGB/summary/final_benchmark_aggregate.json",
   "source_sha256": "283c73853ba247bf01603bf26d58fe430aa6e4857063f2ce790892694617aa58",

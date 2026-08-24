@@ -187,11 +187,61 @@ def repository_checks(checks: Checks) -> None:
         f"Six RGB YOLO publication artifacts and hashes resolve: {artifact_failures}",
     )
 
+    secondary_failures = []
+    secondary_path = RESULTS_ROOT / "RGB" / "summary" / "secondary_analysis.json"
+    if not secondary_path.is_file():
+        secondary_failures.append("missing secondary_analysis.json")
+    else:
+        secondary = json.loads(secondary_path.read_text(encoding="utf-8"))
+        if any(secondary.get("annotation_audit", {}).get("problems", {}).values()):
+            secondary_failures.append("RGB structural annotation audit contains failures")
+        secondary_runs = {
+            (item["model_id"], int(item["training_seed"])): item
+            for item in secondary.get("runs", [])
+        }
+        for model in ("yolo11n", "yolo26n"):
+            for seed in (13, 37, 73):
+                prediction_path = (
+                    RESULTS_ROOT
+                    / "RGB"
+                    / model
+                    / f"seed_{seed}"
+                    / "test_predictions.json"
+                )
+                if not prediction_path.is_file():
+                    secondary_failures.append(
+                        f"missing {prediction_path.relative_to(REPO_ROOT)}"
+                    )
+                    continue
+                envelope = json.loads(prediction_path.read_text(encoding="utf-8"))
+                provenance_path = Path(
+                    str(envelope.get("provenance", {}).get("source_result", ""))
+                )
+                run = secondary_runs.get((model, seed))
+                digest = hashlib.sha256(prediction_path.read_bytes()).hexdigest()
+                if (
+                    envelope.get("model_id") != model
+                    or int(envelope.get("training_seed", -1)) != seed
+                    or provenance_path.is_absolute()
+                ):
+                    secondary_failures.append(
+                        f"unsafe or mismatched prediction envelope for {model}/seed_{seed}"
+                    )
+                if run is None or run.get("prediction_sha256") != digest:
+                    secondary_failures.append(
+                        f"secondary-analysis hash mismatch for {model}/seed_{seed}"
+                    )
+    checks.check(
+        not secondary_failures,
+        f"RGB public predictions and secondary analysis resolve: {secondary_failures}",
+    )
+
     figure_failures = []
     figure_directory = RESULTS_ROOT / "RGB" / "summary" / "figures"
     figure_manifests = [
         figure_directory / "accuracy_vs_speed.manifest.json",
         figure_directory / "per_class_ap.manifest.json",
+        figure_directory / "qualitative_examples.manifest.json",
     ]
     for figure_manifest_path in figure_manifests:
         if not figure_manifest_path.is_file():
@@ -209,6 +259,12 @@ def repository_checks(checks: Checks) -> None:
             }
         }
         referenced.update(figure_manifest.get("outputs", {}))
+        referenced.update(
+            {
+                f"input-{index}": item
+                for index, item in enumerate(figure_manifest.get("inputs", []), 1)
+            }
+        )
         if set(figure_manifest.get("outputs", {})) != {"pdf", "svg", "png"}:
             figure_failures.append("publication figure must provide PDF, SVG, and PNG")
         for name, artifact in referenced.items():

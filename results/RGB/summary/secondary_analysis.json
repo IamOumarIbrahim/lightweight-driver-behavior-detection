@@ -1,0 +1,1081 @@
+{
+  "annotation_audit": {
+    "annotations": 3001,
+    "box_area_by_class": {
+      "drinking": {
+        "annotations": 264,
+        "below_1_percent": 0,
+        "below_2_percent": 0,
+        "max_percent": 25.70051726074219,
+        "median_percent": 16.08574443359375,
+        "min_percent": 2.6144149414062503,
+        "p95_percent": 22.54565688720703,
+        "touching_image_boundary": 78
+      },
+      "hand_over_mouth": {
+        "annotations": 141,
+        "below_1_percent": 0,
+        "below_2_percent": 0,
+        "max_percent": 36.52837778320312,
+        "median_percent": 24.669495092773435,
+        "min_percent": 14.798686889648437,
+        "p95_percent": 32.83132763671875,
+        "touching_image_boundary": 0
+      },
+      "phone_use": {
+        "annotations": 2437,
+        "below_1_percent": 0,
+        "below_2_percent": 1,
+        "max_percent": 22.95306953125,
+        "median_percent": 8.366218505859376,
+        "min_percent": 1.9220781249999999,
+        "p95_percent": 13.75735111328125,
+        "touching_image_boundary": 389
+      },
+      "yawning": {
+        "annotations": 159,
+        "below_1_percent": 14,
+        "below_2_percent": 139,
+        "max_percent": 2.7183848876953123,
+        "median_percent": 1.3773322265625,
+        "min_percent": 0.813053125,
+        "p95_percent": 2.2641071948242186,
+        "touching_image_boundary": 0
+      }
+    },
+    "images": 15723,
+    "independent_second_person_review": false,
+    "negative_images": 12722,
+    "primary_human_annotators": 1,
+    "problems": {
+      "duplicate_annotation_ids": 0,
+      "duplicate_file_names": 0,
+      "duplicate_image_ids": 0,
+      "images_over_one_annotation": 0,
+      "invalid_categories": 0,
+      "nonfinite_boxes": 0,
+      "nonpositive_boxes": 0,
+      "orphan_annotations": 0,
+      "out_of_bounds_boxes": 0
+    },
+    "scope": "automated_structural_audit_not_semantic_agreement"
+  },
+  "artifact": "rgb_secondary_analysis",
+  "inputs": {
+    "aggregate": "results/RGB/summary/final_benchmark_aggregate.json",
+    "aggregate_sha256": "283c73853ba247bf01603bf26d58fe430aa6e4857063f2ce790892694617aa58",
+    "annotations": "data/annotations/RGB/annotations.json",
+    "annotations_sha256": "06ec53547cf9f80f73e01a670d71537fb11ab263d84651e881c1a729ef4c2584",
+    "splits": "data/annotations/RGB/splits.json",
+    "splits_sha256": "1ca5c6289cdad20f70f5fe6f476a98e2226a97592e13897233fbba85e30800a4"
+  },
+  "interpretation": {
+    "no_generalization_interval": true,
+    "paired_difference": "yolo11n minus yolo26n within the same training seed",
+    "seed_dispersion": "optimization variability on one fixed subject split",
+    "subject_analysis": "descriptive sensitivity across the three fixed test subjects"
+  },
+  "model_summary": {
+    "yolo11n": {
+      "far_per_100_negative_frames": {
+        "mean": 0.6284468385276388,
+        "sample_sd": 0.044428647109628766
+      },
+      "macro_f1": {
+        "mean": 0.8342294249049407,
+        "sample_sd": 0.01360357708058593
+      },
+      "map_50": {
+        "mean": 0.9179114075508387,
+        "sample_sd": 0.004428269771587807
+      },
+      "map_50_95": {
+        "mean": 0.5538158638463506,
+        "sample_sd": 0.004070963009807415
+      },
+      "micro_f1": {
+        "mean": 0.8659952677289962,
+        "sample_sd": 0.0048990799322164704
+      },
+      "precision": {
+        "mean": 0.9343010726900158,
+        "sample_sd": 0.011561543603663016
+      },
+      "recall": {
+        "mean": 0.8072747014115093,
+        "sample_sd": 0.01695167752008252
+      }
+    },
+    "yolo26n": {
+      "far_per_100_negative_frames": {
+        "mean": 0.6669231755803514,
+        "sample_sd": 0.05877357566956317
+      },
+      "macro_f1": {
+        "mean": 0.7938628296597013,
+        "sample_sd": 0.01490098635214766
+      },
+      "map_50": {
+        "mean": 0.8928159465386686,
+        "sample_sd": 0.009864200415949164
+      },
+      "map_50_95": {
+        "mean": 0.5697982692295772,
+        "sample_sd": 0.008148157909317002
+      },
+      "micro_f1": {
+        "mean": 0.8443900450853631,
+        "sample_sd": 0.011413333748549059
+      },
+      "precision": {
+        "mean": 0.9255620719784056,
+        "sample_sd": 0.011226396380679564
+      },
+      "recall": {
+        "mean": 0.7763300760043431,
+        "sample_sd": 0.012439130550911623
+      }
+    }
+  },
+  "paired_seed_differences": [
+    {
+      "difference_yolo11n_minus_yolo26n": -0.02433647976651987,
+      "direction_across_three_seeds": "yolo26n_higher",
+      "metric": "map_50_95",
+      "training_seed": 13,
+      "yolo11n": 0.5546837240801866,
+      "yolo26n": 0.5790202038467065
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -0.009419756129267043,
+      "direction_across_three_seeds": "yolo26n_higher",
+      "metric": "map_50_95",
+      "training_seed": 37,
+      "yolo11n": 0.5573829153325038,
+      "yolo26n": 0.5668026714617709
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -0.014190980253892982,
+      "direction_across_three_seeds": "yolo26n_higher",
+      "metric": "map_50_95",
+      "training_seed": 73,
+      "yolo11n": 0.5493809521263613,
+      "yolo26n": 0.5635719323802543
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.013253667497036603,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "map_50",
+      "training_seed": 13,
+      "yolo11n": 0.9155973128378432,
+      "yolo26n": 0.9023436453408066
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.02955967086117306,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "map_50",
+      "training_seed": 37,
+      "yolo11n": 0.9230172898512691,
+      "yolo26n": 0.893457618990096
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.0324730446783007,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "map_50",
+      "training_seed": 73,
+      "yolo11n": 0.915119619963404,
+      "yolo26n": 0.8826465752851033
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.02263035741915509,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "micro_f1",
+      "training_seed": 13,
+      "yolo11n": 0.8678260869565217,
+      "yolo26n": 0.8451957295373667
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.037120054779822165,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "micro_f1",
+      "training_seed": 37,
+      "yolo11n": 0.8697152717860225,
+      "yolo26n": 0.8325952170062003
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.00506525573192218,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "micro_f1",
+      "training_seed": 73,
+      "yolo11n": 0.8604444444444443,
+      "yolo26n": 0.8553791887125222
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.020373328207918817,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "macro_f1",
+      "training_seed": 13,
+      "yolo11n": 0.8312222288358675,
+      "yolo26n": 0.8108489006279487
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.061339387901091724,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "macro_f1",
+      "training_seed": 37,
+      "yolo11n": 0.8490849849016405,
+      "yolo26n": 0.7877455970005488
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.03938706962670724,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "macro_f1",
+      "training_seed": 73,
+      "yolo11n": 0.8223810609773139,
+      "yolo26n": 0.7829939913506067
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -0.07695267410542517,
+      "direction_across_three_seeds": "mixed",
+      "metric": "far_per_100_negative_frames",
+      "training_seed": 13,
+      "yolo11n": 0.6540977298961139,
+      "yolo26n": 0.7310504040015391
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.0,
+      "direction_across_three_seeds": "mixed",
+      "metric": "far_per_100_negative_frames",
+      "training_seed": 37,
+      "yolo11n": 0.6540977298961139,
+      "yolo26n": 0.6540977298961139
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -0.038476337052712584,
+      "direction_across_three_seeds": "mixed",
+      "metric": "far_per_100_negative_frames",
+      "training_seed": 73,
+      "yolo11n": 0.5771450557906888,
+      "yolo26n": 0.6156213928434013
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -5.1716999732889235,
+      "direction_across_three_seeds": "yolo26n_higher",
+      "metric": "tensor_to_detections_p50_ms",
+      "training_seed": 13,
+      "yolo11n": 14.145900029689074,
+      "yolo26n": 19.317600002977997
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -4.669300047680736,
+      "direction_across_three_seeds": "yolo26n_higher",
+      "metric": "tensor_to_detections_p50_ms",
+      "training_seed": 37,
+      "yolo11n": 14.521599980071187,
+      "yolo26n": 19.190900027751923
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -4.8967000329867005,
+      "direction_across_three_seeds": "yolo26n_higher",
+      "metric": "tensor_to_detections_p50_ms",
+      "training_seed": 73,
+      "yolo11n": 14.238699979614466,
+      "yolo26n": 19.135400012601167
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 16.767016482502427,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "sustained_fps",
+      "training_seed": 13,
+      "yolo11n": 68.2496285437829,
+      "yolo26n": 51.48261206128048
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 14.798202881372887,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "sustained_fps",
+      "training_seed": 37,
+      "yolo11n": 66.5757128728701,
+      "yolo26n": 51.77750999149721
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 17.16738845252266,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "sustained_fps",
+      "training_seed": 73,
+      "yolo11n": 69.09445187766701,
+      "yolo26n": 51.927063425144354
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.014995737982603119,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "ap_50_95_yawning",
+      "training_seed": 13,
+      "yolo11n": 0.6144879513382565,
+      "yolo26n": 0.5994922133556534
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.04193164337977784,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "ap_50_95_yawning",
+      "training_seed": 37,
+      "yolo11n": 0.59465136345894,
+      "yolo26n": 0.5527197200791621
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.058845603947360825,
+      "direction_across_three_seeds": "yolo11n_higher",
+      "metric": "ap_50_95_yawning",
+      "training_seed": 73,
+      "yolo11n": 0.5903935218291655,
+      "yolo26n": 0.5315479178818047
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -0.04075961690395058,
+      "direction_across_three_seeds": "yolo26n_higher",
+      "metric": "ap_50_95_hand_over_mouth",
+      "training_seed": 13,
+      "yolo11n": 0.525288951523124,
+      "yolo26n": 0.5660485684270746
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -0.028808980831618647,
+      "direction_across_three_seeds": "yolo26n_higher",
+      "metric": "ap_50_95_hand_over_mouth",
+      "training_seed": 37,
+      "yolo11n": 0.5110001856014554,
+      "yolo26n": 0.5398091664330741
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -0.11667139828351875,
+      "direction_across_three_seeds": "yolo26n_higher",
+      "metric": "ap_50_95_hand_over_mouth",
+      "training_seed": 73,
+      "yolo11n": 0.467707080049008,
+      "yolo26n": 0.5843784783325268
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -0.03466085309871392,
+      "direction_across_three_seeds": "mixed",
+      "metric": "ap_50_95_drinking",
+      "training_seed": 13,
+      "yolo11n": 0.5766056058218927,
+      "yolo26n": 0.6112664589206066
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -0.013098711224812765,
+      "direction_across_three_seeds": "mixed",
+      "metric": "ap_50_95_drinking",
+      "training_seed": 37,
+      "yolo11n": 0.6203273044283352,
+      "yolo26n": 0.6334260156531479
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": 0.017131118589763794,
+      "direction_across_three_seeds": "mixed",
+      "metric": "ap_50_95_drinking",
+      "training_seed": 73,
+      "yolo11n": 0.6246335096883863,
+      "yolo26n": 0.6075023910986225
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -0.03692118704601821,
+      "direction_across_three_seeds": "yolo26n_higher",
+      "metric": "ap_50_95_phone_use",
+      "training_seed": 13,
+      "yolo11n": 0.5023523876374731,
+      "yolo26n": 0.5392735746834914
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -0.03770297584041504,
+      "direction_across_three_seeds": "yolo26n_higher",
+      "metric": "ap_50_95_phone_use",
+      "training_seed": 37,
+      "yolo11n": 0.5035528078412843,
+      "yolo26n": 0.5412557836816994
+    },
+    {
+      "difference_yolo11n_minus_yolo26n": -0.016069245269177967,
+      "direction_across_three_seeds": "yolo26n_higher",
+      "metric": "ap_50_95_phone_use",
+      "training_seed": 73,
+      "yolo11n": 0.5147896969388855,
+      "yolo26n": 0.5308589422080635
+    }
+  ],
+  "runs": [
+    {
+      "coco_metrics": {
+        "implementation": "pycocotools",
+        "map_50": 0.9155973128378432,
+        "map_50_95": 0.5546837240801866,
+        "per_class_ap_50_95": {
+          "drinking": 0.5766056058218927,
+          "hand_over_mouth": 0.525288951523124,
+          "phone_use": 0.5023523876374731,
+          "yawning": 0.6144879513382565
+        }
+      },
+      "macro_f1": 0.8312222288358675,
+      "model_id": "yolo11n",
+      "operating_point": {
+        "far_per_100_negative_frames": 0.6540977298961139,
+        "fn": 115,
+        "fp": 37,
+        "fp_detections_on_negative_frames": 17,
+        "iou_threshold": 0.5,
+        "micro_f1": 0.8678260869565217,
+        "negative_frames": 2599,
+        "precision": 0.9309701492537313,
+        "recall": 0.8127035830618893,
+        "threshold": 0.33,
+        "tp": 499
+      },
+      "per_class": [
+        {
+          "class_name": "yawning",
+          "fn": 7,
+          "fp": 3,
+          "micro_f1": 0.8387096774193549,
+          "precision": 0.896551724137931,
+          "recall": 0.7878787878787878,
+          "support": 33,
+          "tp": 26
+        },
+        {
+          "class_name": "hand_over_mouth",
+          "fn": 1,
+          "fp": 24,
+          "micro_f1": 0.6835443037974683,
+          "precision": 0.5294117647058824,
+          "recall": 0.9642857142857143,
+          "support": 28,
+          "tp": 27
+        },
+        {
+          "class_name": "drinking",
+          "fn": 8,
+          "fp": 0,
+          "micro_f1": 0.923076923076923,
+          "precision": 1.0,
+          "recall": 0.8571428571428571,
+          "support": 56,
+          "tp": 48
+        },
+        {
+          "class_name": "phone_use",
+          "fn": 99,
+          "fp": 10,
+          "micro_f1": 0.8795580110497238,
+          "precision": 0.9754901960784313,
+          "recall": 0.8008048289738431,
+          "support": 497,
+          "tp": 398
+        }
+      ],
+      "per_subject": [
+        {
+          "far_per_100_negative_frames": 0.0,
+          "fn": 13,
+          "fp": 3,
+          "images": 1080,
+          "micro_f1": 0.953757225433526,
+          "precision": 0.9821428571428571,
+          "recall": 0.9269662921348315,
+          "subject": "subject_05",
+          "support": 178,
+          "tp": 165
+        },
+        {
+          "far_per_100_negative_frames": 0.0,
+          "fn": 91,
+          "fp": 17,
+          "images": 920,
+          "micro_f1": 0.6301369863013699,
+          "precision": 0.8440366972477065,
+          "recall": 0.5027322404371585,
+          "subject": "subject_10",
+          "support": 183,
+          "tp": 92
+        },
+        {
+          "far_per_100_negative_frames": 1.7708333333333333,
+          "fn": 11,
+          "fp": 17,
+          "images": 1213,
+          "micro_f1": 0.9453125,
+          "precision": 0.9343629343629344,
+          "recall": 0.9565217391304348,
+          "subject": "subject_12",
+          "support": 253,
+          "tp": 242
+        }
+      ],
+      "prediction_artifact": "results/RGB/yolo11n/seed_13/test_predictions.json",
+      "prediction_sha256": "c151102e03c337d7e13e38138ea27e16e144bf903b59d7850edc70b85721f16c",
+      "threshold": 0.33,
+      "training_seed": 13
+    },
+    {
+      "coco_metrics": {
+        "implementation": "pycocotools",
+        "map_50": 0.9230172898512691,
+        "map_50_95": 0.5573829153325038,
+        "per_class_ap_50_95": {
+          "drinking": 0.6203273044283352,
+          "hand_over_mouth": 0.5110001856014554,
+          "phone_use": 0.5035528078412843,
+          "yawning": 0.59465136345894
+        }
+      },
+      "macro_f1": 0.8490849849016405,
+      "model_id": "yolo11n",
+      "operating_point": {
+        "far_per_100_negative_frames": 0.6540977298961139,
+        "fn": 110,
+        "fp": 41,
+        "fp_detections_on_negative_frames": 17,
+        "iou_threshold": 0.5,
+        "micro_f1": 0.8697152717860225,
+        "negative_frames": 2599,
+        "precision": 0.9247706422018349,
+        "recall": 0.8208469055374593,
+        "threshold": 0.32,
+        "tp": 504
+      },
+      "per_class": [
+        {
+          "class_name": "yawning",
+          "fn": 2,
+          "fp": 4,
+          "micro_f1": 0.9117647058823529,
+          "precision": 0.8857142857142857,
+          "recall": 0.9393939393939394,
+          "support": 33,
+          "tp": 31
+        },
+        {
+          "class_name": "hand_over_mouth",
+          "fn": 1,
+          "fp": 23,
+          "micro_f1": 0.6923076923076923,
+          "precision": 0.54,
+          "recall": 0.9642857142857143,
+          "support": 28,
+          "tp": 27
+        },
+        {
+          "class_name": "drinking",
+          "fn": 7,
+          "fp": 2,
+          "micro_f1": 0.9158878504672897,
+          "precision": 0.9607843137254902,
+          "recall": 0.875,
+          "support": 56,
+          "tp": 49
+        },
+        {
+          "class_name": "phone_use",
+          "fn": 100,
+          "fp": 12,
+          "micro_f1": 0.8763796909492273,
+          "precision": 0.9706601466992665,
+          "recall": 0.7987927565392354,
+          "support": 497,
+          "tp": 397
+        }
+      ],
+      "per_subject": [
+        {
+          "far_per_100_negative_frames": 0.0,
+          "fn": 18,
+          "fp": 3,
+          "images": 1080,
+          "micro_f1": 0.93841642228739,
+          "precision": 0.9815950920245399,
+          "recall": 0.898876404494382,
+          "subject": "subject_05",
+          "support": 178,
+          "tp": 160
+        },
+        {
+          "far_per_100_negative_frames": 0.0,
+          "fn": 87,
+          "fp": 21,
+          "images": 920,
+          "micro_f1": 0.64,
+          "precision": 0.8205128205128205,
+          "recall": 0.5245901639344263,
+          "subject": "subject_10",
+          "support": 183,
+          "tp": 96
+        },
+        {
+          "far_per_100_negative_frames": 1.7708333333333333,
+          "fn": 5,
+          "fp": 17,
+          "images": 1213,
+          "micro_f1": 0.9575289575289576,
+          "precision": 0.9358490566037736,
+          "recall": 0.9802371541501976,
+          "subject": "subject_12",
+          "support": 253,
+          "tp": 248
+        }
+      ],
+      "prediction_artifact": "results/RGB/yolo11n/seed_37/test_predictions.json",
+      "prediction_sha256": "08b8859e70e0b620e3c24c87a3730d3e917da6ead6a3c81e84906edf551f39f1",
+      "threshold": 0.32,
+      "training_seed": 37
+    },
+    {
+      "coco_metrics": {
+        "implementation": "pycocotools",
+        "map_50": 0.915119619963404,
+        "map_50_95": 0.5493809521263613,
+        "per_class_ap_50_95": {
+          "drinking": 0.6246335096883863,
+          "hand_over_mouth": 0.467707080049008,
+          "phone_use": 0.5147896969388855,
+          "yawning": 0.5903935218291655
+        }
+      },
+      "macro_f1": 0.8223810609773139,
+      "model_id": "yolo11n",
+      "operating_point": {
+        "far_per_100_negative_frames": 0.5771450557906888,
+        "fn": 130,
+        "fp": 27,
+        "fp_detections_on_negative_frames": 15,
+        "iou_threshold": 0.5,
+        "micro_f1": 0.8604444444444443,
+        "negative_frames": 2599,
+        "precision": 0.9471624266144814,
+        "recall": 0.7882736156351792,
+        "threshold": 0.59,
+        "tp": 484
+      },
+      "per_class": [
+        {
+          "class_name": "yawning",
+          "fn": 10,
+          "fp": 2,
+          "micro_f1": 0.793103448275862,
+          "precision": 0.92,
+          "recall": 0.696969696969697,
+          "support": 33,
+          "tp": 23
+        },
+        {
+          "class_name": "hand_over_mouth",
+          "fn": 2,
+          "fp": 20,
+          "micro_f1": 0.7027027027027025,
+          "precision": 0.5652173913043478,
+          "recall": 0.9285714285714286,
+          "support": 28,
+          "tp": 26
+        },
+        {
+          "class_name": "drinking",
+          "fn": 8,
+          "fp": 0,
+          "micro_f1": 0.923076923076923,
+          "precision": 1.0,
+          "recall": 0.8571428571428571,
+          "support": 56,
+          "tp": 48
+        },
+        {
+          "class_name": "phone_use",
+          "fn": 110,
+          "fp": 5,
+          "micro_f1": 0.8706411698537683,
+          "precision": 0.9872448979591837,
+          "recall": 0.778672032193159,
+          "support": 497,
+          "tp": 387
+        }
+      ],
+      "per_subject": [
+        {
+          "far_per_100_negative_frames": 0.0,
+          "fn": 15,
+          "fp": 0,
+          "images": 1080,
+          "micro_f1": 0.9560117302052786,
+          "precision": 1.0,
+          "recall": 0.9157303370786517,
+          "subject": "subject_05",
+          "support": 178,
+          "tp": 163
+        },
+        {
+          "far_per_100_negative_frames": 0.0,
+          "fn": 99,
+          "fp": 12,
+          "images": 920,
+          "micro_f1": 0.6021505376344086,
+          "precision": 0.875,
+          "recall": 0.45901639344262296,
+          "subject": "subject_10",
+          "support": 183,
+          "tp": 84
+        },
+        {
+          "far_per_100_negative_frames": 1.5625,
+          "fn": 16,
+          "fp": 15,
+          "images": 1213,
+          "micro_f1": 0.9386138613861386,
+          "precision": 0.9404761904761905,
+          "recall": 0.9367588932806324,
+          "subject": "subject_12",
+          "support": 253,
+          "tp": 237
+        }
+      ],
+      "prediction_artifact": "results/RGB/yolo11n/seed_73/test_predictions.json",
+      "prediction_sha256": "ef6754e3d2556359f25773d4284b205cbbc051e72ae676d1c71ed2610a0d950c",
+      "threshold": 0.59,
+      "training_seed": 73
+    },
+    {
+      "coco_metrics": {
+        "implementation": "pycocotools",
+        "map_50": 0.9023436453408066,
+        "map_50_95": 0.5790202038467065,
+        "per_class_ap_50_95": {
+          "drinking": 0.6112664589206066,
+          "hand_over_mouth": 0.5660485684270746,
+          "phone_use": 0.5392735746834914,
+          "yawning": 0.5994922133556534
+        }
+      },
+      "macro_f1": 0.8108489006279487,
+      "model_id": "yolo26n",
+      "operating_point": {
+        "far_per_100_negative_frames": 0.7310504040015391,
+        "fn": 139,
+        "fp": 35,
+        "fp_detections_on_negative_frames": 19,
+        "iou_threshold": 0.5,
+        "micro_f1": 0.8451957295373667,
+        "negative_frames": 2599,
+        "precision": 0.9313725490196079,
+        "recall": 0.7736156351791531,
+        "threshold": 0.71,
+        "tp": 475
+      },
+      "per_class": [
+        {
+          "class_name": "yawning",
+          "fn": 10,
+          "fp": 5,
+          "micro_f1": 0.7540983606557378,
+          "precision": 0.8214285714285714,
+          "recall": 0.696969696969697,
+          "support": 33,
+          "tp": 23
+        },
+        {
+          "class_name": "hand_over_mouth",
+          "fn": 1,
+          "fp": 19,
+          "micro_f1": 0.7297297297297297,
+          "precision": 0.5869565217391305,
+          "recall": 0.9642857142857143,
+          "support": 28,
+          "tp": 27
+        },
+        {
+          "class_name": "drinking",
+          "fn": 8,
+          "fp": 2,
+          "micro_f1": 0.9056603773584904,
+          "precision": 0.96,
+          "recall": 0.8571428571428571,
+          "support": 56,
+          "tp": 48
+        },
+        {
+          "class_name": "phone_use",
+          "fn": 120,
+          "fp": 9,
+          "micro_f1": 0.8539071347678369,
+          "precision": 0.9766839378238342,
+          "recall": 0.7585513078470825,
+          "support": 497,
+          "tp": 377
+        }
+      ],
+      "per_subject": [
+        {
+          "far_per_100_negative_frames": 0.0,
+          "fn": 10,
+          "fp": 3,
+          "images": 1080,
+          "micro_f1": 0.9627507163323781,
+          "precision": 0.9824561403508771,
+          "recall": 0.9438202247191011,
+          "subject": "subject_05",
+          "support": 178,
+          "tp": 168
+        },
+        {
+          "far_per_100_negative_frames": 0.0,
+          "fn": 115,
+          "fp": 10,
+          "images": 920,
+          "micro_f1": 0.521072796934866,
+          "precision": 0.8717948717948718,
+          "recall": 0.37158469945355194,
+          "subject": "subject_10",
+          "support": 183,
+          "tp": 68
+        },
+        {
+          "far_per_100_negative_frames": 1.9791666666666667,
+          "fn": 14,
+          "fp": 22,
+          "images": 1213,
+          "micro_f1": 0.9299610894941633,
+          "precision": 0.9157088122605364,
+          "recall": 0.9446640316205533,
+          "subject": "subject_12",
+          "support": 253,
+          "tp": 239
+        }
+      ],
+      "prediction_artifact": "results/RGB/yolo26n/seed_13/test_predictions.json",
+      "prediction_sha256": "3e8c525de2fde7f20836caffdafb49ddeabbff44366634e9144ab25612b9a7aa",
+      "threshold": 0.71,
+      "training_seed": 13
+    },
+    {
+      "coco_metrics": {
+        "implementation": "pycocotools",
+        "map_50": 0.893457618990096,
+        "map_50_95": 0.5668026714617709,
+        "per_class_ap_50_95": {
+          "drinking": 0.6334260156531479,
+          "hand_over_mouth": 0.5398091664330741,
+          "phone_use": 0.5412557836816994,
+          "yawning": 0.5527197200791621
+        }
+      },
+      "macro_f1": 0.7877455970005488,
+      "model_id": "yolo26n",
+      "operating_point": {
+        "far_per_100_negative_frames": 0.6540977298961139,
+        "fn": 144,
+        "fp": 45,
+        "fp_detections_on_negative_frames": 17,
+        "iou_threshold": 0.5,
+        "micro_f1": 0.8325952170062003,
+        "negative_frames": 2599,
+        "precision": 0.912621359223301,
+        "recall": 0.7654723127035831,
+        "threshold": 0.72,
+        "tp": 470
+      },
+      "per_class": [
+        {
+          "class_name": "yawning",
+          "fn": 11,
+          "fp": 8,
+          "micro_f1": 0.6984126984126984,
+          "precision": 0.7333333333333333,
+          "recall": 0.6666666666666666,
+          "support": 33,
+          "tp": 22
+        },
+        {
+          "class_name": "hand_over_mouth",
+          "fn": 1,
+          "fp": 21,
+          "micro_f1": 0.7105263157894737,
+          "precision": 0.5625,
+          "recall": 0.9642857142857143,
+          "support": 28,
+          "tp": 27
+        },
+        {
+          "class_name": "drinking",
+          "fn": 8,
+          "fp": 3,
+          "micro_f1": 0.897196261682243,
+          "precision": 0.9411764705882353,
+          "recall": 0.8571428571428571,
+          "support": 56,
+          "tp": 48
+        },
+        {
+          "class_name": "phone_use",
+          "fn": 124,
+          "fp": 13,
+          "micro_f1": 0.8448471121177803,
+          "precision": 0.966321243523316,
+          "recall": 0.7505030181086519,
+          "support": 497,
+          "tp": 373
+        }
+      ],
+      "per_subject": [
+        {
+          "far_per_100_negative_frames": 0.0,
+          "fn": 9,
+          "fp": 8,
+          "images": 1080,
+          "micro_f1": 0.9521126760563381,
+          "precision": 0.9548022598870056,
+          "recall": 0.949438202247191,
+          "subject": "subject_05",
+          "support": 178,
+          "tp": 169
+        },
+        {
+          "far_per_100_negative_frames": 0.0,
+          "fn": 116,
+          "fp": 13,
+          "images": 920,
+          "micro_f1": 0.5095057034220531,
+          "precision": 0.8375,
+          "recall": 0.366120218579235,
+          "subject": "subject_10",
+          "support": 183,
+          "tp": 67
+        },
+        {
+          "far_per_100_negative_frames": 1.7708333333333333,
+          "fn": 19,
+          "fp": 24,
+          "images": 1213,
+          "micro_f1": 0.9158512720156555,
+          "precision": 0.9069767441860465,
+          "recall": 0.924901185770751,
+          "subject": "subject_12",
+          "support": 253,
+          "tp": 234
+        }
+      ],
+      "prediction_artifact": "results/RGB/yolo26n/seed_37/test_predictions.json",
+      "prediction_sha256": "c0995a08204d6030a934c80fe2e6b3f2cbfe6f37107541836c0b10bfe522b14b",
+      "threshold": 0.72,
+      "training_seed": 37
+    },
+    {
+      "coco_metrics": {
+        "implementation": "pycocotools",
+        "map_50": 0.8826465752851033,
+        "map_50_95": 0.5635719323802543,
+        "per_class_ap_50_95": {
+          "drinking": 0.6075023910986225,
+          "hand_over_mouth": 0.5843784783325268,
+          "phone_use": 0.5308589422080635,
+          "yawning": 0.5315479178818047
+        }
+      },
+      "macro_f1": 0.7829939913506067,
+      "model_id": "yolo26n",
+      "operating_point": {
+        "far_per_100_negative_frames": 0.6156213928434013,
+        "fn": 129,
+        "fp": 35,
+        "fp_detections_on_negative_frames": 16,
+        "iou_threshold": 0.5,
+        "micro_f1": 0.8553791887125222,
+        "negative_frames": 2599,
+        "precision": 0.9326923076923077,
+        "recall": 0.7899022801302932,
+        "threshold": 0.65,
+        "tp": 485
+      },
+      "per_class": [
+        {
+          "class_name": "yawning",
+          "fn": 14,
+          "fp": 6,
+          "micro_f1": 0.6551724137931034,
+          "precision": 0.76,
+          "recall": 0.5757575757575758,
+          "support": 33,
+          "tp": 19
+        },
+        {
+          "class_name": "hand_over_mouth",
+          "fn": 1,
+          "fp": 20,
+          "micro_f1": 0.7200000000000001,
+          "precision": 0.574468085106383,
+          "recall": 0.9642857142857143,
+          "support": 28,
+          "tp": 27
+        },
+        {
+          "class_name": "drinking",
+          "fn": 12,
+          "fp": 0,
+          "micro_f1": 0.88,
+          "precision": 1.0,
+          "recall": 0.7857142857142857,
+          "support": 56,
+          "tp": 44
+        },
+        {
+          "class_name": "phone_use",
+          "fn": 102,
+          "fp": 9,
+          "micro_f1": 0.876803551609323,
+          "precision": 0.9777227722772277,
+          "recall": 0.7947686116700201,
+          "support": 497,
+          "tp": 395
+        }
+      ],
+      "per_subject": [
+        {
+          "far_per_100_negative_frames": 0.0,
+          "fn": 9,
+          "fp": 2,
+          "images": 1080,
+          "micro_f1": 0.9684813753581663,
+          "precision": 0.9883040935672515,
+          "recall": 0.949438202247191,
+          "subject": "subject_05",
+          "support": 178,
+          "tp": 169
+        },
+        {
+          "far_per_100_negative_frames": 0.0,
+          "fn": 100,
+          "fp": 14,
+          "images": 920,
+          "micro_f1": 0.5928571428571429,
+          "precision": 0.8556701030927835,
+          "recall": 0.453551912568306,
+          "subject": "subject_10",
+          "support": 183,
+          "tp": 83
+        },
+        {
+          "far_per_100_negative_frames": 1.6666666666666667,
+          "fn": 20,
+          "fp": 19,
+          "images": 1213,
+          "micro_f1": 0.9227722772277228,
+          "precision": 0.9246031746031746,
+          "recall": 0.9209486166007905,
+          "subject": "subject_12",
+          "support": 253,
+          "tp": 233
+        }
+      ],
+      "prediction_artifact": "results/RGB/yolo26n/seed_73/test_predictions.json",
+      "prediction_sha256": "767561f924d8569efc5e9151bd44d02c8ec8007f3ac5889bbfd24c08b89fa32f",
+      "threshold": 0.65,
+      "training_seed": 73
+    }
+  ],
+  "schema_version": 1
+}

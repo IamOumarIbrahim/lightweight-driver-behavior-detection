@@ -7,7 +7,8 @@
   "packages": {
     "ggplot2": "4.0.3",
     "jsonlite": "2.0.0",
-    "digest": "0.6.39"
+    "digest": "0.6.39",
+    "png": "0.1.9"
   },
   "source": "results/RGB/summary/final_benchmark_aggregate.json",
   "source_sha256": "283c73853ba247bf01603bf26d58fe430aa6e4857063f2ce790892694617aa58",
@@ -22,15 +23,15 @@
   "outputs": {
     "pdf": {
       "path": "results/RGB/summary/figures/per_class_ap.pdf",
-      "sha256": "0d81c38c472024dab00c8e300b270dcdbf02de7e213c48b5dd923ad1a2c17fa9"
+      "sha256": "029cea4f9b750031f464ae85ed727cd08fd04edaa32884c41c42cf15af5b6604"
     },
     "svg": {
       "path": "results/RGB/summary/figures/per_class_ap.svg",
-      "sha256": "deccd6e0e85c6f627230e3038397ac21ed09a298efcea796eab12a57be5827a5"
+      "sha256": "2c5da764cc22c550101f5897a083c7731dabb9c4f2a830fe016738158f668c7d"
     },
     "png": {
       "path": "results/RGB/summary/figures/per_class_ap.png",
-      "sha256": "aa51054ab4b710ec06117fbc99aa104df1ab21f75c53ecccf3000dfde9b128d7"
+      "sha256": "d12989501902c125606a1d432ce731c3dd0c4afce27e7603d517c170814426ee"
     }
   },
   "metric": "per_class_ap_50_95"

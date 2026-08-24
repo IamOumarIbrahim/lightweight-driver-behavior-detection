@@ -5,11 +5,11 @@
 ## Unified Evaluation Protocol
 
 > [!CAUTION]
-> RGB and NIR are separate subject-disjoint tracks. Models share the training budget and evaluation implementation, while ontology, sampling, run identity, and source data remain track-specific.
+> RGB is the primary subject-disjoint benchmark. NIR is a separate exploratory experiment; ontology, sampling, run identity, and source data remain track-specific, so the two sections do not estimate a controlled spectral effect.
 
 | Parameter / Shared Element | Frozen Specification | Notes |
 | :---: | :---: | :---: |
-| **Models** | YOLO11n, YOLO26n, D-FINE-N | Nano-scale pretrained variants |
+| **Models** | YOLO11n, YOLO26n, D-FINE-N | Complete released nano systems with native recipes |
 | **Input Resolution** | 640 × 640 px | All models and tracks |
 | **Physical Batch Size** | 8 | Per iteration |
 | **Gradient Accumulation** | 4 steps | Effective batch size 32 |
@@ -27,7 +27,7 @@ Training and validation are separate operations. Model-native validation selects
 | Category | Reported Metric |
 | :---: | :---: |
 | **Detection** | mAP@0.5:0.95, mAP@0.5, per-class AP |
-| **Operating Point** | Precision, recall, micro-F1, FAR per 100 negative frames |
+| **Operating Point** | Precision, recall, micro/macro-F1, false detections per 100 negative frames |
 | **Runtime** | Model-forward and tensor-to-detections p50/p95/p99, sustained FPS |
 | **Resources** | Parameters, FLOP estimates, peak allocated VRAM, local checkpoint size |
 
@@ -43,7 +43,16 @@ Training and validation are separate operations. Model-native validation selects
 
 ### Dataset and Subject-Disjoint Partitioning
 
-The RGB track contains 15,723 cropped `640×640` frames sampled at 1 FPS from 81 driver-facing [DMD](https://dmd.vicomtech.org/) recordings across 14 subjects. Its mutually exclusive ontology is `yawning`, `hand_over_mouth`, `drinking`, and `phone_use`. The 3,001 positive frames and 12,722 naturalistic negatives produce a negative-heavy continuous benchmark.
+The RGB track contains 15,723 cropped `640×640` frames sampled at 1 FPS from 81 driver-facing [DMD](https://dmd.vicomtech.org/) recordings across 14 subjects. It localizes four discrete, momentary visual cues: `yawning`, `hand_over_mouth`, `drinking`, and `phone_use`. This single-frame task does not infer temporal fatigue, intent, or driver state. The 3,001 positive frames and 12,722 naturalistic negatives produce a negative-heavy continuous benchmark.
+
+One primary annotator labeled the dataset in one pass; no independent second-person review was established. The frozen spatial definitions are:
+
+- `yawning`: tightly enclose the visible mouth.
+- `hand_over_mouth`: enclose the full visible face and hand covering the mouth.
+- `phone_use`: enclose the visible hand–phone interaction.
+- `drinking`: enclose the visible hand/container–mouth interaction.
+
+Every sampled frame is retained and contains zero or one box. Cues are mutually exclusive; `hand_over_mouth` takes precedence when a covering hand occludes a yawn. Boxes include only visible evidence and never extrapolate hidden or out-of-frame anatomy. Partial or boundary-truncated cues remain valid when visually identifiable, and no arbitrary minimum pixel cutoff is used. An automated structural audit found zero duplicate IDs/file names, orphan annotations, invalid categories, nonfinite/nonpositive/out-of-bounds boxes, or multi-annotation frames. This audit does not establish semantic agreement.
 
 <p align="center">
   <img src="./assets/charts/benchmark_distributions_combined.png" alt="RGB benchmark distributions" width="680"><br>
@@ -66,6 +75,10 @@ Each architecture uses the predeclared seeds 13, 37, and 73. Only training order
 s=\sqrt{\frac{1}{2}\sum_{i=1}^{3}(x_i-\bar{x})^2}.
 ```
 
+The sample SD measures optimization variability on this one fixed subject split; it is not an uncertainty interval for generalization across held-out drivers. Class and subject operating metrics and paired model differences are therefore also reported from frozen prediction files.
+
+YOLO26 uses its pinned end-to-end one-to-one prediction path without external NMS; YOLO11n uses its conventional NMS path. Postprocessing and native optimization are part of the released system comparison rather than controlled architecture-only variables.
+
 ## Near-Infrared (NIR) Evaluation Protocol
 
 <p align="center">
@@ -76,7 +89,7 @@ s=\sqrt{\frac{1}{2}\sum_{i=1}^{3}(x_i-\bar{x})^2}.
 
 ### Dataset and Temporal Sampling
 
-The sanitized annotation pool contains 3,763 one-second snippets from 30 driver-facing active-NIR ($850\text{ nm}$) [Drive&Act](https://driveandact.com/) streams across 15 subjects. Each selected snippet is sampled at exactly 10 FPS using source-frame offsets 2, 5, …, 29 from its frozen start. The ten target boxes are obtained by linear interpolation of the Label Studio tracklet at times 0.1, 0.2, …, 1.0 seconds. Frames are cropped from `[128:1152, 0:1024]` and resized to `640×640`.
+The source pool contains 3,786 one-second snippets from 30 driver-facing active-NIR ($850\text{ nm}$) [Drive&Act](https://driveandact.com/) streams across 15 subjects. Twenty-three unilluminated task snippets are excluded before splitting, leaving 3,763. Each selected snippet is sampled at exactly 10 FPS using source-frame offsets 2, 5, …, 29 from its frozen start. The ten target boxes are obtained by linear interpolation of the Label Studio tracklet at times 0.1, 0.2, …, 1.0 seconds. Frames are cropped from `[128:1152, 0:1024]` and resized to `640×640`.
 
 The ontology is limited to `drinking` and `phone_use`. The $9:3:3$ subject partition is frozen as:
 
@@ -89,7 +102,7 @@ The ontology is limited to `drinking` and `phone_use`. The $9:3:3$ subject parti
   <sub><b>Figure 5.</b> Cue proportions across the NIR subject-disjoint splits.</sub>
 </p>
 
-### Controlled Training-Negative Ratios
+### Training-Negative Exposure Conditions
 
 NIR uses one seed—13—and two conditions. There is no NIR multi-seed experiment and no 1:3 condition.
 
@@ -99,6 +112,8 @@ NIR uses one seed—13—and two conditions. There is no NIR multi-seed experime
 | **1:6** | 270 | 1,620 | 1,890 / 18,900 | 3,621 / 36,210 |
 
 Only the training negatives change. The 1:2 negatives are a subject-stratified, seed-13 deterministic subset of the 1:6 negative pool. The positive training pool, validation tasks, test tasks, temporal sampling, ontology, model recipes, and metric code are identical across both ratios. Derived validation/test COCO and YOLO files are physically shared under `data/processed/NIR/*/evaluation` to prevent silent drift.
+
+Because epochs are fixed, 1:6 contains three times the unique training negatives and approximately three times the optimization steps. This is a training-negative exposure study, not a causal ratio ablation under matched training signal. Frame-level metrics are supplemented by snippet-level micro/macro-F1 and false-positive snippets per 100 negatives. At the validation-selected threshold, any correct frame recovers the cue for that snippet, repeated detections count once, and any above-threshold detection makes a negative snippet false positive.
 
 ## Reproducibility and Data Availability
 

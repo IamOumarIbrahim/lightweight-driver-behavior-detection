@@ -1,0 +1,82 @@
+{
+  "artifact": "publication_figure_manifest",
+  "figure": "rgb_qualitative_examples",
+  "generator": "ggplot2",
+  "generator_script": "tools/publication/figures.R",
+  "r_version": "4.6.1",
+  "packages": {
+    "ggplot2": "4.0.3",
+    "jsonlite": "2.0.0",
+    "digest": "0.6.39",
+    "png": "0.1.9"
+  },
+  "source": "results/RGB/summary/qualitative_examples.json",
+  "source_sha256": "fe0c092b0a804ddcdf5cd6579e623d0515d0031444168689aa02ae4c2fdd3ee7",
+  "models": [
+    "yolo11n",
+    "yolo26n"
+  ],
+  "pending_models": [
+    "dfine_n"
+  ],
+  "dispersion": "sample_standard_deviation",
+  "outputs": {
+    "pdf": {
+      "path": "results/RGB/summary/figures/qualitative_examples.pdf",
+      "sha256": "5652c04d5d56ae5c5cdd9e3a5833ed397f75f3a69f8fe6416bcddc2eab00d128"
+    },
+    "svg": {
+      "path": "results/RGB/summary/figures/qualitative_examples.svg",
+      "sha256": "48ec60ba4bff7e71f81e22c349f45af7d23e9ee7559163a0744c50256025196c"
+    },
+    "png": {
+      "path": "results/RGB/summary/figures/qualitative_examples.png",
+      "sha256": "88d0c0e6e15eb0c237e337fa77119466d0f64d3e8bb0ac1dfd64b1d2f0741c9a"
+    }
+  },
+  "inputs": [
+    {
+      "model_id": "yolo11n",
+      "case": "Correct localization",
+      "image_id": 12759,
+      "path": "results/RGB/yolo11n/seed_13/images/correct_detection-02-image-12759.png",
+      "sha256": "e42f63aa7f025e361c651d457333af3f7a322e6067ef340e7eb253d46d0ef23a"
+    },
+    {
+      "model_id": "yolo11n",
+      "case": "False positive",
+      "image_id": 13355,
+      "path": "results/RGB/yolo11n/seed_13/images/false_positive_negative_frame-01-image-13355.png",
+      "sha256": "3a473184615be0a58d5ac4161b095b6d84390f02c677975c5c35371e49e6e41b"
+    },
+    {
+      "model_id": "yolo11n",
+      "case": "False negative",
+      "image_id": 4597,
+      "path": "results/RGB/yolo11n/seed_13/images/false_negative-01-image-4597.png",
+      "sha256": "dbe4da0392e0b23586aaa92b697829cb332c53aa01d6c76143a9ad48ec01eb3e"
+    },
+    {
+      "model_id": "yolo26n",
+      "case": "Correct localization",
+      "image_id": 4644,
+      "path": "results/RGB/yolo26n/seed_13/images/correct_detection-01-image-4644.png",
+      "sha256": "30bf2efcf12bbb6ba1f806df450e82bc09ef9329df555286c222c0bf8de42481"
+    },
+    {
+      "model_id": "yolo26n",
+      "case": "False positive",
+      "image_id": 13304,
+      "path": "results/RGB/yolo26n/seed_13/images/false_positive_negative_frame-02-image-13304.png",
+      "sha256": "789006c5761d3fd46ca08fe7922007e9acd41903e6c6c227a990f2da8a7d7bc4"
+    },
+    {
+      "model_id": "yolo26n",
+      "case": "False negative",
+      "image_id": 4597,
+      "path": "results/RGB/yolo26n/seed_13/images/false_negative-01-image-4597.png",
+      "sha256": "dbe4da0392e0b23586aaa92b697829cb332c53aa01d6c76143a9ad48ec01eb3e"
+    }
+  ],
+  "training_seed": 13
+}

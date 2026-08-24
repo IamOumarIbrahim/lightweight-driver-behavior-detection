@@ -16,6 +16,7 @@ from tools.benchmark.evaluation import (
     calibrate_threshold,
     coco_metrics,
     operating_point_metrics,
+    snippet_operating_point_metrics,
 )
 from tools.benchmark.paths import (
     CONFIGS_ROOT,
@@ -267,6 +268,12 @@ def test(args: argparse.Namespace) -> int:
         "flop_estimates": model_flop_estimates(adapter),
         "checkpoint_bytes_local": checkpoint.stat().st_size,
     }
+    if track == "NIR":
+        result["snippet_operating_point"] = snippet_operating_point_metrics(
+            ground_truth,
+            predictions,
+            manifest["operating_point"]["threshold"],
+        )
     write_json(result_path, result)
     print(json.dumps(result, indent=2))
     return 0

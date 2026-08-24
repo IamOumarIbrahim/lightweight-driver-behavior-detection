@@ -1,4 +1,4 @@
-<h1 align="center">Lightweight Object Detection Models for Real-Time Driver Behavior Detection with Subject-Disjoint Evaluation</h1>
+<h1 align="center">Subject-Disjoint Benchmarking of Nano Detectors for Visible Driver-Cue Localization</h1>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0"></a>
@@ -24,11 +24,11 @@
 
 ### Research Question
 
-How do lightweight detection architectures trade real-time edge latency, localization quality, and false alarms on separate subject-disjoint RGB and NIR driver-monitoring tracks?
+How do complete nano detector systems trade single-frame cue localization, false detections on negative frames, and synchronized throughput under subject-disjoint evaluation?
 
 ### Abstract
 
-This repository benchmarks three nano-scale object detectors—[Ultralytics YOLO11n](https://docs.ultralytics.com/models/yolo11/), [Ultralytics YOLO26n](https://docs.ultralytics.com/models/yolo26), and [D-FINE-N](https://github.com/Peterande/D-FINE)—for driver-behavior detection across visible RGB and near-infrared imagery. The RGB track uses the [Driver Monitoring Dataset (DMD)](https://dmd.vicomtech.org/) with four warning cues; the NIR track uses [Drive&Act](https://driveandact.com/) with `drinking` and `phone_use`. Both tracks use subject-disjoint partitions, validation-only operating-point selection, and a confirmation-gated test pass. Final cross-model conclusions will be inserted only after the outstanding D-FINE-N RGB runs and six NIR ratio runs complete.
+This repository benchmarks three released nano-scale detector systems—[Ultralytics YOLO11n](https://docs.ultralytics.com/models/yolo11/), [Ultralytics YOLO26n](https://docs.ultralytics.com/models/yolo26), and [D-FINE-N](https://github.com/Peterande/D-FINE)—for bounding-box localization of discrete, momentary visual driver cues. The primary RGB benchmark uses the [Driver Monitoring Dataset (DMD)](https://dmd.vicomtech.org/) with four cues. A separate exploratory NIR training-negative exposure study uses [Drive&Act](https://driveandact.com/) with `drinking` and `phone_use`. Both use subject-disjoint partitions, validation-only operating-point selection, and confirmation-gated protected testing. The task does not infer temporal fatigue, intent, or driver state.
 
 ## Current Benchmark Status
 
@@ -101,7 +101,7 @@ Only these six semantic folders are published. Local `runs`, `third_party`, and 
 
 ```bibtex
 @misc{ibrahim2026lightweight,
-  title     = {Lightweight Object Detection Models for Real-Time Driver Behavior Detection with Subject-Disjoint Evaluation},
+  title     = {Subject-Disjoint Benchmarking of Nano Detectors for Visible Driver-Cue Localization},
   author    = {Ibrahim, Oumar Mamoun and Bin Ishak, Mohamad Khairi},
   year      = {2026},
   note      = {Manuscript under review}

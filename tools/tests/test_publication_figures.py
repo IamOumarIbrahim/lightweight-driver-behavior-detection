@@ -51,8 +51,9 @@ def test_r_package_lock_and_figure_hashes() -> None:
 
     assert versions["ggplot2"] == "4.0.3"
     assert versions["jsonlite"] == "2.0.0"
+    assert versions["png"] == "0.1-9"
     assert len(versions) == len(packages)
-    for stem in ("accuracy_vs_speed", "per_class_ap"):
+    for stem in ("accuracy_vs_speed", "per_class_ap", "qualitative_examples"):
         manifest_path = (
             REPO_ROOT
             / "results"
@@ -67,3 +68,7 @@ def test_r_package_lock_and_figure_hashes() -> None:
             path = REPO_ROOT / output["path"]
             assert path.is_file()
             assert sha256(path) == output["sha256"]
+        for source in manifest.get("inputs", []):
+            path = REPO_ROOT / source["path"]
+            assert path.is_file()
+            assert sha256(path) == source["sha256"]
