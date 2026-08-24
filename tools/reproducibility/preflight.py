@@ -9,6 +9,8 @@ import re
 import subprocess
 from pathlib import Path
 
+from pypdf import PdfReader
+
 from tools.benchmark.paths import REPO_ROOT, RESULTS_ROOT
 from tools.benchmark.protocol import ProtocolError, validate_protocol
 from tools.data.prepare_nir import load_ratio_tasks, signature, validate_counts
@@ -130,8 +132,17 @@ def repository_checks(checks: Checks) -> None:
             manuscript + bibliography,
             re.IGNORECASE,
         ),
-        "Manuscript and bibliography contain no placeholder prose or references",
+        "Manuscript and bibliography contain no filler prose or placeholder references",
     )
+
+    manuscript_pdf = REPO_ROOT / "docs" / "manuscript" / "main.pdf"
+    checks.check(manuscript_pdf.is_file(), "Compiled manuscript review PDF exists")
+    if manuscript_pdf.is_file():
+        manuscript_pages = len(PdfReader(str(manuscript_pdf)).pages)
+        checks.check(
+            manuscript_pages < 7,
+            f"Manuscript is below seven pages including references ({manuscript_pages} pages)",
+        )
 
     aggregate_path = RESULTS_ROOT / "RGB" / "summary" / "final_benchmark_aggregate.json"
     aggregate = json.loads(aggregate_path.read_text(encoding="utf-8"))
