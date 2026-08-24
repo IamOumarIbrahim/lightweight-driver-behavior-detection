@@ -1,0 +1,60 @@
+# Python environments and generated caches
+.venv/
+.venv-labelstudio/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local model backends, downloads, checkpoints, and training state
+third_party/
+runs/
+weights/
+checkpoints/
+*.pt
+*.pth
+*.onnx
+*.engine
+
+# Licensed source media and generated datasets
+data/DMD/
+data/Drive&Act/
+data/processed/
+data/label_studio/
+datasets/
+*.zip
+*.7z
+*.tar
+*.tar.gz
+
+# Archived predecessor repositories (never published from this repository)
+ARCHIVE/
+DMS-Eval/
+NIR-Eval/
+
+# Local reports and temporary files
+*.tmp
+*.temp
+*.bak
+*.log
+coverage.xml
+htmlcov/
+
+# LaTeX auxiliary files
+docs/manuscript/*.aux
+docs/manuscript/*.bbl
+docs/manuscript/*.blg
+docs/manuscript/*.fdb_latexmk
+docs/manuscript/*.fls
+docs/manuscript/*.out
+docs/manuscript/*.synctex*
+docs/manuscript/official_template/
+docs/internal/
+
+# Editor and operating-system metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

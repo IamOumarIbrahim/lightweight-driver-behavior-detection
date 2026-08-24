@@ -1,0 +1,336 @@
+"""Run CPU-only repository and dataset preflight checks."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+import subprocess
+from pathlib import Path
+
+from tools.benchmark.paths import REPO_ROOT, RESULTS_ROOT
+from tools.benchmark.protocol import ProtocolError, validate_protocol
+from tools.data.prepare_nir import load_ratio_tasks, signature, validate_counts
+
+
+class Checks:
+    def __init__(self) -> None:
+        self.passed: list[str] = []
+        self.failed: list[str] = []
+
+    def check(self, condition: bool, message: str) -> None:
+        (self.passed if condition else self.failed).append(message)
+
+
+def tracked_files() -> list[str]:
+    output = subprocess.check_output(["git", "ls-files"], cwd=REPO_ROOT, text=True)
+    return [line.strip() for line in output.splitlines() if line.strip()]
+
+
+def repository_checks(checks: Checks) -> None:
+    files = tracked_files()
+    root_folders = sorted(
+        {Path(path).parts[0] for path in files if len(Path(path).parts) > 1}
+    )
+    checks.check(
+        len(root_folders) <= 7,
+        f"At most seven tracked root folders ({', '.join(root_folders)})",
+    )
+    checks.check(
+        root_folders == ["configs", "data", "docs", "results", "scripts", "tools"],
+        "Tracked root folders use the canonical six-folder layout",
+    )
+    forbidden_suffixes = (".pt", ".pth", ".onnx", ".engine", ".pyc")
+    checks.check(
+        not [path for path in files if path.lower().endswith(forbidden_suffixes)],
+        "No checkpoints, engines, or bytecode are tracked",
+    )
+    checks.check(
+        not [path for path in files if path.startswith("runs/")],
+        "Local run artifacts are not tracked",
+    )
+    for folder in root_folders:
+        checks.check(
+            (REPO_ROOT / folder / "README.txt").is_file(), f"{folder}/README.txt exists"
+        )
+
+    offenders = []
+    extensions = {
+        ".py",
+        ".bat",
+        ".yaml",
+        ".yml",
+        ".xml",
+        ".json",
+        ".md",
+        ".tex",
+        ".bib",
+        ".txt",
+        ".csv",
+    }
+    tokens = (
+        "C:\\Dev\\",
+        "dataset2",
+        "ratio1to3",
+        "ratio_1to3",
+        "from core.",
+        "import core.",
+    )
+    for relative in files:
+        # This checker necessarily names the forbidden tokens it searches for.
+        if relative == "tools/reproducibility/preflight.py":
+            continue
+        path = REPO_ROOT / relative
+        if path.suffix.lower() not in extensions or not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        if any(token in text for token in tokens):
+            offenders.append(relative)
+    checks.check(
+        not offenders,
+        f"Active code/configs contain no obsolete or machine-specific paths: {offenders}",
+    )
+
+    link_pattern = re.compile(r"\[[^\]]*\]\(([^)]+)\)|(?:href|src)=[\"']([^\"']+)[\"']")
+    broken_links = []
+    for relative in files:
+        if not relative.lower().endswith(".md"):
+            continue
+        source = REPO_ROOT / relative
+        for match in link_pattern.finditer(source.read_text(encoding="utf-8")):
+            target = next(group for group in match.groups() if group)
+            if target.startswith(("http://", "https://", "mailto:", "#")):
+                continue
+            target = target.split("#", 1)[0].split("?", 1)[0]
+            if target and not (source.parent / target).resolve().exists():
+                broken_links.append(f"{relative} -> {target}")
+    checks.check(not broken_links, f"Local documentation links resolve: {broken_links}")
+
+    manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
+        encoding="utf-8"
+    )
+    bibliography = (REPO_ROOT / "docs" / "manuscript" / "references.bib").read_text(
+        encoding="utf-8"
+    )
+    cited = {
+        key.strip()
+        for group in re.findall(r"\\cite\{([^}]+)\}", manuscript)
+        for key in group.split(",")
+    }
+    available = set(re.findall(r"@\w+\{([^,]+),", bibliography))
+    checks.check(
+        cited <= available,
+        f"Every manuscript citation has a bibliography entry: {sorted(cited - available)}",
+    )
+    checks.check(
+        not re.search(
+            r"lorem|placeholder reference|author (?:five|six|seven|eight|nine|ten)",
+            manuscript + bibliography,
+            re.IGNORECASE,
+        ),
+        "Manuscript and bibliography contain no placeholder prose or references",
+    )
+
+    aggregate_path = RESULTS_ROOT / "RGB" / "summary" / "final_benchmark_aggregate.json"
+    aggregate = json.loads(aggregate_path.read_text(encoding="utf-8"))
+    aggregate_runs = {
+        (item["model_id"], int(item["training_seed"])): item
+        for item in aggregate["runs"]
+    }
+    artifact_failures = []
+    for model in ("yolo11n", "yolo26n"):
+        for seed in (13, 37, 73):
+            result = RESULTS_ROOT / "RGB" / model / f"seed_{seed}"
+            analysis_path = result / "analysis.json"
+            if not analysis_path.is_file():
+                artifact_failures.append(
+                    f"missing {analysis_path.relative_to(REPO_ROOT)}"
+                )
+                continue
+            analysis = json.loads(analysis_path.read_text(encoding="utf-8"))
+            run = aggregate_runs.get((model, seed))
+            digest = hashlib.sha256(analysis_path.read_bytes()).hexdigest()
+            if run is None or run["qualitative_analysis"]["sha256"] != digest:
+                artifact_failures.append(
+                    f"aggregate hash mismatch for {model}/seed_{seed}"
+                )
+            for examples in analysis.get("examples", {}).values():
+                for example in examples:
+                    rendered = Path(example["rendered_path"])
+                    image_path = result / rendered
+                    if rendered.is_absolute() or not image_path.is_file():
+                        artifact_failures.append(
+                            f"invalid rendered path for {model}/seed_{seed}: {rendered}"
+                        )
+                    elif (
+                        hashlib.sha256(image_path.read_bytes()).hexdigest()
+                        != example["rendered_sha256"]
+                    ):
+                        artifact_failures.append(
+                            f"image hash mismatch for {model}/seed_{seed}: {rendered}"
+                        )
+    checks.check(
+        not artifact_failures,
+        f"Six RGB YOLO publication artifacts and hashes resolve: {artifact_failures}",
+    )
+
+
+def rgb_checks(checks: Checks, require_images: bool) -> None:
+    protocol = validate_protocol("RGB")
+    annotations = json.loads(
+        (REPO_ROOT / protocol["dataset"]["annotations"]).read_text(encoding="utf-8")
+    )
+    checks.check(
+        len(annotations["images"]) == 15723 and len(annotations["annotations"]) == 3001,
+        "RGB authoritative counts match",
+    )
+    splits = json.loads(
+        (REPO_ROOT / protocol["dataset"]["splits"]).read_text(encoding="utf-8")
+    )
+    subject_sets = {
+        "train": set(splits["train"]),
+        "val": set(splits["validation"]),
+        "test": set(splits["test"]),
+    }
+    checks.check(
+        not (subject_sets["train"] & subject_sets["val"])
+        and not (subject_sets["train"] & subject_sets["test"])
+        and not (subject_sets["val"] & subject_sets["test"]),
+        "RGB subject partitions are disjoint",
+    )
+    image_subjects = {
+        Path(image["file_name"]).parts[1] for image in annotations["images"]
+    }
+    checks.check(
+        image_subjects == set().union(*subject_sets.values()),
+        "Every RGB image subject is assigned exactly once",
+    )
+    processed = REPO_ROOT / "data" / "processed" / "RGB"
+    for split, expected in (("train", 9087), ("val", 3423), ("test", 3213)):
+        coco = processed / "coco" / "evaluation" / f"instances_{split}.json"
+        checks.check(coco.is_file(), f"RGB {split} evaluation COCO exists")
+        if coco.is_file():
+            checks.check(
+                len(json.loads(coco.read_text(encoding="utf-8"))["images"]) == expected,
+                f"RGB {split} derived count matches",
+            )
+    if require_images:
+        checks.check(
+            len(list((processed / "images").rglob("*.jpg"))) == 15723,
+            "All 15,723 RGB frames exist",
+        )
+
+
+def nir_checks(checks: Checks, require_images: bool) -> None:
+    protocol = validate_protocol("NIR")
+    source_tasks = json.loads(
+        (REPO_ROOT / protocol["dataset"]["annotations"]).read_text(encoding="utf-8")
+    )
+    expected_source = int(protocol["dataset"]["expected"]["source_snippets"])
+    checks.check(
+        len(source_tasks) == expected_source
+        and len({int(task["id"]) for task in source_tasks}) == expected_source,
+        f"NIR source pool contains {expected_source} unique snippets",
+    )
+    splits = json.loads(
+        (REPO_ROOT / protocol["dataset"]["splits"]).read_text(encoding="utf-8")
+    )
+    subject_sets = {name: set(splits[name]) for name in ("train", "val", "test")}
+    checks.check(
+        not (subject_sets["train"] & subject_sets["val"])
+        and not (subject_sets["train"] & subject_sets["test"])
+        and not (subject_sets["val"] & subject_sets["test"]),
+        "NIR subject partitions are disjoint",
+    )
+    checks.check(
+        all(
+            task["data"]["subject"] in subject_sets[task["data"]["split"]]
+            for task in source_tasks
+        ),
+        "Every NIR source task matches its frozen subject partition",
+    )
+    tasks = load_ratio_tasks(protocol)
+    try:
+        validate_counts(tasks, protocol)
+        checks.check(True, "NIR ratio and split counts match")
+    except ProtocolError as exc:
+        checks.check(False, str(exc))
+    eval_signatures = [
+        [
+            signature(task)
+            for task in tasks[ratio]
+            if task["data"]["split"] in {"val", "test"}
+        ]
+        for ratio in ("1to2", "1to6")
+    ]
+    checks.check(
+        eval_signatures[0] == eval_signatures[1],
+        "NIR validation and test identities are byte-order identical across ratios",
+    )
+    checks.check(
+        all(
+            "local_path" not in json.dumps(task)
+            for ratio in tasks.values()
+            for task in ratio
+        ),
+        "Published NIR annotations contain no local paths",
+    )
+    processed = REPO_ROOT / "data" / "processed" / "NIR"
+    expected_lists = {
+        "yolo/ratio_1to2/train.txt": 8100,
+        "yolo/ratio_1to6/train.txt": 18900,
+        "yolo/evaluation/val.txt": 8810,
+        "yolo/evaluation/test.txt": 8500,
+    }
+    for relative, expected in expected_lists.items():
+        path = processed / relative
+        checks.check(
+            path.is_file()
+            and len(path.read_text(encoding="utf-8").splitlines()) == expected,
+            f"NIR {relative} contains {expected} 10-FPS frames",
+        )
+    if require_images:
+        required_ids = {int(task["id"]) for ratio in tasks.values() for task in ratio}
+        image_count = sum(
+            1
+            for task_id in required_ids
+            for frame in range(1, 11)
+            if (
+                processed / "images" / f"task_{task_id:05d}_frame_{frame:02d}.jpg"
+            ).is_file()
+        )
+        checks.check(
+            image_count == len(required_ids) * 10,
+            f"All {len(required_ids) * 10:,} union NIR frames exist",
+        )
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--track", choices=["repository", "RGB", "NIR", "all"], default="repository"
+    )
+    parser.add_argument("--require-images", action="store_true")
+    args = parser.parse_args()
+    checks = Checks()
+    if args.track in {"repository", "all"}:
+        repository_checks(checks)
+    if args.track in {"RGB", "all"}:
+        rgb_checks(checks, args.require_images)
+    if args.track in {"NIR", "all"}:
+        nir_checks(checks, args.require_images)
+    print(f"PASS: {len(checks.passed)}")
+    for message in checks.passed:
+        print(f"  [OK] {message}")
+    if checks.failed:
+        print(f"FAIL: {len(checks.failed)}")
+        for message in checks.failed:
+            print(f"  [X] {message}")
+        return 2
+    print("Preflight complete: no checked blockers found.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

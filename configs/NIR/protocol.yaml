@@ -1,0 +1,59 @@
+schema_version: 1
+benchmark: lightweight-driver-behavior-detection
+track: NIR
+
+models:
+  - {id: yolo11n, adapter: ultralytics, architecture: YOLO11n}
+  - {id: yolo26n, adapter: ultralytics, architecture: YOLO26n}
+  - {id: dfine_n, adapter: dfine, architecture: D-FINE-N}
+
+dataset:
+  source: Drive&Act NIR
+  source_root: data/Drive&Act
+  annotations: data/annotations/NIR/annotations.json
+  annotations_sha256: 1c0eafa891b1f7cb19600ff97b1c6ec42d019bee4c1f2cbe562d74c8811701dd
+  splits: data/annotations/NIR/splits.json
+  splits_sha256: 07be8c65beaac98cbbeace89598fd46dd30e2d21093d8c4f9c6b6a49507c1200
+  source_videos: data/annotations/NIR/source_videos.json
+  source_videos_sha256: 62aec247387d9d62268876413844a3621a0eb188171776d29f53f82dae101928
+  ratio_annotations:
+    1to2: {path: data/annotations/NIR/ratio_1to2.json, sha256: eef14237d92ee7dc84c51bdfc67cc3d331a1f71276df6a204a1486018d41c41f}
+    1to6: {path: data/annotations/NIR/ratio_1to6.json, sha256: cb45ade094fafcd05c38ddc23e44d466f7734fe78f397372a1d638186921b088}
+  images: data/processed/NIR/images
+  width: 640
+  height: 640
+  snippet_fps: 10
+  frames_per_snippet: 10
+  evaluation_sets: identical_across_ratios
+  classes:
+    1: drinking
+    2: phone_use
+  expected:
+    source_snippets: 3763
+    train_positive_snippets: 270
+    ratio_1to2_train: {positive_snippets: 270, negative_snippets: 540, snippets: 810, frames: 8100}
+    ratio_1to6_train: {positive_snippets: 270, negative_snippets: 1620, snippets: 1890, frames: 18900}
+    val: {positive_snippets: 120, negative_snippets: 761, snippets: 881, frames: 8810}
+    test: {positive_snippets: 111, negative_snippets: 739, snippets: 850, frames: 8500}
+
+training:
+  epochs: 220
+  physical_batch_size: 8
+  gradient_accumulation_steps: 4
+  effective_batch_size: 32
+  amp: true
+  early_stopping: false
+  checkpoint_retention: {best: true, last: true, periodic_every_epochs: 100}
+  seed: 13
+  ratios: [1to2, 1to6]
+  ratio_policy: nested_training_negatives_only
+  validation_intervention: checkpoint_retention_only
+  optimization:
+    ultralytics: {optimizer: auto, scheduler: linear, cos_lr: false}
+    dfine: {optimizer: AdamW, scheduler: MultiStepLR}
+
+evaluation:
+  validation_before_test: true
+  test_requires_confirmation: true
+  threshold_split: val
+  metrics: [map_50_95, map_50, per_class_ap, precision, recall, f1, far]

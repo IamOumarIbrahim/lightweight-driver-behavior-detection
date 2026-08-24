@@ -1,0 +1,148 @@
+schema_version: 1
+benchmark: lightweight-driver-behavior-detection
+track: RGB
+
+models:
+  - id: yolo11n
+    adapter: ultralytics
+    architecture: YOLO11n
+  - id: yolo26n
+    adapter: ultralytics
+    architecture: YOLO26n
+  - id: dfine_n
+    adapter: dfine
+    architecture: D-FINE-N
+
+dataset:
+  annotations: data/annotations/RGB/annotations.json
+  annotations_sha256: 06ec53547cf9f80f73e01a670d71537fb11ab263d84651e881c1a729ef4c2584
+  splits: data/annotations/RGB/splits.json
+  splits_sha256: 1ca5c6289cdad20f70f5fe6f476a98e2226a97592e13897233fbba85e30800a4
+  images: data/processed/RGB/images
+  width: 640
+  height: 640
+  subjects: 14
+  max_annotations_per_image: 1
+  classes:
+    1: yawning
+    2: hand_over_mouth
+    3: drinking
+    4: phone_use
+  expected:
+    global:
+      images: 15723
+      annotations: 3001
+      negatives: 12722
+      per_class: {1: 159, 2: 141, 3: 264, 4: 2437}
+    train:
+      subjects: [subject_01, subject_04, subject_06, subject_07, subject_08, subject_09, subject_13, subject_14]
+      images: 9087
+      annotations: 1748
+      negatives: 7339
+      per_class: {1: 94, 2: 83, 3: 154, 4: 1417}
+    val:
+      subjects: [subject_02, subject_03, subject_11]
+      images: 3423
+      annotations: 639
+      negatives: 2784
+      per_class: {1: 32, 2: 30, 3: 54, 4: 523}
+    test:
+      subjects: [subject_05, subject_10, subject_12]
+      images: 3213
+      annotations: 614
+      negatives: 2599
+      per_class: {1: 33, 2: 28, 3: 56, 4: 497}
+  ordering:
+    train: deterministic_global_shuffle
+    train_seed: 13
+    val: master_native
+    test: master_native
+
+training:
+  epochs: 220
+  physical_batch_size: 8
+  gradient_accumulation_steps: 4
+  effective_batch_size: 32
+  amp: true
+  precision: amp_fp16
+  early_stopping: false
+  checkpoint_retention: {best: true, last: true, periodic_every_epochs: 100}
+  runs_per_model: 3
+  run_seeds: [13, 37, 73]
+  run_selection: none
+  result_aggregation: mean_and_sample_standard_deviation
+  incomplete_batch:
+    drop_last: false
+    normalize_partial_accumulation_window: true
+  validation_intervention: checkpoint_retention_only
+  recipe_policy:
+    type: pinned_official_no_model_specific_tuning
+    model_specific_tuning_trials: 0
+    allowed_adaptations:
+      - dataset_and_classes
+      - input_size_640x640
+      - physical_batch_size_8
+      - gradient_accumulation_steps_4
+      - epochs_220
+      - training_seeds_13_37_73
+      - early_stopping_disabled
+  checkpoint_selection:
+    split: val
+    primary: map_50_95
+    tie_breakers: [map_50, later_epoch]
+  optimization:
+    ultralytics:
+      source: ultralytics_8.4.123_default_yaml
+      optimizer: auto
+      expected_resolved_optimizer: MuSGD
+      scheduler: linear
+      augmentation: pinned_package_defaults
+    dfine:
+      source: dfine_hgnetv2_n_coco_at_pinned_commit
+      optimizer: AdamW
+      lr: 0.0008
+      backbone_lr: 0.0004
+      weight_decay: 0.0001
+      scheduler: MultiStepLR
+      milestones: [500]
+      augmentation_stop_epoch: 148
+
+evaluation:
+  implementation: pycocotools
+  map_metrics: [map_50_95, map_50, per_class_ap]
+  operating_iou: 0.50
+  matching: greedy_one_to_one_descending_score_same_category
+  threshold:
+    split: val
+    start: 0.01
+    stop: 0.99
+    step: 0.01
+    objective: micro_f1
+    tie_breakers: [higher_precision, higher_threshold]
+  far: 100 * false_positive_detections_on_negative_frames / negative_frames
+  test_policy: single_protected_pass_per_frozen_model_seed_run
+  suite_freeze_policy: all_nine_manifests_frozen_before_first_protected_test
+  qualitative_error_analysis:
+    enabled: true
+    generated_during_protected_pass: true
+    examples_per_category: 3
+    publication_reference_seed: 13
+    categories: [correct_detection, false_positive_negative_frame, false_negative, class_confusion, localization_error]
+    selection: deterministic_predeclared_category_ranking
+
+profiling:
+  hardware: NVIDIA GeForce RTX 4060 8GB
+  batch_size: 1
+  precision: cuda_amp_fp16
+  model_weights: fp32
+  input_dtype: fp32
+  input_shape: [1, 3, 640, 640]
+  warmup_passes: 10
+  timing:
+    model_forward: synchronized_cuda_events
+    tensor_to_final_detections: synchronized_wall_clock
+  boundaries: [model_forward, tensor_to_final_detections]
+  excluded: [disk_io, decode, preprocessing, metrics]
+  latency_percentiles: [50, 95, 99]
+  sustained_fps: reported_per_timing_boundary
+  resources: [parameters, dual_estimator_flops, peak_allocated_vram, standardized_fp16_artifact_bytes]

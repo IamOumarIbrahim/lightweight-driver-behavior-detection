@@ -1,0 +1,22 @@
+{
+  "train": [
+    "subject_01",
+    "subject_04",
+    "subject_06",
+    "subject_07",
+    "subject_08",
+    "subject_09",
+    "subject_13",
+    "subject_14"
+  ],
+  "validation": [
+    "subject_02",
+    "subject_03",
+    "subject_11"
+  ],
+  "test": [
+    "subject_05",
+    "subject_10",
+    "subject_12"
+  ]
+}

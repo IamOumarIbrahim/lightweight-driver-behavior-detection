@@ -1,0 +1,108 @@
+# Methodology
+
+[← Back to Main README](../README.md)
+
+## Unified Evaluation Protocol
+
+> [!CAUTION]
+> RGB and NIR are separate subject-disjoint tracks. Models share the training budget and evaluation implementation, while ontology, sampling, run identity, and source data remain track-specific.
+
+| Parameter / Shared Element | Frozen Specification | Notes |
+| :---: | :---: | :---: |
+| **Models** | YOLO11n, YOLO26n, D-FINE-N | Nano-scale pretrained variants |
+| **Input Resolution** | 640 × 640 px | All models and tracks |
+| **Physical Batch Size** | 8 | Per iteration |
+| **Gradient Accumulation** | 4 steps | Effective batch size 32 |
+| **Training Budget** | 220 epochs | Early stopping disabled |
+| **Optimization** | Pinned model-native recipe | YOLO uses `optimizer=auto`, linear schedule, `cos_lr=false`; D-FINE uses AdamW/MultiStepLR |
+| **Evaluation** | COCO mAP and validation-calibrated operating point | Test is never used for tuning |
+| **Profiling** | Batch 1, 640 × 640, CUDA AMP FP16 | RTX 4060 values are hardware-specific |
+
+The fixed accumulation patches normalize the final incomplete window by its actual sample count. Every image is therefore retained without giving a short last window disproportionate gradient weight. External package versions, upstream commit, weight checksums, and patch files are frozen in `configs/backends.yaml`.
+
+### Validation and Protected Test Policy
+
+Training and validation are separate operations. Model-native validation selects the best retained checkpoint; the separate validation phase calibrates confidence threshold $\tau^* \in [0.01, 0.99]$ by micro-F1, with higher precision and then higher threshold as tie-breakers. A frozen validation manifest records the checkpoint, dataset, and prediction checksums before test access. The user must then explicitly confirm the single protected test pass; an append-only local sentinel prevents an accidental rerun. Training retains best/last checkpoints and sparse 100-epoch D-FINE milestones instead of per-epoch archives.
+
+| Category | Reported Metric |
+| :---: | :---: |
+| **Detection** | mAP@0.5:0.95, mAP@0.5, per-class AP |
+| **Operating Point** | Precision, recall, micro-F1, FAR per 100 negative frames |
+| **Runtime** | Model-forward and tensor-to-detections p50/p95/p99, sustained FPS |
+| **Resources** | Parameters, FLOP estimates, peak allocated VRAM, local checkpoint size |
+
+## RGB Evaluation Protocol
+
+<p align="center">
+  <img src="./assets/examples/phone_use_annotation_example.png" alt="phone_use annotation" width="180">
+  <img src="./assets/examples/drinking_annotation_example.png" alt="drinking annotation" width="180"><br>
+  <img src="./assets/examples/yawning_annotation_example.png" alt="yawning annotation" width="180">
+  <img src="./assets/examples/hand_over_mouth_annotation_example.png" alt="hand_over_mouth annotation" width="180"><br>
+  <sub><b>Figure 1.</b> Manual RGB annotations for the four warning cues.</sub>
+</p>
+
+### Dataset and Subject-Disjoint Partitioning
+
+The RGB track contains 15,723 cropped `640×640` frames sampled at 1 FPS from 81 driver-facing [DMD](https://dmd.vicomtech.org/) recordings across 14 subjects. Its mutually exclusive ontology is `yawning`, `hand_over_mouth`, `drinking`, and `phone_use`. The 3,001 positive frames and 12,722 naturalistic negatives produce a negative-heavy continuous benchmark.
+
+<p align="center">
+  <img src="./assets/charts/benchmark_distributions_combined.png" alt="RGB benchmark distributions" width="680"><br>
+  <sub><b>Figure 2.</b> RGB frame composition and positive-class distribution.</sub>
+</p>
+
+The exhaustive $8:3:3$ subject assignment yields 9,087 train, 3,423 validation, and 3,213 test frames. The selected partition minimizes worst relative distribution deviation with RMSE as tie-breaker. Subject identities and native validation/test order are frozen in `data/annotations/RGB/splits.json`; the master COCO file is `data/annotations/RGB/annotations.json`.
+
+<p align="center">
+  <img src="./assets/charts/split_cue_proportions_comparison.png" alt="RGB split cue proportions" width="700"><br>
+  <sub><b>Figure 3.</b> Cue proportions across the RGB subject-disjoint splits.</sub>
+</p>
+
+### Multi-Seed Training
+
+Each architecture uses the predeclared seeds 13, 37, and 73. Only training order and stochastic optimization differ; validation and test membership/order remain fixed. All three seed results are reported as sample mean ± sample standard deviation:
+
+```math
+\bar{x}=\frac{1}{3}\sum_{i=1}^{3}x_i,\qquad
+s=\sqrt{\frac{1}{2}\sum_{i=1}^{3}(x_i-\bar{x})^2}.
+```
+
+## Near-Infrared (NIR) Evaluation Protocol
+
+<p align="center">
+  <img src="./assets/examples/annotation_example_drinking_3.gif" alt="drinking annotation" width="180">
+  <img src="./assets/examples/annotation_example_phone_use_2.gif" alt="phone_use annotation" width="180"><br>
+  <sub><b>Figure 4.</b> Manual NIR tracklets for the two warning cues.</sub>
+</p>
+
+### Dataset and Temporal Sampling
+
+The sanitized annotation pool contains 3,763 one-second snippets from 30 driver-facing active-NIR ($850\text{ nm}$) [Drive&Act](https://driveandact.com/) streams across 15 subjects. Each selected snippet is sampled at exactly 10 FPS using source-frame offsets 2, 5, …, 29 from its frozen start. The ten target boxes are obtained by linear interpolation of the Label Studio tracklet at times 0.1, 0.2, …, 1.0 seconds. Frames are cropped from `[128:1152, 0:1024]` and resized to `640×640`.
+
+The ontology is limited to `drinking` and `phone_use`. The $9:3:3$ subject partition is frozen as:
+
+- Train: 9 subjects, 270 positive snippets.
+- Validation: 3 subjects, 120 positives + 761 negatives = 881 snippets / 8,810 frames.
+- Test: 3 subjects, 111 positives + 739 negatives = 850 snippets / 8,500 frames.
+
+<p align="center">
+  <img src="./assets/charts/nir_split_cue_proportions_comparison.png" alt="NIR split cue proportions" width="700"><br>
+  <sub><b>Figure 5.</b> Cue proportions across the NIR subject-disjoint splits.</sub>
+</p>
+
+### Controlled Training-Negative Ratios
+
+NIR uses one seed—13—and two conditions. There is no NIR multi-seed experiment and no 1:3 condition.
+
+| Condition | Train Positives | Train Negatives | Train Snippets / Frames | Full Condition Snippets / Frames |
+| --- | ---: | ---: | ---: | ---: |
+| **1:2** | 270 | 540 | 810 / 8,100 | 2,541 / 25,410 |
+| **1:6** | 270 | 1,620 | 1,890 / 18,900 | 3,621 / 36,210 |
+
+Only the training negatives change. The 1:2 negatives are a subject-stratified, seed-13 deterministic subset of the 1:6 negative pool. The positive training pool, validation tasks, test tasks, temporal sampling, ontology, model recipes, and metric code are identical across both ratios. Derived validation/test COCO and YOLO files are physically shared under `data/processed/NIR/*/evaluation` to prevent silent drift.
+
+## Reproducibility and Data Availability
+
+Published authored annotations and split metadata live under `data/annotations`. Licensed DMD and Drive&Act media are not redistributed: users place them under `data/DMD` and `data/Drive&Act`, then run the numbered BAT files under `scripts/data`. Generated frames, backend downloads, checkpoints, predictions, and logs are ignored under `data/processed`, `third_party`, and `runs`.
+
+> [!TIP]
+> `scripts/preflight.bat` checks repository integrity without the GPU. The two dataset-check BAT files additionally verify every prepared frame and frozen split count.

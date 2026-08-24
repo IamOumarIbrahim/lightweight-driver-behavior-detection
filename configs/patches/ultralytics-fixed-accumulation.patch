@@ -1,0 +1,25 @@
+diff --git a/ultralytics/engine/trainer.py b/ultralytics/engine/trainer.py
+--- a/ultralytics/engine/trainer.py
++++ b/ultralytics/engine/trainer.py
+@@
+-                    self.accumulate = max(1, int(np.interp(ni, xi, [1, self.args.nbs / self.batch_size]).round()))
++                    # DMS-Eval: keep the shared four-step update cadence during LR/momentum warm-up.
++                    self.accumulate = max(round(self.args.nbs / self.batch_size), 1)
+@@
+-                    # Backward
+-                    self.scaler.scale(self.loss).backward()
++                    # DMS-Eval: sample-normalize the final incomplete accumulation window.
++                    from tools.benchmark.training import accumulation_loss_scale
++                    self.loss *= accumulation_loss_scale(
++                        batch_index=i,
++                        total_batches=nb,
++                        accumulation_steps=self.accumulate,
++                        current_batch_size=int(batch["img"].shape[0]),
++                        total_samples=len(self.train_loader.dataset),
++                        physical_batch_size=self.batch_size,
++                        batch_loss_reduction="sum",
++                    )
++                    self.scaler.scale(self.loss).backward()
+@@
+-                if ni - last_opt_step >= self.accumulate:
++                if (i + 1) % self.accumulate == 0 or (i + 1) == nb:

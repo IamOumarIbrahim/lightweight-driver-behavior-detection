@@ -1,0 +1,443 @@
+{
+  "artifact": "qualitative_error_analysis",
+  "class_confusion_pairs": {
+    "4->2": 1
+  },
+  "counts": {
+    "class_confusion": 1,
+    "correct_detection": 483,
+    "false_negative": 130,
+    "false_positive_negative_frame": 15,
+    "fn": 130,
+    "fp": 27,
+    "images": 3213,
+    "localization_error": 2,
+    "tp": 484
+  },
+  "examples": {
+    "class_confusion": [
+      {
+        "file_name": "images/subject_10/video_02/subject_10_video_02_frame_0173.jpg",
+        "ground_truths": [
+          {
+            "area": 64743.52,
+            "bbox": [
+              170.49,
+              336.51,
+              213.33,
+              303.49
+            ],
+            "category_id": 4,
+            "id": 1956,
+            "ignore": 0,
+            "image_id": 10562,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 10562,
+        "predictions": [
+          {
+            "bbox": [
+              63.5,
+              335.5,
+              335.0,
+              304.5
+            ],
+            "category_id": 2,
+            "image_id": 10562,
+            "score": 0.60302734375
+          }
+        ],
+        "rank": 1,
+        "rank_score": [
+          1.0,
+          0.6346937401661644
+        ],
+        "rendered_path": "images/class_confusion-01-image-10562.png",
+        "rendered_sha256": "9442c98ca2dec9afcfa1e8778209b307ebcd0f5736554a8ff69a29a379273231"
+      }
+    ],
+    "correct_detection": [
+      {
+        "file_name": "images/subject_12/video_02/subject_12_video_02_frame_0271.jpg",
+        "ground_truths": [
+          {
+            "area": 35478.48,
+            "bbox": [
+              444.16,
+              264.48,
+              137.29,
+              258.42
+            ],
+            "category_id": 4,
+            "id": 2431,
+            "ignore": 0,
+            "image_id": 12759,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 12759,
+        "predictions": [
+          {
+            "bbox": [
+              444.5,
+              266.0,
+              137.0,
+              257.0
+            ],
+            "category_id": 4,
+            "image_id": 12759,
+            "score": 0.77587890625
+          }
+        ],
+        "rank": 1,
+        "rank_score": [
+          1.0,
+          0.9909147568929603
+        ],
+        "rendered_path": "images/correct_detection-01-image-12759.png",
+        "rendered_sha256": "5f121157fa3b3233e2a45edb732e74a39c39261c3e81ec50041e58ce6f99e96b"
+      },
+      {
+        "file_name": "images/subject_10/video_02/subject_10_video_02_frame_0084.jpg",
+        "ground_truths": [
+          {
+            "area": 28534.98,
+            "bbox": [
+              0.89,
+              330.26,
+              113.36,
+              251.72
+            ],
+            "category_id": 4,
+            "id": 1927,
+            "ignore": 0,
+            "image_id": 10473,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 10473,
+        "predictions": [
+          {
+            "bbox": [
+              -0.125,
+              329.0,
+              114.0,
+              249.0
+            ],
+            "category_id": 4,
+            "image_id": 10473,
+            "score": 0.75927734375
+          }
+        ],
+        "rank": 2,
+        "rank_score": [
+          1.0,
+          0.967536503439381
+        ],
+        "rendered_path": "images/correct_detection-02-image-10473.png",
+        "rendered_sha256": "41f61b33a5c24aa2530d3000d6296d997b780706060fc0fb8ec811e15b72b313"
+      },
+      {
+        "file_name": "images/subject_05/video_02/subject_05_video_02_frame_0128.jpg",
+        "ground_truths": [
+          {
+            "area": 35090.82,
+            "bbox": [
+              83.91,
+              366.86,
+              162.45,
+              216.01
+            ],
+            "category_id": 4,
+            "id": 876,
+            "ignore": 0,
+            "image_id": 4863,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 4863,
+        "predictions": [
+          {
+            "bbox": [
+              83.0,
+              363.5,
+              160.75,
+              219.0
+            ],
+            "category_id": 4,
+            "image_id": 4863,
+            "score": 0.76123046875
+          }
+        ],
+        "rank": 3,
+        "rank_score": [
+          1.0,
+          0.9620601058298849
+        ],
+        "rendered_path": "images/correct_detection-03-image-4863.png",
+        "rendered_sha256": "f7b195ebc3499c0f30f76000d4e2df72c670fe4779bfddca890b48fb10913a2a"
+      }
+    ],
+    "false_negative": [
+      {
+        "file_name": "images/subject_05/video_01/subject_05_video_01_frame_0152.jpg",
+        "ground_truths": [
+          {
+            "area": 38562.34,
+            "bbox": [
+              275.82,
+              444.52,
+              197.27,
+              195.48
+            ],
+            "category_id": 3,
+            "id": 832,
+            "ignore": 0,
+            "image_id": 4647,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 4647,
+        "predictions": [],
+        "rank": 1,
+        "rank_score": [
+          1.0,
+          1.0
+        ],
+        "rendered_path": "images/false_negative-01-image-4647.png",
+        "rendered_sha256": "4f7b61f41a01a74a9401417cb862a8c4329408a9428797d9f66c25625184b94c"
+      },
+      {
+        "file_name": "images/subject_05/video_01/subject_05_video_01_frame_0228.jpg",
+        "ground_truths": [
+          {
+            "area": 42463.34,
+            "bbox": [
+              267.78,
+              440.95,
+              213.33,
+              199.05
+            ],
+            "category_id": 3,
+            "id": 833,
+            "ignore": 0,
+            "image_id": 4723,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 4723,
+        "predictions": [],
+        "rank": 2,
+        "rank_score": [
+          1.0,
+          1.0
+        ],
+        "rendered_path": "images/false_negative-02-image-4723.png",
+        "rendered_sha256": "5ad2a50494348ccc1c58edc30f690412ae45d7eff699b5be44bff7e5bcb4448e"
+      },
+      {
+        "file_name": "images/subject_05/video_01/subject_05_video_01_frame_0229.jpg",
+        "ground_truths": [
+          {
+            "area": 49392.33,
+            "bbox": [
+              255.29,
+              249.93,
+              219.58,
+              224.94
+            ],
+            "category_id": 3,
+            "id": 834,
+            "ignore": 0,
+            "image_id": 4724,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 4724,
+        "predictions": [],
+        "rank": 3,
+        "rank_score": [
+          1.0,
+          1.0
+        ],
+        "rendered_path": "images/false_negative-03-image-4724.png",
+        "rendered_sha256": "0d01285ff20bcc4ecb5040b3e0328d290e274d24fc05d0799a1a9edda120cb76"
+      }
+    ],
+    "false_positive_negative_frame": [
+      {
+        "file_name": "images/subject_12/video_02/subject_12_video_02_frame_0226.jpg",
+        "ground_truths": [],
+        "image_id": 12714,
+        "predictions": [
+          {
+            "bbox": [
+              235.0,
+              86.375,
+              295.5,
+              485.125
+            ],
+            "category_id": 2,
+            "image_id": 12714,
+            "score": 0.783203125
+          }
+        ],
+        "rank": 1,
+        "rank_score": [
+          1.0,
+          0.783203125
+        ],
+        "rendered_path": "images/false_positive_negative_frame-01-image-12714.png",
+        "rendered_sha256": "1dd9ef06c99fe8b0257062319d65b9ecc23a4e8f3e6d1e123f9822dc38f4518a"
+      },
+      {
+        "file_name": "images/subject_12/video_05/subject_12_video_05_frame_0119.jpg",
+        "ground_truths": [],
+        "image_id": 13355,
+        "predictions": [
+          {
+            "bbox": [
+              253.25,
+              142.5,
+              245.5,
+              435.5
+            ],
+            "category_id": 2,
+            "image_id": 13355,
+            "score": 0.76953125
+          }
+        ],
+        "rank": 2,
+        "rank_score": [
+          1.0,
+          0.76953125
+        ],
+        "rendered_path": "images/false_positive_negative_frame-02-image-13355.png",
+        "rendered_sha256": "5fff975eeadec8af75483471deefab84f988fe65e73f3705b2ad5cc9971d483e"
+      },
+      {
+        "file_name": "images/subject_12/video_05/subject_12_video_05_frame_0068.jpg",
+        "ground_truths": [],
+        "image_id": 13304,
+        "predictions": [
+          {
+            "bbox": [
+              224.5,
+              246.0,
+              248.0,
+              392.0
+            ],
+            "category_id": 2,
+            "image_id": 13304,
+            "score": 0.765625
+          }
+        ],
+        "rank": 3,
+        "rank_score": [
+          1.0,
+          0.765625
+        ],
+        "rendered_path": "images/false_positive_negative_frame-03-image-13304.png",
+        "rendered_sha256": "c99ef8a37e6ccf664d66e5e3629dc7a001beed0ae46cb1fb96c9246bd7da1349"
+      }
+    ],
+    "localization_error": [
+      {
+        "file_name": "images/subject_10/video_02/subject_10_video_02_frame_0310.jpg",
+        "ground_truths": [
+          {
+            "area": 20005.41,
+            "bbox": [
+              448.09,
+              501.65,
+              144.6,
+              138.35
+            ],
+            "category_id": 4,
+            "id": 2007,
+            "ignore": 0,
+            "image_id": 10699,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 10699,
+        "predictions": [
+          {
+            "bbox": [
+              483.5,
+              415.25,
+              110.0,
+              213.75
+            ],
+            "category_id": 4,
+            "image_id": 10699,
+            "score": 0.66259765625
+          }
+        ],
+        "rank": 1,
+        "rank_score": [
+          1.0,
+          0.4695759115890115
+        ],
+        "rendered_path": "images/localization_error-01-image-10699.png",
+        "rendered_sha256": "05c14b1f41beb035ecb385aff7acc9683e70a7138b1e89b8356bb1ac934e4afe"
+      },
+      {
+        "file_name": "images/subject_10/video_02/subject_10_video_02_frame_0301.jpg",
+        "ground_truths": [
+          {
+            "area": 25297.77,
+            "bbox": [
+              465.05,
+              495.4,
+              174.95,
+              144.6
+            ],
+            "category_id": 4,
+            "id": 1998,
+            "ignore": 0,
+            "image_id": 10690,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 10690,
+        "predictions": [
+          {
+            "bbox": [
+              544.0,
+              434.0,
+              96.0,
+              206.0
+            ],
+            "category_id": 4,
+            "image_id": 10690,
+            "score": 0.640625
+          }
+        ],
+        "rank": 2,
+        "rank_score": [
+          1.0,
+          0.44503476353200183
+        ],
+        "rendered_path": "images/localization_error-02-image-10690.png",
+        "rendered_sha256": "913b529a41f0f00b807512659f3308042a8640a815ed73332c18cc0810fc6d46"
+      }
+    ]
+  },
+  "examples_per_category": 3,
+  "model_id": "yolo11n",
+  "schema_version": 1,
+  "selection": "deterministic_predeclared_category_ranking",
+  "threshold": 0.59,
+  "training_seed": 73
+}

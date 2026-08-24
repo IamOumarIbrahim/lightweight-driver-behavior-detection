@@ -1,0 +1,28 @@
+{
+  "train": [
+    "Subject_02",
+    "Subject_05",
+    "Subject_06",
+    "Subject_07",
+    "Subject_09",
+    "Subject_10",
+    "Subject_11",
+    "Subject_12",
+    "Subject_15"
+  ],
+  "val": [
+    "Subject_03",
+    "Subject_04",
+    "Subject_08"
+  ],
+  "test": [
+    "Subject_01",
+    "Subject_13",
+    "Subject_14"
+  ],
+  "metadata": {
+    "policy": "subject-disjoint; validation and test frozen across ratios",
+    "snippet_fps": 10,
+    "frames_per_snippet": 10
+  }
+}

@@ -1,0 +1,514 @@
+{
+  "artifact": "dms_eval_aggregate",
+  "dispersion": "sample_standard_deviation",
+  "rows": [
+    {
+      "far_per_100_negative_frames": {
+        "mean": 0.6284468385276388,
+        "sample_std": 0.044428647109628766
+      },
+      "flop_estimates": {
+        "thop": {
+          "mean": 6441369600.0,
+          "sample_std": 0.0
+        },
+        "torch_profiler": {
+          "mean": 12690473600.0,
+          "sample_std": 0.0
+        }
+      },
+      "inference_artifact_bytes": {
+        "mean": 5376711.0,
+        "sample_std": 0.0
+      },
+      "map_50": {
+        "mean": 0.9179114075508388,
+        "sample_std": 0.004428269771587807
+      },
+      "map_50_95": {
+        "mean": 0.5538158638463506,
+        "sample_std": 0.004070963009807415
+      },
+      "micro_f1": {
+        "mean": 0.8659952677289962,
+        "sample_std": 0.0048990799322164704
+      },
+      "model_forward_p50_ms": {
+        "mean": 13.464811007181803,
+        "sample_std": 0.1963339649610293
+      },
+      "model_forward_p95_ms": {
+        "mean": 18.348718770345048,
+        "sample_std": 0.8034494635791196
+      },
+      "model_forward_p99_ms": {
+        "mean": 21.908131052652998,
+        "sample_std": 1.2885390438232258
+      },
+      "model_forward_sustained_fps": {
+        "mean": 72.21335832353674,
+        "sample_std": 1.4214048792219
+      },
+      "model_id": "yolo11n",
+      "parameters": {
+        "mean": 2590620.0,
+        "sample_std": 0.0
+      },
+      "peak_allocated_vram_bytes": {
+        "mean": 66387456.0,
+        "sample_std": 0.0
+      },
+      "per_class_ap_50_95": {
+        "drinking": {
+          "mean": 0.6071888066462047,
+          "sample_std": 0.026573200417536698
+        },
+        "hand_over_mouth": {
+          "mean": 0.5013320723911958,
+          "sample_std": 0.029983700412060575
+        },
+        "phone_use": {
+          "mean": 0.5068982974725477,
+          "sample_std": 0.006860458535653272
+        },
+        "yawning": {
+          "mean": 0.599844278875454,
+          "sample_std": 0.012859244193747963
+        }
+      },
+      "precision": {
+        "mean": 0.9343010726900158,
+        "sample_std": 0.011561543603663016
+      },
+      "recall": {
+        "mean": 0.8072747014115093,
+        "sample_std": 0.01695167752008252
+      },
+      "runs": 3,
+      "tensor_to_final_detections_p50_ms": {
+        "mean": 14.30206666312491,
+        "sample_std": 0.19570159839310222
+      },
+      "tensor_to_final_detections_p95_ms": {
+        "mean": 19.455673343812425,
+        "sample_std": 0.8802239445322199
+      },
+      "tensor_to_final_detections_p99_ms": {
+        "mean": 23.518981366263084,
+        "sample_std": 1.7572790654658272
+      },
+      "tensor_to_final_detections_sustained_fps": {
+        "mean": 67.97326443144,
+        "sample_std": 1.281910443640524
+      },
+      "training_seeds": [
+        13,
+        37,
+        73
+      ]
+    },
+    {
+      "far_per_100_negative_frames": {
+        "mean": 0.6669231755803514,
+        "sample_std": 0.05877357566956317
+      },
+      "flop_estimates": {
+        "thop": {
+          "mean": 5775769600.0,
+          "sample_std": 0.0
+        },
+        "torch_profiler": {
+          "mean": 11372236000.0,
+          "sample_std": 0.0
+        }
+      },
+      "inference_artifact_bytes": {
+        "mean": 5281874.0,
+        "sample_std": 0.0
+      },
+      "map_50": {
+        "mean": 0.8928159465386686,
+        "sample_std": 0.009864200415949164
+      },
+      "map_50_95": {
+        "mean": 0.5697982692295772,
+        "sample_std": 0.008148157909317002
+      },
+      "micro_f1": {
+        "mean": 0.8443900450853631,
+        "sample_std": 0.011413333748549059
+      },
+      "model_forward_p50_ms": {
+        "mean": 18.88420232137044,
+        "sample_std": 0.09704789536623827
+      },
+      "model_forward_p95_ms": {
+        "mean": 23.319650141398107,
+        "sample_std": 0.0894322132807519
+      },
+      "model_forward_p99_ms": {
+        "mean": 26.21286348978679,
+        "sample_std": 0.21659723246456486
+      },
+      "model_forward_sustained_fps": {
+        "mean": 52.6307061395327,
+        "sample_std": 0.2286915987659572
+      },
+      "model_id": "yolo26n",
+      "parameters": {
+        "mean": 2505360.0,
+        "sample_std": 0.0
+      },
+      "peak_allocated_vram_bytes": {
+        "mean": 64393728.0,
+        "sample_std": 0.0
+      },
+      "per_class_ap_50_95": {
+        "drinking": {
+          "mean": 0.617398288557459,
+          "sample_std": 0.01400742940487422
+        },
+        "hand_over_mouth": {
+          "mean": 0.5634120710642252,
+          "sample_std": 0.022401322049287797
+        },
+        "phone_use": {
+          "mean": 0.5371294335244181,
+          "sample_std": 0.005520107257970868
+        },
+        "yawning": {
+          "mean": 0.5612532837722067,
+          "sample_std": 0.03476669532522255
+        }
+      },
+      "precision": {
+        "mean": 0.9255620719784056,
+        "sample_std": 0.011226396380679564
+      },
+      "recall": {
+        "mean": 0.7763300760043431,
+        "sample_std": 0.012439130550911623
+      },
+      "runs": 3,
+      "tensor_to_final_detections_p50_ms": {
+        "mean": 19.214633347777028,
+        "sample_std": 0.09338983875609716
+      },
+      "tensor_to_final_detections_p95_ms": {
+        "mean": 23.691779992077496,
+        "sample_std": 0.094723702454344
+      },
+      "tensor_to_final_detections_p99_ms": {
+        "mean": 26.611747986171405,
+        "sample_std": 0.2366333270426415
+      },
+      "tensor_to_final_detections_sustained_fps": {
+        "mean": 51.729061825974014,
+        "sample_std": 0.22615187876079515
+      },
+      "training_seeds": [
+        13,
+        37,
+        73
+      ]
+    }
+  ],
+  "run_policy": "three_predeclared_equal_seeds_no_run_selection",
+  "runs": [
+    {
+      "far_per_100_negative_frames": 0.6540977298961139,
+      "flop_estimates": {
+        "interpretation": "Tool-dependent estimates; disagreement indicates operator-coverage uncertainty.",
+        "thop": {
+          "flops": 6441369600,
+          "method": "ultralytics-thop MACs multiplied by 2",
+          "status": "estimated"
+        },
+        "torch_profiler": {
+          "flops": 12690473600,
+          "method": "torch.profiler with_flops operator sum",
+          "status": "estimated"
+        }
+      },
+      "inference_artifact_bytes": 5376711,
+      "inference_artifact_sha256": "132be2973fc1e3c360fc799f70739fcb2decb863289d7dc25a5812e0335983d9",
+      "manifest_id": "85d22f2a767387eeb469d9238c5b16cfb68bcb136491e08a97cd763bba6575cc",
+      "map_50": 0.9155973128378432,
+      "map_50_95": 0.5546837240801866,
+      "micro_f1": 0.8678260869565217,
+      "model_forward_p50_ms": 13.331040382385254,
+      "model_forward_p95_ms": 18.78470420837402,
+      "model_forward_p99_ms": 22.25232170104981,
+      "model_forward_sustained_fps": 72.44994744723121,
+      "model_id": "yolo11n",
+      "parameters": 2590620,
+      "peak_allocated_vram_bytes": 66387456,
+      "per_class_ap_50_95": {
+        "drinking": 0.5766056058218927,
+        "hand_over_mouth": 0.525288951523124,
+        "phone_use": 0.5023523876374731,
+        "yawning": 0.6144879513382565
+      },
+      "precision": 0.9309701492537313,
+      "qualitative_analysis": {
+        "path": "results/RGB/yolo11n/seed_13/analysis.json",
+        "sha256": "05244d3a909495c82f06f091be18ffb653c6de5267d29b99d1712adf1b8a22f1"
+      },
+      "recall": 0.8127035830618893,
+      "source": "runs/RGB/yolo11n/seed_13/test/result.json",
+      "suite_id": "8fc5438a25cc3aa3e4da24e4c8368318d5f37da57a08e2b5c3e434d914607f70",
+      "tensor_to_final_detections_p50_ms": 14.145900029689074,
+      "tensor_to_final_detections_p95_ms": 19.764999975450337,
+      "tensor_to_final_detections_p99_ms": 24.012396032921973,
+      "tensor_to_final_detections_sustained_fps": 68.2496285437829,
+      "training_seed": 13
+    },
+    {
+      "far_per_100_negative_frames": 0.6540977298961139,
+      "flop_estimates": {
+        "interpretation": "Tool-dependent estimates; disagreement indicates operator-coverage uncertainty.",
+        "thop": {
+          "flops": 6441369600,
+          "method": "ultralytics-thop MACs multiplied by 2",
+          "status": "estimated"
+        },
+        "torch_profiler": {
+          "flops": 12690473600,
+          "method": "torch.profiler with_flops operator sum",
+          "status": "estimated"
+        }
+      },
+      "inference_artifact_bytes": 5376711,
+      "inference_artifact_sha256": "a04c9073c4d5f5a361fdfbf1ec46caaeb8a65092e5a52a788777e6d5f7e978ad",
+      "manifest_id": "81cca8bd867533a29a2d1d781a7ea53a1aa2f35d87eb8860569fe387430310ef",
+      "map_50": 0.9230172898512691,
+      "map_50_95": 0.5573829153325038,
+      "micro_f1": 0.8697152717860225,
+      "model_forward_p50_ms": 13.690208435058594,
+      "model_forward_p95_ms": 18.83992881774902,
+      "model_forward_p99_ms": 22.98962356567383,
+      "model_forward_sustained_fps": 70.688503766315,
+      "model_id": "yolo11n",
+      "parameters": 2590620,
+      "peak_allocated_vram_bytes": 66387456,
+      "per_class_ap_50_95": {
+        "drinking": 0.6203273044283352,
+        "hand_over_mouth": 0.5110001856014554,
+        "phone_use": 0.5035528078412843,
+        "yawning": 0.59465136345894
+      },
+      "precision": 0.9247706422018349,
+      "qualitative_analysis": {
+        "path": "results/RGB/yolo11n/seed_37/analysis.json",
+        "sha256": "95791cc66a26cf125f7c4c238bc7dd732c1a78b959e26656dba8094532ea835c"
+      },
+      "recall": 0.8208469055374593,
+      "source": "runs/RGB/yolo11n/seed_37/test/result.json",
+      "suite_id": "8fc5438a25cc3aa3e4da24e4c8368318d5f37da57a08e2b5c3e434d914607f70",
+      "tensor_to_final_detections_p50_ms": 14.521599980071187,
+      "tensor_to_final_detections_p95_ms": 20.13948004459962,
+      "tensor_to_final_detections_p99_ms": 24.97680804226548,
+      "tensor_to_final_detections_sustained_fps": 66.5757128728701,
+      "training_seed": 37
+    },
+    {
+      "far_per_100_negative_frames": 0.5771450557906888,
+      "flop_estimates": {
+        "interpretation": "Tool-dependent estimates; disagreement indicates operator-coverage uncertainty.",
+        "thop": {
+          "flops": 6441369600,
+          "method": "ultralytics-thop MACs multiplied by 2",
+          "status": "estimated"
+        },
+        "torch_profiler": {
+          "flops": 12690473600,
+          "method": "torch.profiler with_flops operator sum",
+          "status": "estimated"
+        }
+      },
+      "inference_artifact_bytes": 5376711,
+      "inference_artifact_sha256": "071c60fe75584b3035903bb6e6febb5af0f73d3ba7c57696b92c848b2a17bce7",
+      "manifest_id": "f7ee4abd47930160aeb53d6f0fc64054de0872b73f869583e766438af7266c7f",
+      "map_50": 0.915119619963404,
+      "map_50_95": 0.5493809521263613,
+      "micro_f1": 0.8604444444444443,
+      "model_forward_p50_ms": 13.373184204101562,
+      "model_forward_p95_ms": 17.42152328491211,
+      "model_forward_p99_ms": 20.482447891235353,
+      "model_forward_sustained_fps": 73.50162375706401,
+      "model_id": "yolo11n",
+      "parameters": 2590620,
+      "peak_allocated_vram_bytes": 66387456,
+      "per_class_ap_50_95": {
+        "drinking": 0.6246335096883863,
+        "hand_over_mouth": 0.467707080049008,
+        "phone_use": 0.5147896969388855,
+        "yawning": 0.5903935218291655
+      },
+      "precision": 0.9471624266144814,
+      "qualitative_analysis": {
+        "path": "results/RGB/yolo11n/seed_73/analysis.json",
+        "sha256": "c504d9c2ea1f7454240481ad7704028774f8e47b2dfe49eeab2dcb5bfc390b4b"
+      },
+      "recall": 0.7882736156351792,
+      "source": "runs/RGB/yolo11n/seed_73/test/result.json",
+      "suite_id": "8fc5438a25cc3aa3e4da24e4c8368318d5f37da57a08e2b5c3e434d914607f70",
+      "tensor_to_final_detections_p50_ms": 14.238699979614466,
+      "tensor_to_final_detections_p95_ms": 18.46254001138732,
+      "tensor_to_final_detections_p99_ms": 21.5677400236018,
+      "tensor_to_final_detections_sustained_fps": 69.09445187766701,
+      "training_seed": 73
+    },
+    {
+      "far_per_100_negative_frames": 0.7310504040015391,
+      "flop_estimates": {
+        "interpretation": "Tool-dependent estimates; disagreement indicates operator-coverage uncertainty.",
+        "thop": {
+          "flops": 5775769600,
+          "method": "ultralytics-thop MACs multiplied by 2",
+          "status": "estimated"
+        },
+        "torch_profiler": {
+          "flops": 11372236000,
+          "method": "torch.profiler with_flops operator sum",
+          "status": "estimated"
+        }
+      },
+      "inference_artifact_bytes": 5281874,
+      "inference_artifact_sha256": "c51f9955b898c8644041ef531716a20e6bed243a2cbbe98f0e9cb7bd97916526",
+      "manifest_id": "54841641d5b90d1150c63016b90dcfd9f7db181666d1d0d4234a7654ca944e7b",
+      "map_50": 0.9023436453408066,
+      "map_50_95": 0.5790202038467065,
+      "micro_f1": 0.8451957295373667,
+      "model_forward_p50_ms": 18.986143112182617,
+      "model_forward_p95_ms": 23.40976028442383,
+      "model_forward_p99_ms": 26.456754531860355,
+      "model_forward_sustained_fps": 52.380247107284646,
+      "model_id": "yolo26n",
+      "parameters": 2505360,
+      "peak_allocated_vram_bytes": 64393728,
+      "per_class_ap_50_95": {
+        "drinking": 0.6112664589206066,
+        "hand_over_mouth": 0.5660485684270746,
+        "phone_use": 0.5392735746834914,
+        "yawning": 0.5994922133556534
+      },
+      "precision": 0.9313725490196079,
+      "qualitative_analysis": {
+        "path": "results/RGB/yolo26n/seed_13/analysis.json",
+        "sha256": "a7a45b319a26f5fb8a2b58d9667cbb237ea80b403334287ec2b6286e8fc3fa9c"
+      },
+      "recall": 0.7736156351791531,
+      "source": "runs/RGB/yolo26n/seed_13/test/result.json",
+      "suite_id": "8fc5438a25cc3aa3e4da24e4c8368318d5f37da57a08e2b5c3e434d914607f70",
+      "tensor_to_final_detections_p50_ms": 19.317600002977997,
+      "tensor_to_final_detections_p95_ms": 23.801039974205196,
+      "tensor_to_final_detections_p99_ms": 26.868587979115556,
+      "tensor_to_final_detections_sustained_fps": 51.48261206128048,
+      "training_seed": 13
+    },
+    {
+      "far_per_100_negative_frames": 0.6540977298961139,
+      "flop_estimates": {
+        "interpretation": "Tool-dependent estimates; disagreement indicates operator-coverage uncertainty.",
+        "thop": {
+          "flops": 5775769600,
+          "method": "ultralytics-thop MACs multiplied by 2",
+          "status": "estimated"
+        },
+        "torch_profiler": {
+          "flops": 11372236000,
+          "method": "torch.profiler with_flops operator sum",
+          "status": "estimated"
+        }
+      },
+      "inference_artifact_bytes": 5281874,
+      "inference_artifact_sha256": "ee950392f4a021f3bb8d7332d83666b6276a9b30957172982c8b98471aa3b772",
+      "manifest_id": "820256f3a01d849cfb82c9ab5eff04e5e2458bff64ae58e785e98e5d109fb74d",
+      "map_50": 0.893457618990096,
+      "map_50_95": 0.5668026714617709,
+      "micro_f1": 0.8325952170062003,
+      "model_forward_p50_ms": 18.87353515625,
+      "model_forward_p95_ms": 23.230911636352534,
+      "model_forward_p99_ms": 26.04293640136719,
+      "model_forward_sustained_fps": 52.68346116207342,
+      "model_id": "yolo26n",
+      "parameters": 2505360,
+      "peak_allocated_vram_bytes": 64393728,
+      "per_class_ap_50_95": {
+        "drinking": 0.6334260156531479,
+        "hand_over_mouth": 0.5398091664330741,
+        "phone_use": 0.5412557836816994,
+        "yawning": 0.5527197200791621
+      },
+      "precision": 0.912621359223301,
+      "qualitative_analysis": {
+        "path": "results/RGB/yolo26n/seed_37/analysis.json",
+        "sha256": "29a1c67b121893d9669eb4f57024cd8942fbfd888fbc6c351e531e8b742649e2"
+      },
+      "recall": 0.7654723127035831,
+      "source": "runs/RGB/yolo26n/seed_37/test/result.json",
+      "suite_id": "8fc5438a25cc3aa3e4da24e4c8368318d5f37da57a08e2b5c3e434d914607f70",
+      "tensor_to_final_detections_p50_ms": 19.190900027751923,
+      "tensor_to_final_detections_p95_ms": 23.632760008331385,
+      "tensor_to_final_detections_p99_ms": 26.402579955756664,
+      "tensor_to_final_detections_sustained_fps": 51.77750999149721,
+      "training_seed": 37
+    },
+    {
+      "far_per_100_negative_frames": 0.6156213928434013,
+      "flop_estimates": {
+        "interpretation": "Tool-dependent estimates; disagreement indicates operator-coverage uncertainty.",
+        "thop": {
+          "flops": 5775769600,
+          "method": "ultralytics-thop MACs multiplied by 2",
+          "status": "estimated"
+        },
+        "torch_profiler": {
+          "flops": 11372236000,
+          "method": "torch.profiler with_flops operator sum",
+          "status": "estimated"
+        }
+      },
+      "inference_artifact_bytes": 5281874,
+      "inference_artifact_sha256": "4fa001201e9033153aa1ef0448ae08b8b27e1277dd0a1b193714117d26c9ab8d",
+      "manifest_id": "394a6dc36bc20d9afe343a2a5b825a65981f2a7480c577e5464457c16aeaa84c",
+      "map_50": 0.8826465752851033,
+      "map_50_95": 0.5635719323802543,
+      "micro_f1": 0.8553791887125222,
+      "model_forward_p50_ms": 18.79292869567871,
+      "model_forward_p95_ms": 23.31827850341796,
+      "model_forward_p99_ms": 26.13889953613283,
+      "model_forward_sustained_fps": 52.82841014924003,
+      "model_id": "yolo26n",
+      "parameters": 2505360,
+      "peak_allocated_vram_bytes": 64393728,
+      "per_class_ap_50_95": {
+        "drinking": 0.6075023910986225,
+        "hand_over_mouth": 0.5843784783325268,
+        "phone_use": 0.5308589422080635,
+        "yawning": 0.5315479178818047
+      },
+      "precision": 0.9326923076923077,
+      "qualitative_analysis": {
+        "path": "results/RGB/yolo26n/seed_73/analysis.json",
+        "sha256": "e356f8accaac8105f3d1e7f137b8bd205534949d46355e9c31ed3d7520f8cd42"
+      },
+      "recall": 0.7899022801302932,
+      "source": "runs/RGB/yolo26n/seed_73/test/result.json",
+      "suite_id": "8fc5438a25cc3aa3e4da24e4c8368318d5f37da57a08e2b5c3e434d914607f70",
+      "tensor_to_final_detections_p50_ms": 19.135400012601167,
+      "tensor_to_final_detections_p95_ms": 23.64153999369591,
+      "tensor_to_final_detections_p99_ms": 26.56407602364199,
+      "tensor_to_final_detections_sustained_fps": 51.927063425144354,
+      "training_seed": 73
+    }
+  ],
+  "schema_version": 3,
+  "suite_id": "8fc5438a25cc3aa3e4da24e4c8368318d5f37da57a08e2b5c3e434d914607f70",
+  "training_seeds": [
+    13,
+    37,
+    73
+  ]
+}

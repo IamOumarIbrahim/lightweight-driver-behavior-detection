@@ -1,0 +1,16 @@
+# DMS-Eval Benchmark YOLO Dataset Configuration
+# ===============================================
+
+path: data/processed/RGB
+
+# Dataset Split Definitions
+train: yolo/train.txt
+val: yolo/val.txt
+test: yolo/test.txt
+
+# Class Ontology (0-indexed for YOLO detectors)
+names:
+  0: yawning
+  1: hand_over_mouth
+  2: drinking
+  3: phone_use

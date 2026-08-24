@@ -1,0 +1,484 @@
+{
+  "artifact": "qualitative_error_analysis",
+  "class_confusion_pairs": {
+    "4->2": 1
+  },
+  "counts": {
+    "class_confusion": 1,
+    "correct_detection": 453,
+    "false_negative": 144,
+    "false_positive_negative_frame": 17,
+    "fn": 144,
+    "fp": 45,
+    "images": 3213,
+    "localization_error": 4,
+    "tp": 470
+  },
+  "examples": {
+    "class_confusion": [
+      {
+        "file_name": "images/subject_10/video_02/subject_10_video_02_frame_0070.jpg",
+        "ground_truths": [
+          {
+            "area": 79983.88,
+            "bbox": [
+              111.58,
+              312.41,
+              274.03,
+              291.88
+            ],
+            "category_id": 4,
+            "id": 1913,
+            "ignore": 0,
+            "image_id": 10459,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 10459,
+        "predictions": [
+          {
+            "bbox": [
+              114.25,
+              210.25,
+              361.75,
+              423.75
+            ],
+            "category_id": 2,
+            "image_id": 10459,
+            "score": 0.75439453125
+          }
+        ],
+        "rank": 1,
+        "rank_score": [
+          1.0,
+          0.5140786871629132
+        ],
+        "rendered_path": "images/class_confusion-01-image-10459.png",
+        "rendered_sha256": "38e0f88d7e10a39f85e7b65c0c0671e00d1c82868a8904a4ac0b5192c3bd1f76"
+      }
+    ],
+    "correct_detection": [
+      {
+        "file_name": "images/subject_12/video_02/subject_12_video_02_frame_0271.jpg",
+        "ground_truths": [
+          {
+            "area": 35478.48,
+            "bbox": [
+              444.16,
+              264.48,
+              137.29,
+              258.42
+            ],
+            "category_id": 4,
+            "id": 2431,
+            "ignore": 0,
+            "image_id": 12759,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 12759,
+        "predictions": [
+          {
+            "bbox": [
+              443.5,
+              272.0,
+              139.5,
+              250.0
+            ],
+            "category_id": 4,
+            "image_id": 12759,
+            "score": 0.8349609375
+          }
+        ],
+        "rank": 1,
+        "rank_score": [
+          1.0,
+          0.9525829795734294
+        ],
+        "rendered_path": "images/correct_detection-01-image-12759.png",
+        "rendered_sha256": "f6ef619fab7e4613e032af25a65f037cd2e2b3e01c6a61c90895c5cc743b512c"
+      },
+      {
+        "file_name": "images/subject_05/video_01/subject_05_video_01_frame_0149.jpg",
+        "ground_truths": [
+          {
+            "area": 57046.92,
+            "bbox": [
+              269.57,
+              387.39,
+              225.83,
+              252.61
+            ],
+            "category_id": 3,
+            "id": 829,
+            "ignore": 0,
+            "image_id": 4644,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 4644,
+        "predictions": [
+          {
+            "bbox": [
+              265.5,
+              384.0,
+              231.75,
+              258.5
+            ],
+            "category_id": 3,
+            "image_id": 4644,
+            "score": 0.765625
+          }
+        ],
+        "rank": 2,
+        "rank_score": [
+          1.0,
+          0.9522519773233261
+        ],
+        "rendered_path": "images/correct_detection-02-image-4644.png",
+        "rendered_sha256": "c6299e227ff103104630cb482dfea9de9236e7d242fe360708fcd5ce5d5b496a"
+      },
+      {
+        "file_name": "images/subject_05/video_02/subject_05_video_02_frame_0243.jpg",
+        "ground_truths": [
+          {
+            "area": 37081.74,
+            "bbox": [
+              351.69,
+              307.06,
+              159.78,
+              232.08
+            ],
+            "category_id": 4,
+            "id": 922,
+            "ignore": 0,
+            "image_id": 4978,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 4978,
+        "predictions": [
+          {
+            "bbox": [
+              356.25,
+              307.0,
+              152.0,
+              232.0
+            ],
+            "category_id": 4,
+            "image_id": 4978,
+            "score": 0.85546875
+          }
+        ],
+        "rank": 3,
+        "rank_score": [
+          1.0,
+          0.9505004121985579
+        ],
+        "rendered_path": "images/correct_detection-03-image-4978.png",
+        "rendered_sha256": "5ef10561c110c760e9d203230a7fc6c5b4c25df58c9412202e152fda9d606ece"
+      }
+    ],
+    "false_negative": [
+      {
+        "file_name": "images/subject_05/video_01/subject_05_video_01_frame_0102.jpg",
+        "ground_truths": [
+          {
+            "area": 50581.57,
+            "bbox": [
+              248.15,
+              399.89,
+              210.66,
+              240.11
+            ],
+            "category_id": 3,
+            "id": 824,
+            "ignore": 0,
+            "image_id": 4597,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 4597,
+        "predictions": [],
+        "rank": 1,
+        "rank_score": [
+          1.0,
+          1.0
+        ],
+        "rendered_path": "images/false_negative-01-image-4597.png",
+        "rendered_sha256": "dbe4da0392e0b23586aaa92b697829cb332c53aa01d6c76143a9ad48ec01eb3e"
+      },
+      {
+        "file_name": "images/subject_05/video_01/subject_05_video_01_frame_0152.jpg",
+        "ground_truths": [
+          {
+            "area": 38562.34,
+            "bbox": [
+              275.82,
+              444.52,
+              197.27,
+              195.48
+            ],
+            "category_id": 3,
+            "id": 832,
+            "ignore": 0,
+            "image_id": 4647,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 4647,
+        "predictions": [],
+        "rank": 2,
+        "rank_score": [
+          1.0,
+          1.0
+        ],
+        "rendered_path": "images/false_negative-02-image-4647.png",
+        "rendered_sha256": "4f7b61f41a01a74a9401417cb862a8c4329408a9428797d9f66c25625184b94c"
+      },
+      {
+        "file_name": "images/subject_05/video_01/subject_05_video_01_frame_0228.jpg",
+        "ground_truths": [
+          {
+            "area": 42463.34,
+            "bbox": [
+              267.78,
+              440.95,
+              213.33,
+              199.05
+            ],
+            "category_id": 3,
+            "id": 833,
+            "ignore": 0,
+            "image_id": 4723,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 4723,
+        "predictions": [],
+        "rank": 3,
+        "rank_score": [
+          1.0,
+          1.0
+        ],
+        "rendered_path": "images/false_negative-03-image-4723.png",
+        "rendered_sha256": "5ad2a50494348ccc1c58edc30f690412ae45d7eff699b5be44bff7e5bcb4448e"
+      }
+    ],
+    "false_positive_negative_frame": [
+      {
+        "file_name": "images/subject_12/video_02/subject_12_video_02_frame_0266.jpg",
+        "ground_truths": [],
+        "image_id": 12754,
+        "predictions": [
+          {
+            "bbox": [
+              245.5,
+              131.0,
+              239.0,
+              460.0
+            ],
+            "category_id": 2,
+            "image_id": 12754,
+            "score": 0.85791015625
+          }
+        ],
+        "rank": 1,
+        "rank_score": [
+          1.0,
+          0.85791015625
+        ],
+        "rendered_path": "images/false_positive_negative_frame-01-image-12754.png",
+        "rendered_sha256": "fef78a539b75c5949e1b368a8bd17da5ee41586fa7e6bbd86e007cce1fcf5513"
+      },
+      {
+        "file_name": "images/subject_12/video_05/subject_12_video_05_frame_0129.jpg",
+        "ground_truths": [],
+        "image_id": 13365,
+        "predictions": [
+          {
+            "bbox": [
+              229.5,
+              149.625,
+              284.5,
+              459.375
+            ],
+            "category_id": 2,
+            "image_id": 13365,
+            "score": 0.84375
+          }
+        ],
+        "rank": 2,
+        "rank_score": [
+          1.0,
+          0.84375
+        ],
+        "rendered_path": "images/false_positive_negative_frame-02-image-13365.png",
+        "rendered_sha256": "c50ddf405dc80051aad6b4669d863ab96b91f2c7649d25b1ecb41485f4e9e620"
+      },
+      {
+        "file_name": "images/subject_12/video_01/subject_12_video_01_frame_0092.jpg",
+        "ground_truths": [],
+        "image_id": 12324,
+        "predictions": [
+          {
+            "bbox": [
+              242.125,
+              129.0,
+              234.375,
+              455.0
+            ],
+            "category_id": 2,
+            "image_id": 12324,
+            "score": 0.8388671875
+          }
+        ],
+        "rank": 3,
+        "rank_score": [
+          1.0,
+          0.8388671875
+        ],
+        "rendered_path": "images/false_positive_negative_frame-03-image-12324.png",
+        "rendered_sha256": "03da4d4aeb7e78f59c3a960c715a797d8602aaf2f9456127efb6d90e73b78fcf"
+      }
+    ],
+    "localization_error": [
+      {
+        "file_name": "images/subject_10/video_02/subject_10_video_02_frame_0320.jpg",
+        "ground_truths": [
+          {
+            "area": 21153.28,
+            "bbox": [
+              473.08,
+              506.11,
+              157.99,
+              133.89
+            ],
+            "category_id": 4,
+            "id": 2016,
+            "ignore": 0,
+            "image_id": 10709,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 10709,
+        "predictions": [
+          {
+            "bbox": [
+              504.5,
+              415.0,
+              129.0,
+              219.5
+            ],
+            "category_id": 4,
+            "image_id": 10709,
+            "score": 0.73486328125
+          }
+        ],
+        "rank": 1,
+        "rank_score": [
+          1.0,
+          0.4891955523234567
+        ],
+        "rendered_path": "images/localization_error-01-image-10709.png",
+        "rendered_sha256": "c2928617cc3f0959753eb7427a7a6a0056417319e8d708b989de44f805808874"
+      },
+      {
+        "file_name": "images/subject_10/video_02/subject_10_video_02_frame_0288.jpg",
+        "ground_truths": [
+          {
+            "area": 21550.75,
+            "bbox": [
+              434.7,
+              496.29,
+              149.96,
+              143.71
+            ],
+            "category_id": 4,
+            "id": 1985,
+            "ignore": 0,
+            "image_id": 10677,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 10677,
+        "predictions": [
+          {
+            "bbox": [
+              447.75,
+              398.5,
+              142.25,
+              226.5
+            ],
+            "category_id": 4,
+            "image_id": 10677,
+            "score": 0.84765625
+          }
+        ],
+        "rank": 2,
+        "rank_score": [
+          1.0,
+          0.48747785483404976
+        ],
+        "rendered_path": "images/localization_error-02-image-10677.png",
+        "rendered_sha256": "456cec7a46886f89a49839f75c829832d539ee8b0e697fb06678319a8c794842"
+      },
+      {
+        "file_name": "images/subject_10/video_02/subject_10_video_02_frame_0392.jpg",
+        "ground_truths": [
+          {
+            "area": 14806.48,
+            "bbox": [
+              0.0,
+              359.72,
+              56.23,
+              263.32
+            ],
+            "category_id": 4,
+            "id": 2035,
+            "ignore": 0,
+            "image_id": 10781,
+            "iscrowd": 0,
+            "segmentation": []
+          }
+        ],
+        "image_id": 10781,
+        "predictions": [
+          {
+            "bbox": [
+              -0.6875,
+              384.25,
+              106.0625,
+              256.25
+            ],
+            "category_id": 4,
+            "image_id": 10781,
+            "score": 0.77587890625
+          }
+        ],
+        "rank": 3,
+        "rank_score": [
+          1.0,
+          0.47017431513312735
+        ],
+        "rendered_path": "images/localization_error-03-image-10781.png",
+        "rendered_sha256": "4e9f7364ed5d2557b7d85469764c9445873e92c1a8f4ca599071bb1c7a23bb25"
+      }
+    ]
+  },
+  "examples_per_category": 3,
+  "model_id": "yolo26n",
+  "schema_version": 1,
+  "selection": "deterministic_predeclared_category_ranking",
+  "threshold": 0.72,
+  "training_seed": 37
+}

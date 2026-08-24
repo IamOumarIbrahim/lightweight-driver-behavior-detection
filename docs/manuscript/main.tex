@@ -1,0 +1,137 @@
+% IEEE conference draft. Maximum length: six pages including references.
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\graphicspath{{../../results/RGB/summary/figures/}}
+
+\begin{document}
+
+\title{Lightweight Object Detection Models for Real-Time Driver Behavior Detection with Subject-Disjoint Evaluation}
+
+\author{
+\IEEEauthorblockN{Oumar Mamoun Ibrahim}
+\IEEEauthorblockA{\textit{Department of Computer Engineering} \\
+\textit{University of Sharjah}, Sharjah, UAE \\
+U22200741@sharjah.ac.ae}
+\and
+\IEEEauthorblockN{Mohamad Khairi bin Ishak}
+\IEEEauthorblockA{\textit{Department of Computer Engineering} \\
+\textit{University of Sharjah}, Sharjah, UAE \\
+mishak@sharjah.ac.ae}
+}
+
+\maketitle
+
+\begin{abstract}
+Camera-based driver monitoring must balance detection accuracy, false alarms, and latency under subject and illumination variation. We introduce a reproducible benchmark of three nano-scale detectors---YOLO11n, YOLO26n, and D-FINE-N---on subject-disjoint visible (RGB) and near-infrared (NIR) tracks derived from DMD and Drive\&Act. The protocol fixes $640\times640$ input, a 220-epoch budget, effective batch size 32, validation-only threshold selection, and confirmation-gated test access. The completed RGB YOLO comparison covers three seeds per architecture. YOLO11n reaches $91.79\pm0.44\%$ mAP@0.5, $0.8660\pm0.0049$ micro-F1, and $68.0\pm1.3$ FPS, while YOLO26n improves the stricter mAP@0.5:0.95 to $56.98\pm0.81\%$ with fewer parameters and FLOPs. This establishes a measurable throughput--localization trade-off on negative-heavy continuous data. D-FINE-N and controlled NIR 1:2 versus 1:6 training-negative results will be inserted after their checksum-frozen runs complete; no interim value is used as a final result.
+\end{abstract}
+
+\begin{IEEEkeywords}
+driver monitoring, lightweight object detection, subject-disjoint evaluation, near infrared, false alarm rate, edge inference
+\end{IEEEkeywords}
+
+\section{Introduction}
+Driver distraction and fatigue are safety-critical states, yet their appearance varies strongly across drivers, cabins, cameras, and illumination. Driver-monitoring research spans physiological, vehicle, and vision signals; cameras are attractive because they are non-contact and can localize visible behaviors, but dependable deployment also requires low latency and few nuisance alerts \cite{dong2011review,michelaraki2023realtime}.
+
+Public driver datasets provide complementary evidence. DMD contains multimodal attention and alertness recordings across face, body, and hand views \cite{ortega2020dmd}, whereas Drive\&Act provides color, infrared, depth, and pose streams for fine-grained in-cabin activity \cite{martin2019driveact}. Existing reports are difficult to compare when subject identity leaks across splits, background frames are discarded, confidence thresholds are tuned on test data, or latency boundaries differ.
+
+This work addresses these issues through three contributions:
+\begin{itemize}
+    \item a subject-disjoint RGB/NIR benchmark that retains negative frames and reports false alarms alongside COCO AP;
+    \item an equal-budget comparison of two YOLO nano detectors and the nano D-FINE real-time DETR; and
+    \item a public, checksum-backed workflow that separates training, validation, and one protected test pass while keeping licensed media and checkpoints local.
+\end{itemize}
+
+\section{Related Work}
+YOLO formulates detection as direct image-to-box regression and established the accuracy--speed motivation for one-stage detectors \cite{redmon2016yolo}. DETR instead treats detection as set prediction with bipartite matching, eliminating anchors and non-maximum suppression (NMS) \cite{carion2020detr}. RT-DETR adapted this end-to-end paradigm to real-time operation through an efficient hybrid encoder and query selection \cite{zhao2024rtdetr}. D-FINE improves DETR localization by iteratively refining box-edge distributions and applying localization self-distillation \cite{peng2025dfine}; its distributional view is related to generalized focal localization \cite{li2020gfl}.
+
+For driver monitoring, DMD emphasizes attention and alertness under real and simulated driving \cite{ortega2020dmd}, while Drive\&Act emphasizes fine-grained actions and cross-view/modal variation \cite{martin2019driveact}. Our objective is not a new architecture. It is controlled comparison: identical data membership, budget, evaluation code, and profiling boundaries across lightweight architectural families.
+
+\section{Methodology}
+
+\subsection{RGB Track}
+The RGB track contains 15,723 $640\times640$ face crops sampled at 1 FPS from 81 DMD recordings of 14 drivers. Four mutually exclusive cues are annotated: \texttt{phone\_use}, \texttt{drinking}, \texttt{yawning}, and \texttt{hand\_over\_mouth}. There are 3,001 positive and 12,722 negative frames. Exhaustive subject assignment selects an 8:3:3 split by minimizing worst class-proportion deviation, with RMSE as tie-breaker. Table~\ref{tab:rgbdata} gives the frozen counts.
+
+\begin{table}[t]
+\caption{RGB Frame Counts by Subject-Disjoint Split}
+\label{tab:rgbdata}
+\centering
+\resizebox{\columnwidth}{!}{
+\begin{tabular}{lrrrr}
+\toprule
+Class & Train & Val. & Test & Total \\
+\midrule
+\texttt{phone\_use} & 1,417 & 523 & 497 & 2,437 \\
+\texttt{drinking} & 154 & 54 & 56 & 264 \\
+\texttt{yawning} & 94 & 32 & 33 & 159 \\
+\texttt{hand\_over\_mouth} & 83 & 30 & 28 & 141 \\
+Background & 7,339 & 2,784 & 2,599 & 12,722 \\
+\midrule
+Total & 9,087 & 3,423 & 3,213 & 15,723 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{NIR Track and Ratio Ablation}
+The NIR annotation pool contains 3,763 one-second snippets from 30 active-NIR ($850$ nm) Drive\&Act streams and 15 subjects. Each selected snippet is represented by ten frames at 10 FPS. Source offsets $2,5,\ldots,29$ are cropped to the driver region and resized to $640\times640$; bounding boxes are linearly interpolated at $0.1$-s intervals. The ontology is \texttt{drinking} and \texttt{phone\_use}.
+
+The 9:3:3 subject split fixes 881 validation snippets (120 positive) and 850 test snippets (111 positive). Only training negatives vary: both conditions retain 270 positive snippets, with 540 negatives for 1:2 and 1,620 for 1:6. The 1:2 negatives are a subject-stratified, seed-13 deterministic subset of the 1:6 pool. Thus the full conditions contain 2,541 and 3,621 snippets, respectively. NIR uses seed 13 only; it is a ratio ablation rather than a multi-seed experiment.
+
+\subsection{Models and Training Control}
+We compare Ultralytics YOLO11n, YOLO26n, and D-FINE-N. All runs use $640\times640$ input, physical batch size 8, four-step gradient accumulation, 220 epochs, automatic mixed precision, and no early stopping. The final incomplete accumulation window is normalized by its true sample count. Official pinned model-native optimization is retained: Ultralytics resolves \texttt{optimizer=auto} with a linear schedule (\texttt{cos\_lr=false}), while D-FINE uses AdamW and its MultiStepLR schedule. RGB uses seeds 13, 37, and 73; NIR uses seed 13 for each ratio.
+
+\subsection{Evaluation and Profiling}
+COCO mAP@0.5:0.95 and mAP@0.5 follow the standard COCO evaluator \cite{lin2014coco}. A threshold $\tau^*$ is selected on validation by maximum micro-F1, then higher precision and higher threshold. At IoU 0.5, detections are greedily matched one-to-one within class. We report
+\begin{equation}
+F_1=\frac{2PR}{P+R}, \qquad
+\mathrm{FAR}=100\frac{\mathrm{FP}_{\mathrm{negative\ frames}}}{N_{\mathrm{negative\ frames}}}.
+\end{equation}
+The checkpoint, validation predictions, and $\tau^*$ are checksum-frozen before a single test pass. Batch-1 FP16 profiling on an RTX 4060 reports synchronized model-forward and tensor-to-final-detections boundaries, excluding disk I/O, decode, preprocessing, and metrics.
+
+\section{RGB Results and Discussion}
+
+\begin{table*}[t]
+\caption{RGB Subject-Disjoint Test Results, Mean $\pm$ Sample SD over Seeds 13/37/73}
+\label{tab:rgbresults}
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+Model & mAP@.5 (\%) & mAP@.5:.95 (\%) & Prec. (\%) & Recall (\%) & Micro-F1 & FAR/100 & Fwd. (ms) & Tensor$\rightarrow$Det. (ms) & FPS \\
+\midrule
+YOLO11n & \textbf{91.79$\pm$0.44} & 55.38$\pm$0.41 & \textbf{93.43$\pm$1.16} & \textbf{80.73$\pm$1.70} & \textbf{0.8660$\pm$0.0049} & \textbf{0.63$\pm$0.04} & \textbf{13.46$\pm$0.20} & \textbf{14.30$\pm$0.20} & \textbf{68.0$\pm$1.3} \\
+YOLO26n & 89.28$\pm$0.99 & \textbf{56.98$\pm$0.81} & 92.56$\pm$1.12 & 77.63$\pm$1.24 & 0.8444$\pm$0.0114 & 0.67$\pm$0.06 & 18.88$\pm$0.10 & 19.21$\pm$0.09 & 51.7$\pm$0.2 \\
+D-FINE-N & \multicolumn{9}{c}{\textit{Pending completion of the three checksum-frozen RGB runs}} \\
+\bottomrule
+\end{tabular}}
+\end{table*}
+
+Table~\ref{tab:rgbresults} shows complementary behavior. YOLO11n is preferable when the operating point prioritizes throughput and nuisance-alert control: it is 31.5\% faster by sustained FPS, improves recall by 3.10 percentage points, and slightly reduces FAR. YOLO26n is preferable when tighter localization dominates, improving mAP@0.5:0.95 by 1.60 points despite lower mAP@0.5. Its 2.51 M parameters and 5.78 estimated GFLOPs are also marginally below YOLO11n's 2.59 M and 6.44 GFLOPs.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{accuracy_vs_speed.png}
+\caption{RGB accuracy--throughput trade-off; error bars show sample SD across three seeds.}
+\label{fig:tradeoff}
+\end{figure}
+
+Per-class AP supports the same interpretation. YOLO11n is higher for \texttt{yawning} ($0.5998$ vs. $0.5613$), whereas YOLO26n is higher for \texttt{hand\_over\_mouth} ($0.5634$ vs. $0.5013$), \texttt{drinking} ($0.6174$ vs. $0.6072$), and \texttt{phone\_use} ($0.5371$ vs. $0.5069$). The difference between mAP@0.5 and mAP@0.5:0.95 therefore matters: a detector can preserve cue recognition at IoU 0.5 while differing in box tightness.
+
+\section{Limitations and Completion Criteria}
+RGB and NIR are different datasets and ontologies, so their results should not be interpreted as a paired spectral transfer test. NIR uses one seed and cannot quantify stochastic variance. Interpolated NIR boxes may miss rapid non-linear motion, and RTX 4060 latency does not transfer directly to other accelerators. Finally, the single-cue ontology excludes concurrent behaviors.
+
+This draft does not invent missing results. Final cross-model and cross-spectral claims require RGB D-FINE-N seeds 37/73, validation and protected testing for all three D-FINE-N seeds, and all six NIR model-ratio runs. The repository records those completion criteria and generates publication artifacts only after validation manifests are frozen.
+
+\section{Conclusion}
+The completed RGB YOLO benchmark demonstrates that model selection depends on the deployment objective: YOLO11n provides the stronger real-time operating point and YOLO26n the stronger strict-localization AP. Subject-disjoint partitions, retained negatives, FAR, fixed profiling boundaries, and validation-only threshold calibration make this comparison more deployment-relevant than AP alone. The same protocol is prepared for D-FINE-N and the NIR training-negative ablation; final conclusions will be updated after those declared runs complete.
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

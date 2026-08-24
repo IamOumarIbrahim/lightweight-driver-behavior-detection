@@ -1,0 +1,203 @@
+diff --git a/src/solver/det_engine.py b/src/solver/det_engine.py
+index b877b09..3c21afa 100644
+--- a/src/solver/det_engine.py
++++ b/src/solver/det_engine.py
+@@ -21,6 +21,7 @@ from ..data.dataset import mscoco_category2label
+ from ..misc import MetricLogger, SmoothedValue, dist_utils, save_samples
+ from ..optim import ModelEMA, Warmup
+ from .validator import Validator, scale_boxes
++from tools.benchmark.training import accumulation_loss_scale
+ 
+ 
+ def train_one_epoch(
+@@ -51,11 +52,15 @@ def train_one_epoch(
+     ema: ModelEMA = kwargs.get("ema", None)
+     scaler: GradScaler = kwargs.get("scaler", None)
+     lr_warmup_scheduler: Warmup = kwargs.get("lr_warmup_scheduler", None)
++    gradient_accumulation_steps = int(kwargs.get("gradient_accumulation_steps", 1))
++    if gradient_accumulation_steps < 1:
++        raise ValueError("gradient_accumulation_steps must be >= 1")
+     losses = []
+ 
+     output_dir = kwargs.get("output_dir", None)
+     num_visualization_sample_batch = kwargs.get("num_visualization_sample_batch", 1)
+ 
++    optimizer.zero_grad()
+     for i, (samples, targets) in enumerate(
+         metric_logger.log_every(data_loader, print_freq, header)
+     ):
+@@ -67,6 +72,15 @@ def train_one_epoch(
+ 
+         samples = samples.to(device)
+         targets = [{k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in t.items()} for t in targets]
++        loss_scale = accumulation_loss_scale(
++            batch_index=i,
++            total_batches=len(data_loader),
++            accumulation_steps=gradient_accumulation_steps,
++            current_batch_size=len(targets),
++            total_samples=len(data_loader.dataset),
++            physical_batch_size=data_loader.batch_size,
++            batch_loss_reduction="mean",
++        )
+ 
+         if scaler is not None:
+             with torch.autocast(device_type=str(device), cache_enabled=True):
+@@ -88,34 +102,35 @@ def train_one_epoch(
+                 loss_dict = criterion(outputs, targets, **metas)
+ 
+             loss = sum(loss_dict.values())
+-            scaler.scale(loss).backward()
+-
+-            if max_norm > 0:
+-                scaler.unscale_(optimizer)
+-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
++            scaler.scale(loss * loss_scale).backward()
+ 
+-            scaler.step(optimizer)
+-            scaler.update()
+-            optimizer.zero_grad()
++            should_step = (i + 1) % gradient_accumulation_steps == 0 or (i + 1) == len(data_loader)
++            if should_step:
++                if max_norm > 0:
++                    scaler.unscale_(optimizer)
++                    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
++                scaler.step(optimizer)
++                scaler.update()
++                optimizer.zero_grad()
+ 
+         else:
+             outputs = model(samples, targets=targets)
+             loss_dict = criterion(outputs, targets, **metas)
+ 
+             loss: torch.Tensor = sum(loss_dict.values())
+-            optimizer.zero_grad()
+-            loss.backward()
+-
+-            if max_norm > 0:
+-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
+-
+-            optimizer.step()
++            (loss * loss_scale).backward()
++            should_step = (i + 1) % gradient_accumulation_steps == 0 or (i + 1) == len(data_loader)
++            if should_step:
++                if max_norm > 0:
++                    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
++                optimizer.step()
++                optimizer.zero_grad()
+ 
+         # ema
+-        if ema is not None:
++        if should_step and ema is not None:
+             ema.update(model)
+ 
+-        if lr_warmup_scheduler is not None:
++        if should_step and lr_warmup_scheduler is not None:
+             lr_warmup_scheduler.step()
+ 
+         loss_dict_reduced = dist_utils.reduce_dict(loss_dict)
+@@ -185,7 +200,14 @@ def evaluate(
+         global_step = epoch * len(data_loader) + i
+ 
+         if global_step < num_visualization_sample_batch and output_dir is not None and dist_utils.is_main_process():
+-            save_samples(samples, targets, output_dir, "val", normalized=False, box_fmt="xyxy")
++            try:
++                save_samples(samples, targets, output_dir, "val", normalized=False, box_fmt="xyxy")
++            except Exception:
++                pass
++
++        if isinstance(targets, dict):
++            bs = len(samples)
++            targets = [{k: targets[k][idx] for k in targets} for idx in range(bs)]
+ 
+         samples = samples.to(device)
+         targets = [{k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in t.items()} for t in targets]
+diff --git a/src/solver/det_solver.py b/src/solver/det_solver.py
+index 96b9376..939e87a 100644
+--- a/src/solver/det_solver.py
++++ b/src/solver/det_solver.py
+@@ -68,10 +68,10 @@ class DetSolver(BaseSolver):
+                 self.train_dataloader.sampler.set_epoch(epoch)
+ 
+             if epoch == self.train_dataloader.collate_fn.stop_epoch:
+-                self.load_resume_state(str(self.output_dir / "best_stg1.pth"))
++                print(f"Predefined stage transition at epoch {epoch}; continuing current training state")
+                 if self.ema:
+                     self.ema.decay = self.train_dataloader.collate_fn.ema_restart_decay
+-                    print(f"Refresh EMA at epoch {epoch} with decay {self.ema.decay}")
++                    print(f"Set predefined EMA decay to {self.ema.decay}")
+ 
+             train_stats = train_one_epoch(
+                 self.model,
+@@ -89,6 +89,7 @@ class DetSolver(BaseSolver):
+                 writer=self.writer,
+                 use_wandb=self.use_wandb,
+                 output_dir=self.output_dir,
++                gradient_accumulation_steps=args.yaml_cfg.get("gradient_accumulation_steps", 1),
+             )
+ 
+             if self.lr_warmup_scheduler is None or self.lr_warmup_scheduler.finished():
+@@ -96,7 +97,7 @@ class DetSolver(BaseSolver):
+ 
+             self.last_epoch += 1
+ 
+-            if self.output_dir and epoch < self.train_dataloader.collate_fn.stop_epoch:
++            if self.output_dir:
+                 checkpoint_paths = [self.output_dir / "last.pth"]
+                 # extra checkpoint before LR drop and every 100 epochs
+                 if (epoch + 1) % args.checkpoint_freq == 0:
+@@ -161,15 +162,6 @@ class DetSolver(BaseSolver):
+                             self.state_dict(), self.output_dir / "best_stg1.pth"
+                         )
+ 
+-                elif epoch >= self.train_dataloader.collate_fn.stop_epoch:
+-                    best_stat = {
+-                        "epoch": -1,
+-                    }
+-                    if self.ema:
+-                        self.ema.decay -= 0.0001
+-                        self.load_resume_state(str(self.output_dir / "best_stg1.pth"))
+-                        print(f"Refresh EMA at epoch {epoch} with decay {self.ema.decay}")
+-
+             log_stats = {
+                 **{f"train_{k}": v for k, v in train_stats.items()},
+                 **{f"test_{k}": v for k, v in test_stats.items()},
+@@ -186,7 +178,7 @@ class DetSolver(BaseSolver):
+ 
+             if self.output_dir and dist_utils.is_main_process():
+                 with (self.output_dir / "log.txt").open("a") as f:
+-                    f.write(json.dumps(log_stats) + "\n")
++                    f.write(json.dumps(log_stats, default=lambda x: x.item() if hasattr(x, "item") else str(x)) + "\n")
+ 
+                 # for evaluation logs
+                 if coco_evaluator is not None:
+diff --git a/src/zoo/dfine/dfine_decoder.py b/src/zoo/dfine/dfine_decoder.py
+index d7c77f7..fd92b54 100644
+--- a/src/zoo/dfine/dfine_decoder.py
++++ b/src/zoo/dfine/dfine_decoder.py
+@@ -291,7 +291,7 @@ class Integral(nn.Module):
+     def forward(self, x, project):
+         shape = x.shape
+         x = F.softmax(x.reshape(-1, self.reg_max + 1), dim=1)
+-        x = F.linear(x, project.to(x.device)).reshape(-1, 4)
++        x = F.linear(x, project.to(device=x.device, dtype=x.dtype)).reshape(-1, 4)
+         return x.reshape(list(shape[:-1]) + [-1])
+ 
+ 
+diff --git a/src/zoo/dfine/hybrid_encoder.py b/src/zoo/dfine/hybrid_encoder.py
+index 77af3fb..a4eb9b2 100644
+--- a/src/zoo/dfine/hybrid_encoder.py
++++ b/src/zoo/dfine/hybrid_encoder.py
+@@ -455,9 +455,11 @@ class HybridEncoder(nn.Module):
+                 if self.training or self.eval_spatial_size is None:
+                     pos_embed = self.build_2d_sincos_position_embedding(
+                         w, h, self.hidden_dim, self.pe_temperature
+-                    ).to(src_flatten.device)
++                    ).to(device=src_flatten.device, dtype=src_flatten.dtype)
+                 else:
+-                    pos_embed = getattr(self, f"pos_embed{enc_ind}", None).to(src_flatten.device)
++                    pos_embed = getattr(self, f"pos_embed{enc_ind}", None).to(
++                        device=src_flatten.device, dtype=src_flatten.dtype
++                    )
+ 
+                 memory: torch.Tensor = self.encoder[i](src_flatten, pos_embed=pos_embed)
+                 proj_feats[enc_ind] = (

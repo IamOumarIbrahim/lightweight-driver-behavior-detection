@@ -1,0 +1,17 @@
+# DMS-Eval Low-Light Extension — YOLO Dataset Configuration (Ratio 1:2)
+# =====================================================================
+# Negative-to-positive training ratio: 2:1 (540 neg / 270 pos = 810 train)
+# Validation and test sets are IDENTICAL across all ratio conditions.
+
+path: data/processed/NIR
+
+# Dataset Split Definitions
+train: yolo/ratio_1to2/train.txt
+val: yolo/evaluation/val.txt
+test: yolo/evaluation/test.txt
+
+# Class Ontology (0-indexed for YOLO detectors)
+# Drive&Act NIR: 2 distraction classes only
+names:
+  0: drinking
+  1: phone_use
