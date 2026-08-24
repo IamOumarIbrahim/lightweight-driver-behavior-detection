@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="./docs/manuscript/main.tex"><img src="https://img.shields.io/badge/📄_Manuscript-LaTeX_Source-e02424?style=for-the-badge&logo=latex&logoColor=white" alt="Read the manuscript source"></a>
+  <a href="./docs/manuscript/main.pdf"><img src="https://img.shields.io/badge/📄_Manuscript-PDF-e02424?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Download the manuscript PDF"></a>
 </p>
 
 ## Table of Contents
