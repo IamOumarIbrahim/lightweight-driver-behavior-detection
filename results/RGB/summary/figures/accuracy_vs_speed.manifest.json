@@ -1,0 +1,29 @@
+{
+  "artifact": "publication_figure_manifest",
+  "bubble_area": "inference_artifact_bytes",
+  "dispersion": "sample_standard_deviation",
+  "figure": "rgb_accuracy_vs_speed",
+  "models": [
+    "yolo11n",
+    "yolo26n"
+  ],
+  "outputs": {
+    "pdf": {
+      "path": "results/RGB/summary/figures/accuracy_vs_speed.pdf",
+      "sha256": "06d73ae36c8c50561e8dbbe4ea41f835d7a99b5661da503273a40239ca0d0e16"
+    },
+    "png": {
+      "path": "results/RGB/summary/figures/accuracy_vs_speed.png",
+      "sha256": "32efe2a0eaeb2762152e8edccd9ffcbb6a1496baf71f31a78ce10fad03787200"
+    },
+    "svg": {
+      "path": "results/RGB/summary/figures/accuracy_vs_speed.svg",
+      "sha256": "f93c21095d79a4c5f550fc2863d040037a40de3cd97d41a6c4c0c7cbcf66a496"
+    }
+  },
+  "pending_models": [
+    "dfine_n"
+  ],
+  "source": "results/RGB/summary/final_benchmark_aggregate.json",
+  "source_sha256": "283c73853ba247bf01603bf26d58fe430aa6e4857063f2ce790892694617aa58"
+}

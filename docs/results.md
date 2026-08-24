@@ -18,7 +18,7 @@ YOLO11n achieves higher mAP@0.5, precision, recall, micro-F1, lower FAR, and hig
 
 <p align="center">
   <img src="../results/RGB/summary/figures/accuracy_vs_speed.png" alt="Accuracy versus speed for the RGB benchmark" width="700"><br>
-  <sub><b>Figure 1.</b> RGB accuracy–speed trade-off on the RTX 4060 benchmark system.</sub>
+  <sub><b>Figure 1.</b> RGB accuracy–speed trade-off on the RTX 4060 benchmark system. Error bars are sample SD; marker area represents serialized model size.</sub>
 </p>
 
 ### Inference Efficiency

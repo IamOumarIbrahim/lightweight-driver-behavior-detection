@@ -175,6 +175,41 @@ def repository_checks(checks: Checks) -> None:
         f"Six RGB YOLO publication artifacts and hashes resolve: {artifact_failures}",
     )
 
+    figure_manifest_path = (
+        RESULTS_ROOT / "RGB" / "summary" / "figures" / "accuracy_vs_speed.manifest.json"
+    )
+    figure_failures = []
+    if not figure_manifest_path.is_file():
+        figure_failures.append("missing accuracy_vs_speed.manifest.json")
+    else:
+        figure_manifest = json.loads(figure_manifest_path.read_text(encoding="utf-8"))
+        referenced = {
+            "source": {
+                "path": figure_manifest.get("source"),
+                "sha256": figure_manifest.get("source_sha256"),
+            }
+        }
+        referenced.update(figure_manifest.get("outputs", {}))
+        if set(figure_manifest.get("outputs", {})) != {"pdf", "svg", "png"}:
+            figure_failures.append("publication figure must provide PDF, SVG, and PNG")
+        for name, artifact in referenced.items():
+            relative = Path(str(artifact.get("path", "")))
+            resolved = (REPO_ROOT / relative).resolve()
+            if relative.is_absolute() or not resolved.is_relative_to(
+                REPO_ROOT.resolve()
+            ):
+                figure_failures.append(f"unsafe {name} path: {relative}")
+            elif not resolved.is_file():
+                figure_failures.append(f"missing {name}: {relative}")
+            elif hashlib.sha256(resolved.read_bytes()).hexdigest() != artifact.get(
+                "sha256"
+            ):
+                figure_failures.append(f"hash mismatch for {name}: {relative}")
+    checks.check(
+        not figure_failures,
+        f"RGB publication figure source and output hashes resolve: {figure_failures}",
+    )
+
 
 def rgb_checks(checks: Checks, require_images: bool) -> None:
     protocol = validate_protocol("RGB")
