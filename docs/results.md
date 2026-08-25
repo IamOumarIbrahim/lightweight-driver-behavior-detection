@@ -55,7 +55,7 @@ Latency excludes disk I/O, decode, preprocessing, and metric computation. It inc
   <sub><b>Figure 3.</b> RGB AP@0.5:0.95 by warning cue, mean ± sample SD.</sub>
 </p>
 
-Machine-readable per-run and aggregate values are in [`results/RGB/summary`](../results/RGB/summary/README.txt). Qualitative analyses are organized under `results/RGB/{model}/seed_{13,37,73}`.
+Machine-readable per-run and aggregate values are in [`results/RGB/summary`](../results/RGB/summary/README.md). Qualitative analyses are organized under `results/RGB/{model}/seed_{13,37,73}`.
 
 ## Pending Results
 

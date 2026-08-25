@@ -54,7 +54,7 @@ def repository_checks(checks: Checks) -> None:
     )
     for folder in root_folders:
         checks.check(
-            (REPO_ROOT / folder / "README.txt").is_file(), f"{folder}/README.txt exists"
+            (REPO_ROOT / folder / "README.md").is_file(), f"{folder}/README.md exists"
         )
 
     offenders = []
