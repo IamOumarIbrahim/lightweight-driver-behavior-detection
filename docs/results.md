@@ -62,9 +62,9 @@ Machine-readable per-run and aggregate values are in [`results/RGB/summary`](../
 | Track | Model | Required Runs | Publication Status |
 | --- | --- | --- | --- |
 | RGB | D-FINE-N | Seeds 13, 37, 73 | Awaiting complete three-seed validation/test result |
-| NIR | YOLO11n | Ratios 1:2, 1:6; seed 13; deterministic 1-FPS midpoint | Awaiting training, validation, test |
-| NIR | YOLO26n | Ratios 1:2, 1:6; seed 13; deterministic 1-FPS midpoint | Awaiting training, validation, test |
-| NIR | D-FINE-N | Ratios 1:2, 1:6; seed 13; deterministic 1-FPS midpoint | Awaiting training, validation, test |
+| NIR | YOLO11n | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
+| NIR | YOLO26n | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
+| NIR | D-FINE-N | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
 
 > [!NOTE]
 > Remaining model comparisons and figures will be finalized only after these runs produce checksum-backed files under `results/RGB/dfine_n` and `results/NIR`. RGB and NIR remain separate experiments rather than a controlled cross-spectral comparison.

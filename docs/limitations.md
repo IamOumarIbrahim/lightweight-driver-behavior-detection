@@ -11,7 +11,7 @@
 ## Experimental Uncertainty
 
 - RGB reports three predeclared seeds on one fixed subject split. The SD measures optimization variability, not generalization uncertainty across unseen drivers.
-- NIR is a training-negative exposure study at seed 13. The 1:6 condition has three times the unique negatives and approximately three times the optimization steps, so the design does not isolate ratio under matched training signal or estimate multi-seed variance.
+- NIR is a 100-epoch training-negative exposure study at seed 13. The 1:6 condition has three times the unique negatives and 6,000 rather than 2,600 optimizer updates (approximately 2.31 times as many), so the design does not isolate ratio under matched training signal or estimate multi-seed variance.
 - Models retain native optimization and postprocessing, including YOLO26's end-to-end NMS-free path. Results compare complete released systems rather than architecture alone.
 - Runtime values are specific to the stated RTX 4060 software/hardware environment. Accuracy is portable; latency should be re-profiled on deployment hardware.
 - FLOPs are tool-dependent estimates and are reported with their estimator rather than treated as exact operation counts.

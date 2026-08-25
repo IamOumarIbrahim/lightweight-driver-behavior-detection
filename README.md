@@ -28,7 +28,7 @@ How do complete nano detector systems trade single-frame cue localization, false
 
 ### Abstract
 
-This repository benchmarks three released nano-scale detector systems—[Ultralytics YOLO11n](https://docs.ultralytics.com/models/yolo11/), [Ultralytics YOLO26n](https://docs.ultralytics.com/models/yolo26), and [D-FINE-N](https://github.com/Peterande/D-FINE)—for bounding-box localization of discrete, momentary visual driver cues. The primary RGB benchmark uses the [Driver Monitoring Dataset (DMD)](https://dmd.vicomtech.org/) with four cues. A separate exploratory NIR training-negative exposure study uses [Drive&Act](https://driveandact.com/) with `drinking` and `phone_use`, sampled deterministically at 1 FPS from each one-second snippet's midpoint. Both use subject-disjoint partitions, validation-only operating-point selection, and confirmation-gated protected testing. The task does not infer temporal fatigue, intent, or driver state.
+This repository benchmarks three released nano-scale detector systems—[Ultralytics YOLO11n](https://docs.ultralytics.com/models/yolo11/), [Ultralytics YOLO26n](https://docs.ultralytics.com/models/yolo26), and [D-FINE-N](https://github.com/Peterande/D-FINE)—for bounding-box localization of discrete, momentary visual driver cues. The primary RGB benchmark uses the [Driver Monitoring Dataset (DMD)](https://dmd.vicomtech.org/) with four cues. A separate exploratory NIR training-negative exposure study uses [Drive&Act](https://driveandact.com/) with `drinking` and `phone_use`, sampled deterministically at 1 FPS from each one-second snippet's midpoint and trained for a fixed 100-epoch maximum. Both use subject-disjoint partitions, validation-only operating-point selection, and confirmation-gated protected testing. The task does not infer temporal fatigue, intent, or driver state.
 
 ## Current Benchmark Status
 
@@ -40,7 +40,7 @@ This repository benchmarks three released nano-scale detector systems—[Ultraly
 | RGB | YOLO11n | Seeds 13, 37, 73 | Final |
 | RGB | YOLO26n | Seeds 13, 37, 73 | Final |
 | RGB | D-FINE-N | Seeds 13, 37, 73 | Seed 13 trained; remaining evaluation/runs pending |
-| NIR | All three models | Ratios 1:2 and 1:6, seed 13 | Launchers ready; training not started here |
+| NIR | All three models | Ratios 1:2 and 1:6, seed 13, 100 epochs | Launchers ready; training not started here |
 
 See the [results documentation](./docs/results.md) for authoritative values and the [methodology](./docs/methodology.md) for the frozen protocol.
 
@@ -68,7 +68,7 @@ scripts\data\06_check_rgb_dataset.bat
 scripts\data\07_check_nir_dataset.bat
 ```
 
-Published annotations are already under `data/annotations`; dataset frames and trained checkpoints remain local. For the NIR experiment, `scripts\NIR\train_all_six.bat` runs YOLO11n, YOLO26n, and D-FINE-N at ratios 1:2 and 1:6 sequentially with safe resume and logs. Validation and testing are deliberately separate.
+Published annotations are already under `data/annotations`; dataset frames and trained checkpoints remain local. For the NIR experiment, `scripts\NIR\train_all_six.bat` runs YOLO11n, YOLO26n, and D-FINE-N at ratios 1:2 and 1:6 sequentially for the frozen 100-epoch maximum, with safe resume and logs. Validation and testing are deliberately separate.
 
 > [!CAUTION]
 > Dataset licenses govern the source media. This repository redistributes authored annotations and split metadata, not DMD or Drive&Act frames/videos.

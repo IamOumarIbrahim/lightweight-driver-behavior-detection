@@ -110,13 +110,15 @@ def validate_protocol(
     if (dataset.get("width"), dataset.get("height")) != (640, 640):
         raise ProtocolError("Both tracks require 640x640 inputs")
     training = protocol["training"]
+    expected_epochs = 220 if normalized == "RGB" else 100
     if (
         training.get("epochs"),
         training.get("physical_batch_size"),
         training.get("effective_batch_size"),
-    ) != (220, 8, 32):
+    ) != (expected_epochs, 8, 32):
         raise ProtocolError(
-            "Frozen training budget must be 220 epochs, physical batch 8, effective batch 32"
+            f"Frozen {normalized} training budget must be {expected_epochs} epochs, "
+            "physical batch 8, effective batch 32"
         )
     if (
         training.get("gradient_accumulation_steps") != 4
@@ -173,6 +175,15 @@ def validate_protocol(
         if training.get("ratio_policy") != "nested_training_negatives_only":
             raise ProtocolError(
                 "NIR 1:2 negatives must be nested inside the 1:6 training pool"
+            )
+        if (
+            training.get("optimization", {})
+            .get("dfine", {})
+            .get("augmentation_stop_epoch")
+            != 67
+        ):
+            raise ProtocolError(
+                "NIR D-FINE augmentation transition must occur at epoch 67"
             )
 
     if verify_files:

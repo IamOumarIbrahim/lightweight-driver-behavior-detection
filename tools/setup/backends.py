@@ -12,8 +12,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from tools.benchmark.paths import REPO_ROOT
 from tools.benchmark.protocol import (
-    REPO_ROOT,
     ProtocolError,
     load_backends,
     resolve_repo_path,

@@ -2,6 +2,7 @@
 
 options(stringsAsFactors = FALSE, warn = 1)
 
+trailing_arguments <- commandArgs(trailingOnly = TRUE)
 script_argument <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
 if (length(script_argument) != 1L) {
   stop("Unable to resolve tools/publication/figures.R")
@@ -928,7 +929,7 @@ build_protocol_workflow <- function() {
     title = c("Primary RGB | DMD", "Exploratory NIR | Drive&Act"),
     detail = c(
       "1 FPS | 4 cues | 15,723 frames\nSeeds 13, 37, 73",
-      "1 FPS midpoint | 2 cues | seed 13\nTraining negatives: 1:2 vs. 1:6"
+      "1 FPS midpoint | 2 cues | seed 13\n100 epochs | negatives: 1:2 vs. 1:6"
     ),
     stringsAsFactors = FALSE
   )
@@ -1387,6 +1388,11 @@ workflow_manifest <- write_manifest(
   manifest_source = workflow_source_path,
   target_output_dir = shared_output_dir
 )
+
+if ("--only-protocol-workflow" %in% trailing_arguments) {
+  message("Built ggplot2 publication figure: protocol_workflow")
+  quit(save = "no", status = 0L)
+}
 
 comparison_outputs <- export_figure(
   build_normalized_model_comparison(comparison_data),

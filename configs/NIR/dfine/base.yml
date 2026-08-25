@@ -59,9 +59,9 @@ train_dataloader:
     transforms:
       type: Compose
       policy:
-        epoch: 148
+        epoch: 67
   collate_fn:
-    stop_epoch: 148
+    stop_epoch: 67
     ema_restart_decay: 0.9999
     base_size: 640
     base_size_repeat: null
@@ -82,7 +82,7 @@ val_dataloader:
     transforms:
       type: Compose
 
-epochs: 220
+epochs: 100
 gradient_accumulation_steps: 4
 use_amp: true
 use_ema: true

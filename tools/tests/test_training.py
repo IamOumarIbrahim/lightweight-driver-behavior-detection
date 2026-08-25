@@ -1,3 +1,5 @@
+import importlib
+
 import pytest
 
 from tools.benchmark.training import accumulation_loss_scale
@@ -17,3 +19,8 @@ def test_short_final_window_is_sample_correct():
         for index, size in enumerate((8, 8, 2))
     ]
     assert values == pytest.approx([8 / 18, 8 / 18, 2 / 18])
+
+
+def test_training_entrypoint_imports():
+    module = importlib.import_module("tools.workflow.train")
+    assert module.REPO_ROOT.is_dir()
