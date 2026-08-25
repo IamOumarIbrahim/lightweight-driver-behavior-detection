@@ -23,15 +23,15 @@
   "outputs": {
     "pdf": {
       "path": "results/RGB/summary/figures/normalized_model_comparison.pdf",
-      "sha256": "14b1f169b5ba48a1e7f61891cf81df6b9aed23563f4bd0a8c172aa1107ba8033"
+      "sha256": "c6348cf954778a6728f69a1cb9c72cb5a1c0c68607f878ed4ff9b0cda4f4befe"
     },
     "svg": {
       "path": "results/RGB/summary/figures/normalized_model_comparison.svg",
-      "sha256": "a29c857c70e59e60333b8cb55e09a832d1618513b3c74e7214c29a3286639a06"
+      "sha256": "b47502dfb24413ee7fec7f0aa329bca0ef38c251612c2cfc3327e4e04b06e25f"
     },
     "png": {
       "path": "results/RGB/summary/figures/normalized_model_comparison.png",
-      "sha256": "b1ce39c0cb2f5f6ceca0cdda0f7e49912cc7e004b1d05ad5a546813dd79a7b45"
+      "sha256": "4befbb642609bf80db864eb134af0da94fef77ac8538b06623fbb6d8639a5cbd"
     }
   },
   "metrics": [

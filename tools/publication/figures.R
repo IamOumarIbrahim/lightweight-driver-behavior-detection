@@ -397,7 +397,7 @@ load_rgb_table_comparison <- function(aggregate_path, secondary_path) {
     levels = rev(unname(metric_labels[metric_ids]))
   )
   plot_data$model_id <- factor(plot_data$model_id, levels = expected_models)
-  label_gap <- 6.0
+  label_gap <- 3.0
   plot_data$label_x <- plot_data$score_low - label_gap
   plot_data$label_hjust <- 1
   plot_data
