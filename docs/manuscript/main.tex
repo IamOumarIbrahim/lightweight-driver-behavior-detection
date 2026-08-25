@@ -55,7 +55,7 @@ Recent work proposes specialized lightweight networks for in-cabin recognition a
 \begin{itemize}
     \item a primary subject-disjoint RGB benchmark for four explicitly defined visible cues, with all sampled frames preserved and annotation structure automatically audited;
     \item validation-only operating-point selection followed by protected testing, three paired RGB seeds, class- and subject-level analysis, false detections on negative frames, and synchronized latency; and
-    \item a checksum-backed reproduction workflow plus a clearly separated, one-seed NIR training-negative exposure study at 10 FPS.
+    \item a checksum-backed reproduction workflow plus a clearly separated, one-seed NIR training-negative exposure study with deterministic 1-FPS midpoint sampling.
 \end{itemize}
 
 \section{Related Work}
@@ -120,11 +120,11 @@ RGB results are the sample mean and sample standard deviation (SD) over three se
 Batch-1 16-bit floating-point (FP16) profiling uses an NVIDIA GeForce RTX 4060 8-GB graphics processing unit (GPU). CUDA synchronization brackets model-forward and tensor-to-final-detection intervals. Disk input/output, decoding, preprocessing, and metric computation are excluded. We report p50 tensor-to-final latency and sustained FPS; these measurements do not represent central-processing-unit or embedded-device deployment.
 
 \subsection{Exploratory NIR Protocol}
-The secondary NIR source pool contains 3,786 one-second front-top active-NIR ($850$ nm) Drive\&Act snippets from 15 drivers. Twenty-three unilluminated task snippets are excluded before splitting, leaving 3,763. Drinking and phone-use tracklets provide two positive classes. Ten frames per snippet are sampled at exactly 10 FPS, cropped to the driver region, resized to $640\times640$, and interpolated at 0.1-s intervals. Unlike RGB, NIR therefore has dataset-specific frame exclusion and interpolated annotations.
+The secondary NIR source pool contains 3,786 one-second front-top active-NIR ($850$ nm) Drive\&Act snippets from 15 drivers. Twenty-three unilluminated task snippets are excluded before splitting, leaving 3,763. Drinking and phone-use tracklets provide two positive classes. Each snippet contributes one deterministic frame at 1 FPS: the temporal midpoint at $t=0.5$ s, or zero-based source-frame offset 14. The corresponding box is linearly interpolated at the same instant, then the driver crop is resized to $640\times640$. Unlike RGB, NIR therefore has dataset-specific frame exclusion and interpolated annotations.
 
 A fixed $9{:}3{:}3$ subject partition is shared across all six model--condition runs. Validation and test contain identical ordered examples. Training always contains 270 positive snippets and either 540 or 1,620 negative snippets, corresponding to nominal positive:negative ratios of 1:2 and 1:6. The 1:2 negatives are a subject-stratified seed-13 subset of the 1:6 pool. With epochs fixed, 1:6 has three times the unique negatives and approximately three times the optimization steps. It is consequently a \emph{training-negative exposure study}, not a causal class-ratio ablation under matched training signal.
 
-All NIR jobs use seed 13. Frame metrics follow the RGB protocol. Because the ten frames within one snippet are near-duplicates, snippet metrics treat each snippet as one unit: a class is recovered if any frame contains a correctly matched prediction, repeated detections count once, and a negative snippet is false positive if any frame contains an above-threshold detection.
+All NIR jobs use seed 13, and operating metrics follow the RGB protocol. Since one frame represents each snippet, frame- and snippet-level decisions coincide; equivalent snippet metrics are not duplicated in the publication tables.
 
 \section{Results and Analysis}
 \subsection{Aggregate RGB Results}
@@ -175,17 +175,17 @@ Figure~\ref{fig:subjects} shows individual seeds and their mean $\pm$ sample SD 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{subject_sensitivity.pdf}
-\caption{RGB operating performance by held-out test subject. Pale markers are individual seeds; large markers and error bars show mean $\pm$ sample SD. These bars describe optimization variation on one frozen subject split, not population-level uncertainty across drivers.}
+\caption{RGB operating performance by held-out test subject. Pale offset ticks are individual seeds; filled markers and thin error bars show mean $\pm$ sample SD. These bars describe optimization variation on one frozen subject split, not population-level uncertainty across drivers.}
 \label{fig:subjects}
 \end{figure*}
 
 \subsection{Validation Operating Point}
-Figure~\ref{fig:calibration} makes the validation-only operating-point decision explicit. Lines and ribbons show the seed mean and SD across the full confidence sweep; outlined markers are the individual validation-selected thresholds that maximize micro-$F_1$. YOLO11n selects lower thresholds and gives higher validation micro- and macro-$F_1$, whereas YOLO26n maintains high $F_1$ farther into the threshold range. The false-detection panel shows the corresponding reduction on negative validation frames. None of these curves uses the protected test set.
+Figure~\ref{fig:calibration} makes the validation-only operating-point decision explicit. Lines and light ribbons show the seed mean and SD across the full confidence sweep. Each model has one filled marker at the mean validation-selected operating point; the horizontal and vertical whiskers show the sample SD of the selected confidence threshold and its corresponding metric, respectively. YOLO11n selects lower thresholds and gives higher validation micro- and macro-$F_1$, whereas YOLO26n maintains high $F_1$ farther into the threshold range. The false-detection panel shows the corresponding reduction on negative validation frames. None of these curves uses the protected test set.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{validation_operating_point.pdf}
-\caption{RGB validation confidence sweep. Lines show the mean and ribbons show sample SD over seeds. Outlined markers identify each seed's micro-$F_1$-selected threshold; they are displayed on all panels only to expose the associated macro-$F_1$ and false-detection cost.}
+\caption{RGB validation confidence sweep. Lines show the seed mean and light ribbons show sample SD. Each filled marker is the mean micro-$F_1$-selected operating point; horizontal and vertical whiskers show the sample SD of its confidence threshold and corresponding metric.}
 \label{fig:calibration}
 \end{figure*}
 
@@ -200,7 +200,7 @@ Figure~\ref{fig:qual} shows predeclared seed-13 examples from frozen predictions
 \end{figure*}
 
 \subsection{Exploratory NIR Results}
-Table~\ref{tab:nirresults} and Fig.~\ref{fig:nir} reserve the final six protected-test results. Both artifacts are deliberately marked pending; no value is imputed from RGB or validation. The final analysis will compare each model only between its 1:2 and 1:6 training-negative exposures and will emphasize snippet-level metrics because frames within a snippet are correlated.
+Table~\ref{tab:nirresults} and Fig.~\ref{fig:nir} reserve the final six protected-test results. Both artifacts are deliberately marked pending; no value is imputed from RGB or validation. The final analysis will compare each model only between its 1:2 and 1:6 training-negative exposures using the same deterministic midpoint frame for every condition.
 
 \begin{table}[t]
 \caption{Exploratory NIR Test Results at Seed 13}
@@ -210,7 +210,7 @@ Table~\ref{tab:nirresults} and Fig.~\ref{fig:nir} reserve the final six protecte
 \scriptsize
 \begin{tabular}{llccccc}
 \toprule
-Model & Neg. & AP & \shortstack{Frame\\macro-$F_1$} & \shortstack{Snippet\\macro-$F_1$} & \shortstack{FP snippets\\per 100} & p50 \\
+Model & Neg. & $\mathrm{mAP}_{50:95}$ & Micro-$F_1$ & Macro-$F_1$ & $\fd$ & p50 \\
 \midrule
 YOLO11n & 1:2 & \multicolumn{5}{c}{\ph} \\
 YOLO11n & 1:6 & \multicolumn{5}{c}{\ph} \\
@@ -225,7 +225,7 @@ D-FINE-N & 1:6 & \multicolumn{5}{c}{\ph} \\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{training_negative_exposure.pdf}
-\caption{Final inventory for the exploratory NIR training-negative exposure comparison. The checked-in template remains visibly pending until all six seed-13 protected tests are complete; it will then show frame localization accuracy, snippet macro-$F_1$, and false-positive snippets per 100 negative snippets.}
+\caption{Final inventory for the exploratory NIR training-negative exposure comparison at deterministic 1-FPS midpoint sampling. The checked-in template remains visibly pending until all six seed-13 protected tests are complete; it will then show strict-IoU accuracy, macro-$F_1$, and false detections per 100 negative frames.}
 \label{fig:nir}
 \end{figure*}
 
@@ -237,7 +237,7 @@ The completed evidence does not identify one universally best YOLO system. YOLO1
 The phone-use majority is a real benchmark characteristic and a limitation for pooled operating metrics, but it does not invalidate YOLO26n's strict-IoU advantage. Equal-weight class AP, macro-$F_1$, per-class supports, and paired-seed directions separate that result from majority-class dominance. The narrow aggregate margin, low support for three categories, and drinking sign reversal mean the accurate conclusion is a trade-off rather than a definitive rank. The difficult Subject 10 further shows that seed variation on a single split understates deployment variation across people.
 
 \subsection{Interpretation Scope}
-Subject-disjoint evaluation reduces identity leakage but does not establish population-level generalization from only 14 drivers and three held-out test identities. A single annotator and one pass provide internally consistent data but no independent semantic agreement estimate; the qualitative nominal-negative case makes this concrete. Correlated frames remain within recordings, and single-frame detection neither estimates temporal fatigue nor models alert debouncing. NIR additionally differs in dataset, ontology, annotation source, sampling, and preprocessing, uses one seed, and changes negative diversity together with training steps. It cannot be interpreted as a controlled RGB-versus-NIR modality effect. Finally, RTX 4060 timing excludes preprocessing and is not an embedded-hardware measurement. These boundaries define what the benchmark supports without removing its value as a transparent, reproducible comparison.
+Subject-disjoint evaluation reduces identity leakage but does not establish population-level generalization from only 14 drivers and three held-out test identities. A single annotator and one pass provide internally consistent data but no independent semantic agreement estimate; the qualitative nominal-negative case makes this concrete. Correlated frames remain within RGB recordings, and single-frame detection neither estimates temporal fatigue nor models alert debouncing. NIR avoids within-snippet duplication through one midpoint frame, but 1-FPS sampling does not characterize motion within the second. NIR additionally differs in dataset, ontology, annotation source, and preprocessing, uses one seed, and changes negative diversity together with training steps. It cannot be interpreted as a controlled RGB-versus-NIR modality effect. Finally, RTX 4060 timing excludes preprocessing and is not an embedded-hardware measurement. These boundaries define what the benchmark supports without removing its value as a transparent, reproducible comparison.
 
 \section{Conclusion and Future Work}
 The completed RGB YOLO comparison establishes a reproducible system-level trade-off: YOLO11n provides the stronger validation-calibrated operating point and throughput, while YOLO26n provides higher strict-IoU AP. Paired seeds support those aggregate directions, but class and subject analyses prevent an overgeneralized winner claim. The final three-model RGB conclusion after D-FINE-N and the separate NIR exposure findings are \ph.

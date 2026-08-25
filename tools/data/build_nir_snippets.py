@@ -1,4 +1,4 @@
-"""Build portable 10-FPS NIR review videos for the Label Studio workspace."""
+"""Build portable one-frame, 1-FPS NIR review videos for Label Studio."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from tools.benchmark.paths import DATA_ROOT
-from tools.data.prepare_nir import OFFSETS, source_index
+from tools.data.prepare_nir import FRAMES_PER_SNIPPET, OFFSETS, SNIPPET_FPS, source_index
 
 
 def valid_video(path: Path) -> bool:
@@ -17,7 +17,10 @@ def valid_video(path: Path) -> bool:
     if not path.is_file() or path.stat().st_size == 0:
         return False
     capture = cv2.VideoCapture(str(path))
-    valid = capture.isOpened() and int(capture.get(cv2.CAP_PROP_FRAME_COUNT)) == 10
+    valid = (
+        capture.isOpened()
+        and int(capture.get(cv2.CAP_PROP_FRAME_COUNT)) == FRAMES_PER_SNIPPET
+    )
     capture.release()
     return valid
 
@@ -56,7 +59,9 @@ def build(source_root: Path, output: Path) -> dict[str, int]:
                     skipped += 1
                     continue
                 temporary = destination.with_name(destination.stem + ".partial.mp4")
-                writer = cv2.VideoWriter(str(temporary), fourcc, 10.0, (640, 640))
+                writer = cv2.VideoWriter(
+                    str(temporary), fourcc, float(SNIPPET_FPS), (640, 640)
+                )
                 if not writer.isOpened():
                     raise RuntimeError(f"Cannot create {temporary}")
                 capture.set(cv2.CAP_PROP_POS_FRAMES, int(task["data"]["frame_start"]))

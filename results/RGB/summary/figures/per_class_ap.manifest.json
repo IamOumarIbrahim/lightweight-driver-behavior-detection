@@ -23,15 +23,15 @@
   "outputs": {
     "pdf": {
       "path": "results/RGB/summary/figures/per_class_ap.pdf",
-      "sha256": "50dccc07996d9355c27eb9a653513197d1c37063ae2e375024acf2237a80110c"
+      "sha256": "fb4cd8db39ef90f5b9275601b32757e6c43262695f9ba88d76248dbd57a36cbf"
     },
     "svg": {
       "path": "results/RGB/summary/figures/per_class_ap.svg",
-      "sha256": "e4e698850944fa3e0c817fc752618a38b3d94f8d5ef6f6ec843246c6bc2599e4"
+      "sha256": "4c718b998f8ee552c338353036f79168c5fc45feefd052aed3f2655eb5ec9dfd"
     },
     "png": {
       "path": "results/RGB/summary/figures/per_class_ap.png",
-      "sha256": "dc3395b6418db929b91f582bdb06ebc5ac8c1b55665536a51ecc54342aa38dd5"
+      "sha256": "a1a7cc832272d3439f7b2cd843ae978c0f106a8070a577db23bb75ce59e363c7"
     }
   },
   "metric": "per_class_ap_50_95"

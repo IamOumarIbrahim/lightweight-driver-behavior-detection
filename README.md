@@ -28,7 +28,7 @@ How do complete nano detector systems trade single-frame cue localization, false
 
 ### Abstract
 
-This repository benchmarks three released nano-scale detector systems—[Ultralytics YOLO11n](https://docs.ultralytics.com/models/yolo11/), [Ultralytics YOLO26n](https://docs.ultralytics.com/models/yolo26), and [D-FINE-N](https://github.com/Peterande/D-FINE)—for bounding-box localization of discrete, momentary visual driver cues. The primary RGB benchmark uses the [Driver Monitoring Dataset (DMD)](https://dmd.vicomtech.org/) with four cues. A separate exploratory NIR training-negative exposure study uses [Drive&Act](https://driveandact.com/) with `drinking` and `phone_use`. Both use subject-disjoint partitions, validation-only operating-point selection, and confirmation-gated protected testing. The task does not infer temporal fatigue, intent, or driver state.
+This repository benchmarks three released nano-scale detector systems—[Ultralytics YOLO11n](https://docs.ultralytics.com/models/yolo11/), [Ultralytics YOLO26n](https://docs.ultralytics.com/models/yolo26), and [D-FINE-N](https://github.com/Peterande/D-FINE)—for bounding-box localization of discrete, momentary visual driver cues. The primary RGB benchmark uses the [Driver Monitoring Dataset (DMD)](https://dmd.vicomtech.org/) with four cues. A separate exploratory NIR training-negative exposure study uses [Drive&Act](https://driveandact.com/) with `drinking` and `phone_use`, sampled deterministically at 1 FPS from each one-second snippet's midpoint. Both use subject-disjoint partitions, validation-only operating-point selection, and confirmation-gated protected testing. The task does not infer temporal fatigue, intent, or driver state.
 
 ## Current Benchmark Status
 
@@ -62,7 +62,7 @@ Place the licensed source folders at `data/DMD` and `data/Drive&Act`, then run:
 ```bat
 scripts\data\01_unpack_sources.bat
 scripts\data\02_extract_rgb_frames.bat
-scripts\data\04_prepare_nir_10fps.bat
+scripts\data\04_prepare_nir_1fps.bat
 scripts\data\05_build_nir_review_snippets.bat  REM optional Label Studio review media
 scripts\data\06_check_rgb_dataset.bat
 scripts\data\07_check_nir_dataset.bat

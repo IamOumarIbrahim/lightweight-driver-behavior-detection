@@ -89,13 +89,13 @@ YOLO26 uses its pinned end-to-end one-to-one prediction path without external NM
 
 ### Dataset and Temporal Sampling
 
-The source pool contains 3,786 one-second snippets from 30 driver-facing active-NIR ($850\text{ nm}$) [Drive&Act](https://driveandact.com/) streams across 15 subjects. Twenty-three unilluminated task snippets are excluded before splitting, leaving 3,763. Each selected snippet is sampled at exactly 10 FPS using source-frame offsets 2, 5, …, 29 from its frozen start. The ten target boxes are obtained by linear interpolation of the Label Studio tracklet at times 0.1, 0.2, …, 1.0 seconds. Frames are cropped from `[128:1152, 0:1024]` and resized to `640×640`.
+The source pool contains 3,786 one-second snippets from 30 driver-facing active-NIR ($850\text{ nm}$) [Drive&Act](https://driveandact.com/) streams across 15 subjects. Twenty-three unilluminated task snippets are excluded before splitting, leaving 3,763. Each selected snippet contributes exactly one frame at 1 FPS. The sample is the frozen temporal midpoint at $t=0.5$ s, corresponding to zero-based source-frame offset 14 in each 30-frame snippet. Its target box is obtained by linear interpolation of the Label Studio tracklet at the same time. Frames are cropped from `[128:1152, 0:1024]` and resized to `640×640`.
 
 The ontology is limited to `drinking` and `phone_use`. The $9:3:3$ subject partition is frozen as:
 
 - Train: 9 subjects, 270 positive snippets.
-- Validation: 3 subjects, 120 positives + 761 negatives = 881 snippets / 8,810 frames.
-- Test: 3 subjects, 111 positives + 739 negatives = 850 snippets / 8,500 frames.
+- Validation: 3 subjects, 120 positives + 761 negatives = 881 snippets / 881 frames.
+- Test: 3 subjects, 111 positives + 739 negatives = 850 snippets / 850 frames.
 
 <p align="center">
   <img src="./assets/charts/nir_split_cue_proportions_comparison.png" alt="NIR split cue proportions" width="700"><br>
@@ -108,12 +108,12 @@ NIR uses one seed—13—and two conditions. There is no NIR multi-seed experime
 
 | Condition | Train Positives | Train Negatives | Train Snippets / Frames | Full Condition Snippets / Frames |
 | --- | ---: | ---: | ---: | ---: |
-| **1:2** | 270 | 540 | 810 / 8,100 | 2,541 / 25,410 |
-| **1:6** | 270 | 1,620 | 1,890 / 18,900 | 3,621 / 36,210 |
+| **1:2** | 270 | 540 | 810 / 810 | 2,541 / 2,541 |
+| **1:6** | 270 | 1,620 | 1,890 / 1,890 | 3,621 / 3,621 |
 
 Only the training negatives change. The 1:2 negatives are a subject-stratified, seed-13 deterministic subset of the 1:6 negative pool. The positive training pool, validation tasks, test tasks, temporal sampling, ontology, model recipes, and metric code are identical across both ratios. Derived validation/test COCO and YOLO files are physically shared under `data/processed/NIR/*/evaluation` to prevent silent drift.
 
-Because epochs are fixed, 1:6 contains three times the unique training negatives and approximately three times the optimization steps. This is a training-negative exposure study, not a causal ratio ablation under matched training signal. Frame-level metrics are supplemented by snippet-level micro/macro-F1 and false-positive snippets per 100 negatives. At the validation-selected threshold, any correct frame recovers the cue for that snippet, repeated detections count once, and any above-threshold detection makes a negative snippet false positive.
+Because epochs are fixed, 1:6 contains three times the unique training negatives and approximately three times the optimization steps. This is a training-negative exposure study, not a causal ratio ablation under matched training signal. At one frame per snippet, frame- and snippet-level operating decisions are identical; the publication therefore reports COCO AP, micro/macro-F1, and false detections per 100 negative frames without duplicating equivalent snippet metrics.
 
 ## Reproducibility and Data Availability
 

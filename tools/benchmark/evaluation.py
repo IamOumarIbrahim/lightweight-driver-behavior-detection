@@ -190,7 +190,7 @@ def snippet_operating_point_metrics(
     threshold: float,
     iou_threshold: float = 0.50,
 ) -> dict[str, Any]:
-    """Aggregate ten-frame NIR snippets into class-presence localization decisions.
+    """Aggregate NIR frames into class-presence localization decisions by snippet.
 
     A class is a snippet-level true positive when at least one above-threshold
     prediction matches a same-class ground-truth box at the required IoU in any
@@ -220,8 +220,10 @@ def snippet_operating_point_metrics(
         snippet_id = match.group(1)
         snippet_by_image[image_id] = snippet_id
         images_by_snippet[snippet_id].append(image_id)
-    if any(len(image_ids_for_snippet) != 10 for image_ids_for_snippet in images_by_snippet.values()):
-        raise ProtocolError("Every NIR snippet must contain exactly ten frames")
+    frame_counts = {len(items) for items in images_by_snippet.values()}
+    if len(frame_counts) != 1 or 0 in frame_counts:
+        raise ProtocolError("Every NIR snippet must contain the same nonzero frame count")
+    frames_per_snippet = frame_counts.pop()
 
     gt_by_image: dict[int, list[dict[str, Any]]] = defaultdict(list)
     pred_by_image: dict[int, list[dict[str, Any]]] = defaultdict(list)
@@ -312,7 +314,7 @@ def snippet_operating_point_metrics(
     macro_f1 = float(np.mean([item["f1"] for item in per_class.values()]))
     return {
         "snippets": len(images_by_snippet),
-        "frames_per_snippet": 10,
+        "frames_per_snippet": frames_per_snippet,
         "aggregation": "any_frame_same_class_iou_match_repeated_class_counts_once",
         "tp": tp,
         "fp": fp,

@@ -157,9 +157,14 @@ def validate_protocol(
             or tuple(training.get("ratios", ())) != NIR_RATIOS
         ):
             raise ProtocolError("NIR requires seed 13 and ratios 1to2 and 1to6 only")
-        if dataset.get("snippet_fps") != 10 or dataset.get("frames_per_snippet") != 10:
+        if dataset.get("snippet_fps") != 1 or dataset.get("frames_per_snippet") != 1:
+            raise ProtocolError("NIR snippets must use deterministic 1-FPS sampling")
+        if (
+            dataset.get("sample_time_seconds") != 0.5
+            or dataset.get("source_frame_offset") != 14
+        ):
             raise ProtocolError(
-                "NIR snippets must contain ten frames sampled at 10 FPS"
+                "NIR 1-FPS sampling must use the frozen 0.5-s midpoint (offset 14)"
             )
         if dataset.get("evaluation_sets") != "identical_across_ratios":
             raise ProtocolError(

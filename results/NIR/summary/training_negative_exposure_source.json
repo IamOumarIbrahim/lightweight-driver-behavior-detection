@@ -4,10 +4,15 @@
   "seed": 13,
   "ratios": ["1:2", "1:6"],
   "models": ["yolo11n", "yolo26n", "dfine_n"],
+  "sampling": {
+    "fps": 1,
+    "sample_time_seconds": 0.5,
+    "source_frame_offset": 14
+  },
   "metrics": [
     "map_50_95",
-    "snippet_macro_f1",
-    "false_positive_snippets_per_100_negative_snippets"
+    "macro_f1",
+    "false_detections_per_100_negative_frames"
   ],
   "rows": []
 }

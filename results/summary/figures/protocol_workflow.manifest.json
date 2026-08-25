@@ -22,15 +22,15 @@
   "outputs": {
     "pdf": {
       "path": "results/summary/figures/protocol_workflow.pdf",
-      "sha256": "1b126dd65d1ebebd4104e694eed3255d7939937c5ceb2839d04a27a4fa011e35"
+      "sha256": "fd37f0b3b170a77ba3dab12681e07dedb667b43b0fdbed47f915682c3de4433a"
     },
     "svg": {
       "path": "results/summary/figures/protocol_workflow.svg",
-      "sha256": "e5a3d1c23a076677d48c1077bfc3e5c88d01e3c374f74479e6d50abb47e14497"
+      "sha256": "7d64308f3ad41beabf530c65342368eb3685fdbdc91bcfeb9407b0035bb999dd"
     },
     "png": {
       "path": "results/summary/figures/protocol_workflow.png",
-      "sha256": "94be322d8d69fe12b7a7ef7eb49050d79d7df0058cbf36883d57189960c82987"
+      "sha256": "ffb51271fbcd0a3b028af3e1cabbbc43eaf4d6edf2cb0027c56e37d0123ee48e"
     }
   },
   "inputs": [
@@ -42,7 +42,7 @@
     {
       "track": "NIR",
       "path": "configs/NIR/protocol.yaml",
-      "sha256": "624c8eb8cecb1cb78479e2b026571b15e95a523ba95b60e263ac03f57aaf4ae7"
+      "sha256": "6594d8da3e2a2e6e9f397791921b111dea38878c7c606a3f5398df3bd4182d93"
     }
   ]
 }

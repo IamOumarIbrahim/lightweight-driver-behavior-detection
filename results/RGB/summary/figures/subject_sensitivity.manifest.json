@@ -23,15 +23,15 @@
   "outputs": {
     "pdf": {
       "path": "results/RGB/summary/figures/subject_sensitivity.pdf",
-      "sha256": "415e88ed106e58ec21db9407196c8f85c99e1d4625ff6a4bd034f12db246d803"
+      "sha256": "24131601b4b78e55d7aa91d17be9818358dc47c8c6996efedf734b05e4a080dd"
     },
     "svg": {
       "path": "results/RGB/summary/figures/subject_sensitivity.svg",
-      "sha256": "dd2b675227174caabd257493d6cdb0acb0dd8083013edfdf511c498cbd60a693"
+      "sha256": "e6fe39bb5eb4ef5f03ce58b60c2925cf78fbf63e2bc14c1ed095dfd73c6ce416"
     },
     "png": {
       "path": "results/RGB/summary/figures/subject_sensitivity.png",
-      "sha256": "34626015b931dcb75d5dc4e2e62b5b826da17ed3448a3e1dd84ae694a940287e"
+      "sha256": "99762988ed6bfceaa8a7cef7844a99c2eb000f2b135f3061410754756235b785"
     }
   },
   "metric": "micro_f1",

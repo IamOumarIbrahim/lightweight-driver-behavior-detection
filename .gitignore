@@ -38,6 +38,7 @@ DMS-Eval/
 NIR-Eval/
 
 # Local reports and temporary files
+tmp/
 *.tmp
 *.temp
 *.bak

@@ -1,4 +1,4 @@
-"""Prepare the frozen Drive&Act NIR benchmark at ten frames per second."""
+"""Prepare the frozen Drive&Act NIR benchmark at one frame per second."""
 
 from __future__ import annotations
 
@@ -12,7 +12,10 @@ from typing import Any
 from tools.benchmark.paths import DATA_ROOT, NIR_RATIOS
 from tools.benchmark.protocol import ProtocolError, sha256_file, validate_protocol
 
-OFFSETS = (2, 5, 8, 11, 14, 17, 20, 23, 26, 29)
+SNIPPET_FPS = 1
+FRAMES_PER_SNIPPET = 1
+SAMPLE_TIME_SECONDS = 0.5
+OFFSETS = (14,)
 CLASS_IDS = {"drinking": 0, "phone_use": 1, "talking_on_phone": 1}
 
 
@@ -71,8 +74,10 @@ def dense_boxes(task: dict[str, Any]) -> list[tuple[int, float, float, float, fl
         raise ProtocolError(f"Task {task['id']} has an unsupported NIR label: {labels}")
     class_id = CLASS_IDS[labels[0]]
     boxes = []
-    for frame_index in range(1, 11):
-        x, y, width, height = interpolate_box(value["sequence"], frame_index / 10)
+    for frame_index in range(1, FRAMES_PER_SNIPPET + 1):
+        x, y, width, height = interpolate_box(
+            value["sequence"], SAMPLE_TIME_SECONDS
+        )
         x, y = max(0.0, x), max(0.0, y)
         width, height = min(width, 100.0 - x), min(height, 100.0 - y)
         if width <= 0 or height <= 0:
@@ -177,7 +182,7 @@ def write_derived(tasks_by_ratio: dict[str, list[dict[str, Any]]]) -> dict[str, 
     boxes_by_task = {key: dense_boxes(task) for key, task in all_tasks.items()}
     for key, task in all_tasks.items():
         boxes = boxes_by_task[key]
-        for frame_index in range(1, 11):
+        for frame_index in range(1, FRAMES_PER_SNIPPET + 1):
             lines = []
             if boxes:
                 class_id, x, y, width, height = boxes[frame_index - 1]
@@ -199,7 +204,7 @@ def write_derived(tasks_by_ratio: dict[str, list[dict[str, Any]]]) -> dict[str, 
         annotation_id = 1
         for task in tasks:
             boxes = boxes_by_task[signature(task)]
-            for frame_index in range(1, 11):
+            for frame_index in range(1, FRAMES_PER_SNIPPET + 1):
                 image_id = int(task["id"]) * 10 + frame_index
                 images.append(
                     {
@@ -229,7 +234,12 @@ def write_derived(tasks_by_ratio: dict[str, list[dict[str, Any]]]) -> dict[str, 
                     )
                     annotation_id += 1
         return {
-            "info": {"description": description, "fps": 10},
+            "info": {
+                "description": description,
+                "fps": SNIPPET_FPS,
+                "sample_time_seconds": SAMPLE_TIME_SECONDS,
+                "source_frame_offset": OFFSETS[0],
+            },
             "images": images,
             "annotations": annotations,
             "categories": [
@@ -249,7 +259,7 @@ def write_derived(tasks_by_ratio: dict[str, list[dict[str, Any]]]) -> dict[str, 
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(
             json.dumps(
-                build_coco(tasks, f"NIR shared {split} at 10 FPS", one_based=True),
+                build_coco(tasks, f"NIR shared {split} at 1 FPS", one_based=True),
                 indent=2,
             )
             + "\n",
@@ -274,7 +284,7 @@ def write_derived(tasks_by_ratio: dict[str, list[dict[str, Any]]]) -> dict[str, 
         lines = [
             f"./../../images/{image_name(task['id'], frame)}"
             for task in tasks
-            for frame in range(1, 11)
+            for frame in range(1, FRAMES_PER_SNIPPET + 1)
         ]
         list_path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
 
@@ -287,7 +297,7 @@ def write_derived(tasks_by_ratio: dict[str, list[dict[str, Any]]]) -> dict[str, 
         coco_path.write_text(
             json.dumps(
                 build_coco(
-                    train, f"NIR ratio {ratio} train at 10 FPS", one_based=False
+                    train, f"NIR ratio {ratio} train at 1 FPS", one_based=False
                 ),
                 indent=2,
             )
@@ -300,10 +310,16 @@ def write_derived(tasks_by_ratio: dict[str, list[dict[str, Any]]]) -> dict[str, 
         lines = [
             f"./../../images/{image_name(task['id'], frame)}"
             for task in train
-            for frame in range(1, 11)
+            for frame in range(1, FRAMES_PER_SNIPPET + 1)
         ]
         list_path.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
-    return {"unique_snippets": len(all_tasks), "unique_frames": len(all_tasks) * 10}
+    return {
+        "unique_snippets": len(all_tasks),
+        "unique_frames": len(all_tasks) * FRAMES_PER_SNIPPET,
+        "snippet_fps": SNIPPET_FPS,
+        "sample_time_seconds": SAMPLE_TIME_SECONDS,
+        "source_frame_offset": OFFSETS[0],
+    }
 
 
 def source_index(
@@ -347,7 +363,10 @@ def extract_frames(
         if not capture.isOpened():
             raise RuntimeError(f"Cannot open {sources[source_key]}")
         for task in sorted(tasks, key=lambda item: int(item["data"]["frame_start"])):
-            targets = [output / image_name(task["id"], frame) for frame in range(1, 11)]
+            targets = [
+                output / image_name(task["id"], frame)
+                for frame in range(1, FRAMES_PER_SNIPPET + 1)
+            ]
             if all(path.is_file() for path in targets):
                 continue
             start = int(task["data"]["frame_start"])

@@ -22,7 +22,9 @@
   ],
   "metadata": {
     "policy": "subject-disjoint; validation and test frozen across ratios",
-    "snippet_fps": 10,
-    "frames_per_snippet": 10
+    "snippet_fps": 1,
+    "frames_per_snippet": 1,
+    "sample_time_seconds": 0.5,
+    "source_frame_offset": 14
   }
 }

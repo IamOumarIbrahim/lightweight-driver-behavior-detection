@@ -7,11 +7,16 @@ import shutil
 from pathlib import Path
 
 from tools.benchmark.paths import CONFIGS_ROOT, DATA_ROOT
-from tools.data.prepare_nir import dense_boxes, result_value
+from tools.data.prepare_nir import (
+    FRAMES_PER_SNIPPET,
+    SAMPLE_TIME_SECONDS,
+    dense_boxes,
+    result_value,
+)
 
 
-def to_ten_fps(task: dict) -> None:
-    """Rewrite a published 30-frame tracklet for a ten-frame review video."""
+def to_one_fps(task: dict) -> None:
+    """Rewrite a published tracklet for the deterministic one-frame review video."""
 
     value = result_value(task)
     if value is None:
@@ -23,7 +28,7 @@ def to_ten_fps(task: dict) -> None:
         sequence.append(
             {
                 "frame": frame,
-                "time": frame / 10,
+                "time": SAMPLE_TIME_SECONDS,
                 "x": x * 100,
                 "y": y * 100,
                 "width": width * 100,
@@ -38,7 +43,7 @@ def to_ten_fps(task: dict) -> None:
                 {
                     "type": "videorectangle",
                     "value": {
-                        "framesCount": 10,
+                        "framesCount": FRAMES_PER_SNIPPET,
                         "duration": 1.0,
                         "labels": [label],
                         "sequence": sequence,
@@ -61,7 +66,7 @@ def main() -> int:
         )
     )
     for task in tasks:
-        to_ten_fps(task)
+        to_one_fps(task)
         filename = Path(task["data"]["video"]).name
         task["data"]["video"] = f"/data/local-files/?d=snippet_videos/{filename}"
     (workspace / "annotations_for_import.json").write_text(
@@ -72,7 +77,7 @@ def main() -> int:
         "Start Label Studio, create a project with label_config.xml, then import annotations_for_import.json."
     )
     print(
-        "Build 10-FPS review videos with scripts/data/05_build_nir_review_snippets.bat."
+        "Build deterministic 1-FPS review videos with scripts/data/05_build_nir_review_snippets.bat."
     )
     return 0
 

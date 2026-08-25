@@ -41,6 +41,7 @@ model_colors <- c(
   dfine_n = "#009E73"
 )
 model_shapes <- c(yolo11n = 21, yolo26n = 22, dfine_n = 24)
+model_linetypes <- c(yolo11n = "solid", yolo26n = "22", dfine_n = "42")
 source_path <- file.path(
   repo_root,
   "results",
@@ -185,7 +186,7 @@ publication_theme <- function() {
       axis.text = element_text(size = 7, colour = "black"),
       axis.ticks = element_line(linewidth = 0.3, colour = "black"),
       panel.border = element_rect(linewidth = 0.45, colour = "black"),
-      panel.grid.major = element_line(linewidth = 0.25, colour = "grey85"),
+      panel.grid.major = element_line(linewidth = 0.22, colour = "grey86"),
       panel.grid.minor = element_blank(),
       legend.title = element_blank(),
       legend.text = element_text(size = 7),
@@ -389,7 +390,7 @@ build_accuracy_speed <- function(data) {
   ) +
     geom_segment(
       aes(x = fps_low, xend = fps_high, y = map_mean, yend = map_mean),
-      linewidth = 0.45
+      linewidth = 0.35
     ) +
     geom_segment(
       aes(
@@ -398,7 +399,7 @@ build_accuracy_speed <- function(data) {
         y = map_mean - y_cap,
         yend = map_mean + y_cap
       ),
-      linewidth = 0.45
+      linewidth = 0.35
     ) +
     geom_segment(
       aes(
@@ -407,11 +408,11 @@ build_accuracy_speed <- function(data) {
         y = map_mean - y_cap,
         yend = map_mean + y_cap
       ),
-      linewidth = 0.45
+      linewidth = 0.35
     ) +
     geom_segment(
       aes(x = fps_mean, xend = fps_mean, y = map_low, yend = map_high),
-      linewidth = 0.45
+      linewidth = 0.35
     ) +
     geom_segment(
       aes(
@@ -420,7 +421,7 @@ build_accuracy_speed <- function(data) {
         y = map_low,
         yend = map_low
       ),
-      linewidth = 0.45
+      linewidth = 0.35
     ) +
     geom_segment(
       aes(
@@ -429,12 +430,12 @@ build_accuracy_speed <- function(data) {
         y = map_high,
         yend = map_high
       ),
-      linewidth = 0.45
+      linewidth = 0.35
     ) +
     geom_point(
       aes(fill = model_id, shape = model_id),
       colour = "black",
-      size = 3.3,
+      size = 3,
       stroke = 0.45
     ) +
     scale_colour_manual(values = model_colors, labels = model_labels, guide = "none") +
@@ -443,13 +444,13 @@ build_accuracy_speed <- function(data) {
     scale_x_continuous(
       name = "Sustained throughput (FPS)",
       breaks = scales::breaks_pretty(n = 5),
-      expand = expansion(mult = c(0.12, 0.12))
+      expand = expansion(mult = c(0.08, 0.08))
     ) +
     scale_y_continuous(
       name = "mAP@0.5:0.95",
       labels = scales::label_percent(accuracy = 0.1),
       breaks = scales::breaks_pretty(n = 5),
-      expand = expansion(mult = c(0.14, 0.16))
+      expand = expansion(mult = c(0.10, 0.10))
     ) +
     publication_theme() +
     theme(legend.position = "bottom")
@@ -473,20 +474,20 @@ build_per_class_ap <- function(data) {
   plot_data$class_name <- factor(plot_data$class_name, levels = class_order)
   plot_data$ap_low <- plot_data$ap_mean - plot_data$ap_sd
   plot_data$ap_high <- plot_data$ap_mean + plot_data$ap_sd
-  dodge <- position_dodge(width = 0.55)
+  dodge <- position_dodge(width = 0.48)
 
   ggplot(plot_data, aes(x = ap_mean, y = class_name, colour = model_id)) +
     geom_errorbar(
       aes(xmin = ap_low, xmax = ap_high),
       orientation = "y",
-      width = 0.24,
-      linewidth = 0.45,
+      width = 0.18,
+      linewidth = 0.35,
       position = dodge
     ) +
     geom_point(
       aes(fill = model_id, shape = model_id),
       colour = "black",
-      size = 2.3,
+      size = 2.15,
       stroke = 0.4,
       position = dodge
     ) +
@@ -501,7 +502,7 @@ build_per_class_ap <- function(data) {
       name = "AP@0.5:0.95",
       labels = scales::label_percent(accuracy = 1),
       breaks = scales::breaks_pretty(n = 5),
-      expand = expansion(mult = c(0.08, 0.12))
+      expand = expansion(mult = c(0.06, 0.08))
     ) +
     scale_y_discrete(name = NULL, labels = class_labels) +
     publication_theme() +
@@ -593,7 +594,7 @@ build_protocol_workflow <- function() {
     fill = c("#EAF4FB", "#E8F5EE"),
     label = c(
       "Primary RGB | DMD | 1 FPS | four cues\nSeeds 13, 37, 73; 15,723 frames retained",
-      "Exploratory NIR | Drive&Act | 10 FPS | two cues\nSeed 13; training negatives 1:2 versus 1:6"
+      "Exploratory NIR | Drive&Act | 1 FPS midpoint | two cues\nSeed 13; training negatives 1:2 versus 1:6"
     ),
     stringsAsFactors = FALSE
   )
@@ -659,7 +660,7 @@ build_subject_sensitivity <- function(path) {
   plot_data$subject <- factor(plot_data$subject, levels = subject_levels)
   plot_data$x <- as.numeric(plot_data$subject)
   model_offset <- c(yolo11n = -0.12, yolo26n = 0.12, dfine_n = 0)
-  seed_offset <- c(`13` = -0.035, `37` = 0, `73` = 0.035)
+  seed_offset <- c(`13` = -0.052, `37` = -0.018, `73` = 0.046)
   plot_data$x_seed <- plot_data$x +
     unname(model_offset[as.character(plot_data$model_id)]) +
     unname(seed_offset[as.character(plot_data$training_seed)])
@@ -681,35 +682,36 @@ build_subject_sensitivity <- function(path) {
   ggplot() +
     geom_point(
       data = plot_data,
-      aes(x = x_seed, y = micro_f1, colour = model_id, shape = model_id),
-      size = 1.45,
-      alpha = 0.45,
-      stroke = 0.35
+      aes(x = x_seed, y = micro_f1, colour = model_id),
+      shape = 124,
+      size = 2.4,
+      alpha = 0.55,
+      show.legend = FALSE
     ) +
     geom_errorbar(
       data = means,
       aes(x = x, ymin = mean - sample_sd, ymax = mean + sample_sd, colour = model_id),
-      width = 0.065,
-      linewidth = 0.55
+      width = 0.055,
+      linewidth = 0.4
     ) +
     geom_point(
       data = means,
       aes(x = x, y = mean, fill = model_id, shape = model_id),
       colour = "black",
-      size = 2.6,
+      size = 2.45,
       stroke = 0.45
     ) +
     scale_x_continuous(
       name = "Held-out test subject",
       breaks = 1:3,
       labels = c("Subject 05", "Subject 10", "Subject 12"),
-      expand = expansion(mult = c(0.12, 0.12))
+      expand = expansion(mult = c(0.08, 0.08))
     ) +
     scale_y_continuous(
       name = "Micro-F1",
       labels = scales::label_percent(accuracy = 1),
       breaks = scales::breaks_pretty(n = 5),
-      expand = expansion(mult = c(0.08, 0.10))
+      expand = expansion(mult = c(0.06, 0.08))
     ) +
     scale_colour_manual(values = model_colors, labels = model_labels, guide = "none") +
     scale_fill_manual(values = model_colors, labels = model_labels) +
@@ -756,36 +758,111 @@ build_validation_operating_point <- function(path) {
   summary_data$model_id <- factor(summary_data$model_id, levels = expected_models)
   summary_data$metric <- factor(summary_data$metric, levels = unname(metrics))
   selected <- long[long$selected_primary, ]
+  selected_groups <- split(
+    selected,
+    interaction(selected$model_id, selected$metric, drop = TRUE)
+  )
+  selected_summary <- do.call(rbind, lapply(selected_groups, function(group) {
+    data.frame(
+      model_id = group$model_id[1],
+      metric = group$metric[1],
+      threshold_mean = mean(group$threshold),
+      threshold_sd = stats::sd(group$threshold),
+      value_mean = mean(group$value),
+      value_sd = stats::sd(group$value)
+    )
+  }))
+  selected_summary$model_id <- factor(
+    selected_summary$model_id,
+    levels = expected_models
+  )
+  selected_summary$metric <- factor(
+    selected_summary$metric,
+    levels = unname(metrics)
+  )
+  legend_models <- intersect(
+    expected_models,
+    unique(as.character(selected_summary$model_id))
+  )
 
   ggplot(
     summary_data,
-    aes(x = threshold, y = mean, colour = model_id, fill = model_id)
+    aes(
+      x = threshold,
+      y = mean,
+      colour = model_id,
+      fill = model_id,
+      linetype = model_id
+    )
   ) +
     geom_ribbon(
       aes(ymin = pmax(0, mean - sample_sd), ymax = mean + sample_sd),
-      alpha = 0.13,
-      colour = NA
+      alpha = 0.09,
+      colour = NA,
+      linetype = 0
     ) +
-    geom_line(linewidth = 0.65) +
+    geom_line(linewidth = 0.62) +
+    geom_errorbar(
+      data = selected_summary,
+      aes(
+        x = threshold_mean,
+        ymin = pmax(0, value_mean - value_sd),
+        ymax = value_mean + value_sd,
+        colour = model_id
+      ),
+      width = 0.012,
+      linewidth = 0.35,
+      linetype = "solid",
+      inherit.aes = FALSE
+    ) +
+    geom_segment(
+      data = selected_summary,
+      aes(
+        x = threshold_mean - threshold_sd,
+        xend = threshold_mean + threshold_sd,
+        y = value_mean,
+        yend = value_mean,
+        colour = model_id
+      ),
+      linewidth = 0.35,
+      linetype = "solid",
+      inherit.aes = FALSE
+    ) +
     geom_point(
-      data = selected,
-      aes(x = threshold, y = value, shape = model_id, fill = model_id),
+      data = selected_summary,
+      aes(
+        x = threshold_mean,
+        y = value_mean,
+        shape = model_id,
+        fill = model_id
+      ),
       colour = "black",
-      size = 1.8,
-      stroke = 0.35,
+      size = 2.05,
+      stroke = 0.4,
       inherit.aes = FALSE
     ) +
     facet_wrap(~metric, nrow = 1, scales = "free_y") +
     scale_x_continuous(
       name = "Confidence threshold",
       breaks = seq(0, 1, by = 0.2),
-      limits = c(0, 1),
+      limits = c(0.01, 0.99),
       expand = expansion(mult = c(0.01, 0.01))
     ) +
     scale_y_continuous(name = NULL, breaks = scales::breaks_pretty(n = 4)) +
     scale_colour_manual(values = model_colors, labels = model_labels) +
     scale_fill_manual(values = model_colors, labels = model_labels) +
     scale_shape_manual(values = model_shapes, labels = model_labels) +
+    scale_linetype_manual(values = model_linetypes, labels = model_labels) +
+    guides(
+      colour = guide_legend(override.aes = list(
+        linetype = unname(model_linetypes[legend_models]),
+        shape = unname(model_shapes[legend_models]),
+        fill = unname(model_colors[legend_models])
+      )),
+      fill = "none",
+      shape = "none",
+      linetype = "none"
+    ) +
     publication_theme() +
     theme(
       legend.position = "bottom",
@@ -800,10 +877,83 @@ build_nir_training_negative_exposure <- function(path) {
     stop("Unexpected NIR figure source type in ", path)
   }
   metric_labels <- c(
-    "mAP@0.5:0.95",
-    "Snippet macro-F1",
-    "FP snippets / 100 negatives"
+    map_50_95 = "mAP@0.5:0.95 (%)",
+    macro_f1 = "Macro-F1 (%)",
+    false_detections_per_100_negative_frames =
+      "False detections / 100 negative frames"
   )
+  if (length(payload$rows) > 0L) {
+    plot_data <- do.call(rbind, lapply(payload$rows, function(row) {
+      do.call(rbind, lapply(names(metric_labels), function(metric) {
+        scale <- if (metric %in% c("map_50_95", "macro_f1")) 100 else 1
+        data.frame(
+          model_id = as.character(row$model_id),
+          ratio = as.character(row$ratio),
+          metric = unname(metric_labels[metric]),
+          value = as.numeric(row[[metric]]) * scale,
+          stringsAsFactors = FALSE
+        )
+      }))
+    }))
+    plot_data$model_id <- factor(plot_data$model_id, levels = expected_models)
+    plot_data$metric <- factor(plot_data$metric, levels = unname(metric_labels))
+    plot_data$ratio <- factor(plot_data$ratio, levels = c("1:2", "1:6"))
+    legend_models <- intersect(
+      expected_models,
+      unique(as.character(plot_data$model_id))
+    )
+
+    return(
+      ggplot(
+        plot_data,
+        aes(
+          x = ratio,
+          y = value,
+          group = model_id,
+          colour = model_id,
+          fill = model_id,
+          shape = model_id,
+          linetype = model_id
+        )
+      ) +
+        geom_line(linewidth = 0.55, position = position_dodge(width = 0.2)) +
+        geom_point(
+          colour = "black",
+          size = 2.15,
+          stroke = 0.4,
+          position = position_dodge(width = 0.2)
+        ) +
+        facet_wrap(~metric, nrow = 1, scales = "free_y") +
+        scale_x_discrete(name = "Training positive:negative ratio") +
+        scale_y_continuous(
+          name = NULL,
+          breaks = scales::breaks_pretty(n = 4),
+          expand = expansion(mult = c(0.08, 0.10))
+        ) +
+        scale_colour_manual(values = model_colors, labels = model_labels) +
+        scale_fill_manual(values = model_colors, labels = model_labels) +
+        scale_shape_manual(values = model_shapes, labels = model_labels) +
+        scale_linetype_manual(values = model_linetypes, labels = model_labels) +
+        guides(
+          colour = guide_legend(override.aes = list(
+            linetype = unname(model_linetypes[legend_models]),
+            shape = unname(model_shapes[legend_models]),
+            fill = unname(model_colors[legend_models])
+          )),
+          fill = "none",
+          shape = "none",
+          linetype = "none"
+        ) +
+        publication_theme() +
+        theme(
+          legend.position = "bottom",
+          strip.text = element_text(size = 7, face = "bold"),
+          panel.spacing = grid::unit(7, "pt")
+        )
+    )
+  }
+
+  metric_labels <- unname(metric_labels)
   legend_data <- expand.grid(
     model_id = expected_models,
     metric = metric_labels,
@@ -888,7 +1038,7 @@ accuracy_outputs <- export_figure(
   build_accuracy_speed(data),
   "accuracy_vs_speed",
   width = 3.5,
-  height = 2.58,
+  height = 2.15,
   title = "RGB accuracy-efficiency trade-off",
   figure_id = "rgb_accuracy_vs_speed"
 )
@@ -905,7 +1055,7 @@ class_outputs <- export_figure(
   build_per_class_ap(data),
   "per_class_ap",
   width = 3.5,
-  height = 2.55,
+  height = 2.15,
   title = "RGB per-class average precision",
   figure_id = "rgb_per_class_ap"
 )
@@ -953,7 +1103,7 @@ subject_outputs <- export_figure(
   build_subject_sensitivity(subject_source_path),
   "subject_sensitivity",
   width = 7.16,
-  height = 2.55,
+  height = 2.15,
   title = "RGB held-out subject sensitivity",
   figure_id = "rgb_subject_sensitivity",
   metadata_source = subject_source_path
@@ -976,7 +1126,7 @@ validation_outputs <- export_figure(
   build_validation_operating_point(validation_source_path),
   "validation_operating_point",
   width = 7.16,
-  height = 2.55,
+  height = 2.35,
   title = "RGB validation confidence sweep",
   figure_id = "rgb_validation_operating_point",
   metadata_source = validation_source_path
@@ -995,12 +1145,26 @@ validation_manifest <- write_manifest(
   manifest_source = validation_source_path
 )
 
+nir_payload <- jsonlite::fromJSON(nir_source_path, simplifyVector = FALSE)
+nir_completed_models <- if (length(nir_payload$rows) > 0L) {
+  intersect(
+    expected_models,
+    unique(vapply(nir_payload$rows, function(row) {
+      as.character(row$model_id)
+    }, character(1)))
+  )
+} else {
+  character(0)
+}
+nir_pending_models <- expected_models[!expected_models %in% nir_completed_models]
+nir_status <- if (length(nir_pending_models) == 0L) "complete" else "pending"
+
 nir_outputs <- export_figure(
   build_nir_training_negative_exposure(nir_source_path),
   "training_negative_exposure",
   width = 7.16,
   height = 2.35,
-  title = "Pending NIR training-negative exposure results",
+  title = paste(tools::toTitleCase(nir_status), "NIR training-negative exposure results"),
   figure_id = "nir_training_negative_exposure",
   metadata_source = nir_source_path,
   target_output_dir = nir_output_dir
@@ -1009,9 +1173,18 @@ nir_manifest <- write_manifest(
   "training_negative_exposure",
   "nir_training_negative_exposure",
   nir_outputs,
-  character(0),
-  expected_models,
-  list(status = "pending", seed = 13L, ratios = list("1:2", "1:6")),
+  nir_completed_models,
+  nir_pending_models,
+  list(
+    status = nir_status,
+    seed = 13L,
+    ratios = list("1:2", "1:6"),
+    sampling = list(
+      fps = 1L,
+      sample_time_seconds = 0.5,
+      source_frame_offset = 14L
+    )
+  ),
   manifest_source = nir_source_path,
   target_output_dir = nir_output_dir
 )

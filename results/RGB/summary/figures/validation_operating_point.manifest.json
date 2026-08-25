@@ -23,15 +23,15 @@
   "outputs": {
     "pdf": {
       "path": "results/RGB/summary/figures/validation_operating_point.pdf",
-      "sha256": "db1c0475d75c913d7817adde5530c34c34ec5d93fc32ea68604ab50ca1895b21"
+      "sha256": "6656ef61ca2aa20c30ffe63a65de51ecc4c7d8f660e343788a1a303802d91cb6"
     },
     "svg": {
       "path": "results/RGB/summary/figures/validation_operating_point.svg",
-      "sha256": "fd2b607770a3aa08cd1c70c06fbcf05a4a2bf7c66c585f4d87dbb6936e38049c"
+      "sha256": "1cdd3e26b41cdd2a05453ec055513db80bbd0751e6b2d327671b457180481a8c"
     },
     "png": {
       "path": "results/RGB/summary/figures/validation_operating_point.png",
-      "sha256": "e57e0bfb3e08d9e85a5a9645427fa797878bbcca7d7a94b9ea4dbf8a73538904"
+      "sha256": "e48f3b34b79ae0ef235436dd69917ba5ba23f3ef3816d572243ddd658afbaea7"
     }
   },
   "split": "validation",

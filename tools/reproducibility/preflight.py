@@ -391,31 +391,31 @@ def nir_checks(checks: Checks, require_images: bool) -> None:
     )
     processed = REPO_ROOT / "data" / "processed" / "NIR"
     expected_lists = {
-        "yolo/ratio_1to2/train.txt": 8100,
-        "yolo/ratio_1to6/train.txt": 18900,
-        "yolo/evaluation/val.txt": 8810,
-        "yolo/evaluation/test.txt": 8500,
+        "yolo/ratio_1to2/train.txt": 810,
+        "yolo/ratio_1to6/train.txt": 1890,
+        "yolo/evaluation/val.txt": 881,
+        "yolo/evaluation/test.txt": 850,
     }
     for relative, expected in expected_lists.items():
         path = processed / relative
         checks.check(
             path.is_file()
             and len(path.read_text(encoding="utf-8").splitlines()) == expected,
-            f"NIR {relative} contains {expected} 10-FPS frames",
+            f"NIR {relative} contains {expected} deterministic 1-FPS frames",
         )
     if require_images:
         required_ids = {int(task["id"]) for ratio in tasks.values() for task in ratio}
         image_count = sum(
             1
             for task_id in required_ids
-            for frame in range(1, 11)
+            for frame in range(1, 2)
             if (
                 processed / "images" / f"task_{task_id:05d}_frame_{frame:02d}.jpg"
             ).is_file()
         )
         checks.check(
-            image_count == len(required_ids) * 10,
-            f"All {len(required_ids) * 10:,} union NIR frames exist",
+            image_count == len(required_ids),
+            f"All {len(required_ids):,} union NIR midpoint frames exist",
         )
 
 
