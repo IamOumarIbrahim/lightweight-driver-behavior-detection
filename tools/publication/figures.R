@@ -782,7 +782,8 @@ build_normalized_model_comparison <- function(plot_data) {
     facet_grid(
       rows = vars(metric_group),
       scales = "free_y",
-      space = "free_y"
+      space = "free_y",
+      switch = "y"
     ) +
     scale_colour_manual(
       values = model_colors,
