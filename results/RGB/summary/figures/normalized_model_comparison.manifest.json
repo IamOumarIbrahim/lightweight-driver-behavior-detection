@@ -23,15 +23,15 @@
   "outputs": {
     "pdf": {
       "path": "results/RGB/summary/figures/normalized_model_comparison.pdf",
-      "sha256": "2d5b1bd91d30684a23023d49bcd98d6fe02705b8d93d49fc38bfe120353600b6"
+      "sha256": "a574834cb8eb3c5498b325cdaa1d5e7fd1b4922ee69f0a0f740a3a2a4a6ebbfc"
     },
     "svg": {
       "path": "results/RGB/summary/figures/normalized_model_comparison.svg",
-      "sha256": "cbb845beb4a874892bb4b16c3e99b4af886a0515d85b9034741e919b40673dfd"
+      "sha256": "1e0ca3bcccabee6bee24f052015aa1dabb56b285f6043eac6e9c79b06c561df7"
     },
     "png": {
       "path": "results/RGB/summary/figures/normalized_model_comparison.png",
-      "sha256": "8626f59316bf278f1769a7346692b70fd16e34b6739c06518ab9a3cb1e858442"
+      "sha256": "4c6bec643030ea09a64c709317dca67b276724ff530e551a62eab44b70650ecc"
     }
   },
   "metrics": [
@@ -51,7 +51,16 @@
       100
     ],
     "right_is_better": true,
-    "anchors": "observed_mean_plus_or_minus_sample_sd_envelope",
+    "anchors": "best_directional_sample_sd_bound",
+    "higher_is_better_domain": {
+      "left": "0.75 * max(mean + sample_sd)",
+      "right": "max(mean + sample_sd)"
+    },
+    "lower_is_better_domain": {
+      "left": "min(mean - sample_sd) / 0.75",
+      "right": "min(mean - sample_sd)"
+    },
+    "out_of_domain_values": "retained_below_zero_not_clipped",
     "lower_is_better": [
       "far_per_100_negative_frames",
       "tensor_to_final_detections_p50_ms",

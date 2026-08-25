@@ -150,7 +150,7 @@ D-FINE-N & \multicolumn{9}{c}{\ph} \\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{normalized_model_comparison.pdf}
-\caption{Normalized Cleveland dot plot of the aggregate RGB results in Table~\ref{tab:rgbresults}. Rows are grouped into accuracy, speed, and complexity; right always indicates better performance. Within each metric, 0--100 spans the observed mean $\pm$ sample-SD envelope (the observed mean range for parameters and GFLOPs). The $\fd$, latency, parameter, and GFLOP scales are reversed because lower is better. Whiskers show sample SD across seeds 13, 37, and 73, and labels retain the original values. D-FINE-N is added automatically when its aggregate is frozen.}
+\caption{Directional dot-and-whisker plot of the aggregate RGB results in Table~\ref{tab:rgbresults}. Rows are grouped into accuracy, speed, and complexity; right always indicates better performance. For higher-is-better metrics, 0--100 spans three-quarters of the best observed mean-plus-SD bound to that bound. For lower-is-better metrics, it spans four-thirds of the best observed mean-minus-SD bound to that bound. Observations outside the three-quarter reference are retained left of zero rather than clipped. Alternating row bands separate metrics. Whiskers show sample SD across seeds 13, 37, and 73; units appear in the row labels, and each value label is placed at a fixed distance left of its whisker. D-FINE-N is added automatically when its aggregate is frozen.}
 \label{fig:rgbplots}
 \end{figure*}
 
