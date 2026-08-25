@@ -49,6 +49,13 @@ source_path <- file.path(
   "summary",
   "final_benchmark_aggregate.json"
 )
+secondary_source_path <- file.path(
+  repo_root,
+  "results",
+  "RGB",
+  "summary",
+  "secondary_analysis.json"
+)
 qualitative_source_path <- file.path(
   repo_root,
   "results",
@@ -104,6 +111,21 @@ metric_estimate <- function(row, key) {
   )
   if (any(!is.finite(estimate)) || estimate[["sample_std"]] < 0) {
     stop(key, " contains an invalid estimate")
+  }
+  estimate
+}
+
+secondary_metric_estimate <- function(row, key) {
+  value <- row[[key]]
+  if (!is.list(value) || is.null(value$mean) || is.null(value$sample_sd)) {
+    stop(key, " must contain mean and sample_sd")
+  }
+  estimate <- c(
+    mean = as.numeric(value$mean),
+    sample_std = as.numeric(value$sample_sd)
+  )
+  if (any(!is.finite(estimate)) || estimate[["sample_std"]] < 0) {
+    stop(key, " contains an invalid secondary-analysis estimate")
   }
   estimate
 }
@@ -183,6 +205,208 @@ load_rgb_aggregate <- function(path) {
   per_class <- do.call(rbind, class_records)
   rownames(per_class) <- NULL
   list(overall = overall, per_class = per_class)
+}
+
+format_comparison_value <- function(metric_id, estimate) {
+  mean <- estimate[["mean"]]
+  sd <- estimate[["sample_std"]]
+  switch(
+    metric_id,
+    map_50 = sprintf("%.2f ± %.2f%%", 100 * mean, 100 * sd),
+    map_50_95 = sprintf("%.2f ± %.2f%%", 100 * mean, 100 * sd),
+    micro_f1 = sprintf("%.2f ± %.2f%%", 100 * mean, 100 * sd),
+    macro_f1 = sprintf("%.2f ± %.2f%%", 100 * mean, 100 * sd),
+    fd_100 = sprintf("%.2f ± %.2f", mean, sd),
+    latency = sprintf("%.2f ± %.2f ms", mean, sd),
+    fps = sprintf("%.1f ± %.1f FPS", mean, sd),
+    parameters = sprintf("%.2f M", mean / 1000000),
+    gflops = sprintf("%.2f GFLOPs", mean / 1000000000),
+    stop("Unknown comparison metric: ", metric_id)
+  )
+}
+
+load_rgb_table_comparison <- function(aggregate_path, secondary_path) {
+  aggregate <- jsonlite::fromJSON(aggregate_path, simplifyVector = FALSE)
+  secondary <- jsonlite::fromJSON(secondary_path, simplifyVector = FALSE)
+  if (!identical(aggregate$artifact, "dms_eval_aggregate")) {
+    stop("Unexpected aggregate type in ", aggregate_path)
+  }
+  if (!identical(secondary$artifact, "rgb_secondary_analysis")) {
+    stop("Unexpected secondary-analysis type in ", secondary_path)
+  }
+  if (!identical(
+    as.character(secondary$inputs$aggregate_sha256),
+    sha256_file(aggregate_path)
+  )) {
+    stop("Secondary analysis does not match the frozen RGB aggregate")
+  }
+
+  metric_ids <- c(
+    "map_50", "map_50_95", "micro_f1", "macro_f1", "fd_100",
+    "latency", "fps", "parameters", "gflops"
+  )
+  metric_groups <- c(
+    map_50 = "Accuracy",
+    map_50_95 = "Accuracy",
+    micro_f1 = "Accuracy",
+    macro_f1 = "Accuracy",
+    fd_100 = "Accuracy",
+    latency = "Speed",
+    fps = "Speed",
+    parameters = "Complexity",
+    gflops = "Complexity"
+  )
+  metric_labels <- c(
+    map_50 = "mAP₅₀",
+    map_50_95 = "mAP₅₀:₉₅",
+    micro_f1 = "Micro-F₁",
+    macro_f1 = "Macro-F₁",
+    fd_100 = "FD₁₀₀",
+    latency = "p50 latency",
+    fps = "Throughput",
+    parameters = "Parameters",
+    gflops = "GFLOPs"
+  )
+  higher_is_better <- c(
+    map_50 = TRUE,
+    map_50_95 = TRUE,
+    micro_f1 = TRUE,
+    macro_f1 = TRUE,
+    fd_100 = FALSE,
+    latency = FALSE,
+    fps = TRUE,
+    parameters = FALSE,
+    gflops = FALSE
+  )
+  has_sd <- c(
+    map_50 = TRUE,
+    map_50_95 = TRUE,
+    micro_f1 = TRUE,
+    macro_f1 = TRUE,
+    fd_100 = TRUE,
+    latency = TRUE,
+    fps = TRUE,
+    parameters = FALSE,
+    gflops = FALSE
+  )
+
+  records <- list()
+  for (row in aggregate$rows) {
+    model_id <- as.character(row$model_id)
+    if (!model_id %in% expected_models) {
+      next
+    }
+    secondary_row <- secondary$model_summary[[model_id]]
+    if (is.null(secondary_row)) {
+      stop("Missing secondary-analysis summary for ", model_id)
+    }
+    for (key in c("map_50", "map_50_95", "micro_f1")) {
+      aggregate_estimate <- metric_estimate(row, key)
+      secondary_estimate <- secondary_metric_estimate(secondary_row, key)
+      if (max(abs(aggregate_estimate - secondary_estimate)) > 1e-12) {
+        stop("Aggregate and secondary analysis disagree for ", model_id, "/", key)
+      }
+    }
+    aggregate_fd <- metric_estimate(row, "far_per_100_negative_frames")
+    secondary_fd <- secondary_metric_estimate(
+      secondary_row,
+      "far_per_100_negative_frames"
+    )
+    if (max(abs(aggregate_fd - secondary_fd)) > 1e-12) {
+      stop("Aggregate and secondary analysis disagree for ", model_id, "/FD100")
+    }
+
+    estimates <- list(
+      map_50 = metric_estimate(row, "map_50"),
+      map_50_95 = metric_estimate(row, "map_50_95"),
+      micro_f1 = metric_estimate(row, "micro_f1"),
+      macro_f1 = secondary_metric_estimate(secondary_row, "macro_f1"),
+      fd_100 = aggregate_fd,
+      latency = metric_estimate(row, "tensor_to_final_detections_p50_ms"),
+      fps = metric_estimate(
+        row,
+        "tensor_to_final_detections_sustained_fps"
+      ),
+      parameters = metric_estimate(row, "parameters"),
+      gflops = metric_estimate(row$flop_estimates, "thop")
+    )
+    for (metric_id in metric_ids) {
+      estimate <- estimates[[metric_id]]
+      records[[length(records) + 1L]] <- data.frame(
+        model_id = model_id,
+        metric_id = metric_id,
+        metric_group = unname(metric_groups[[metric_id]]),
+        metric_label = unname(metric_labels[[metric_id]]),
+        mean = estimate[["mean"]],
+        sample_sd = estimate[["sample_std"]],
+        higher_is_better = unname(higher_is_better[[metric_id]]),
+        has_sd = unname(has_sd[[metric_id]]),
+        value_label = format_comparison_value(metric_id, estimate),
+        stringsAsFactors = FALSE
+      )
+    }
+  }
+  if (length(records) == 0L) {
+    stop("No completed RGB models are available for the comparison figure")
+  }
+  plot_data <- do.call(rbind, records)
+  if (length(unique(plot_data$model_id)) < 2L) {
+    stop("The normalized comparison requires at least two completed RGB models")
+  }
+
+  plot_data$score <- NA_real_
+  plot_data$score_low <- NA_real_
+  plot_data$score_high <- NA_real_
+  for (metric_id in metric_ids) {
+    rows <- which(plot_data$metric_id == metric_id)
+    means <- plot_data$mean[rows]
+    sds <- if (plot_data$has_sd[rows][[1]]) {
+      plot_data$sample_sd[rows]
+    } else {
+      rep(0, length(rows))
+    }
+    domain_low <- min(means - sds)
+    domain_high <- max(means + sds)
+    domain_span <- domain_high - domain_low
+    if (!is.finite(domain_span) || domain_span <= 0) {
+      plot_data$score[rows] <- 50
+      plot_data$score_low[rows] <- 50
+      plot_data$score_high[rows] <- 50
+      next
+    }
+    if (plot_data$higher_is_better[rows][[1]]) {
+      scores <- 100 * (means - domain_low) / domain_span
+    } else {
+      scores <- 100 * (domain_high - means) / domain_span
+    }
+    score_sd <- 100 * sds / domain_span
+    plot_data$score[rows] <- scores
+    plot_data$score_low[rows] <- pmax(0, scores - score_sd)
+    plot_data$score_high[rows] <- pmin(100, scores + score_sd)
+  }
+
+  plot_data$metric_group <- factor(
+    plot_data$metric_group,
+    levels = c("Accuracy", "Speed", "Complexity")
+  )
+  plot_data$metric_label <- factor(
+    plot_data$metric_label,
+    levels = rev(unname(metric_labels[metric_ids]))
+  )
+  plot_data$model_id <- factor(plot_data$model_id, levels = expected_models)
+  plot_data$label_x <- plot_data$score
+  plot_data$label_hjust <- ifelse(plot_data$score < 50, 1, 0)
+  left_middle <- plot_data$score >= 20 & plot_data$score < 50
+  right_middle <- plot_data$score >= 50 & plot_data$score <= 80
+  plot_data$label_x[left_middle] <- plot_data$score[left_middle] - 2.2
+  plot_data$label_x[right_middle] <- plot_data$score[right_middle] + 2.2
+  left_edge <- plot_data$score < 20
+  right_edge <- plot_data$score > 80
+  plot_data$label_x[left_edge] <- plot_data$score[left_edge] + 2.2
+  plot_data$label_hjust[left_edge] <- 0
+  plot_data$label_x[right_edge] <- plot_data$score[right_edge] - 2.2
+  plot_data$label_hjust[right_edge] <- 1
+  plot_data
 }
 
 publication_theme <- function() {
@@ -515,6 +739,104 @@ build_per_class_ap <- function(data) {
     theme(
       legend.position = "bottom",
       legend.box.spacing = grid::unit(2, "pt")
+    )
+}
+
+build_normalized_model_comparison <- function(plot_data) {
+  span_records <- lapply(split(plot_data, plot_data$metric_id), function(rows) {
+    data.frame(
+      metric_group = rows$metric_group[[1]],
+      metric_label = rows$metric_label[[1]],
+      score_min = min(rows$score),
+      score_max = max(rows$score),
+      stringsAsFactors = FALSE
+    )
+  })
+  span_data <- do.call(rbind, span_records)
+  span_data$metric_group <- factor(
+    span_data$metric_group,
+    levels = levels(plot_data$metric_group)
+  )
+  span_data$metric_label <- factor(
+    span_data$metric_label,
+    levels = levels(plot_data$metric_label)
+  )
+  dodge <- position_dodge(width = 0.46)
+
+  ggplot(plot_data, aes(x = score, y = metric_label, colour = model_id)) +
+    geom_segment(
+      data = span_data,
+      aes(
+        x = score_min,
+        xend = score_max,
+        y = metric_label,
+        yend = metric_label
+      ),
+      inherit.aes = FALSE,
+      colour = "grey72",
+      linewidth = 0.45
+    ) +
+    geom_errorbar(
+      data = plot_data[plot_data$has_sd, ],
+      aes(xmin = score_low, xmax = score_high),
+      orientation = "y",
+      width = 0.17,
+      linewidth = 0.38,
+      position = dodge
+    ) +
+    geom_point(
+      aes(fill = model_id, shape = model_id),
+      colour = "black",
+      size = 2.35,
+      stroke = 0.42,
+      position = dodge
+    ) +
+    geom_text(
+      aes(x = label_x, label = value_label, hjust = label_hjust),
+      colour = "black",
+      size = 2.35,
+      position = dodge,
+      show.legend = FALSE
+    ) +
+    facet_grid(
+      rows = vars(metric_group),
+      scales = "free_y",
+      space = "free_y"
+    ) +
+    scale_colour_manual(
+      values = model_colors,
+      breaks = expected_models,
+      labels = model_labels,
+      guide = "none"
+    ) +
+    scale_fill_manual(
+      values = model_colors,
+      breaks = expected_models,
+      labels = model_labels
+    ) +
+    scale_shape_manual(
+      values = model_shapes,
+      breaks = expected_models,
+      labels = model_labels
+    ) +
+    scale_x_continuous(
+      name = "Normalized score (0 = worse, 100 = better)",
+      limits = c(0, 100),
+      breaks = seq(0, 100, by = 25),
+      expand = expansion(mult = c(0.01, 0.01))
+    ) +
+    scale_y_discrete(name = NULL) +
+    publication_theme() +
+    theme(
+      legend.position = "bottom",
+      legend.box.spacing = grid::unit(1, "pt"),
+      panel.spacing.y = grid::unit(3, "pt"),
+      strip.background = element_rect(
+        fill = "grey94",
+        colour = "grey65",
+        linewidth = 0.3
+      ),
+      strip.text.y = element_text(size = 7, face = "bold")
     )
 }
 
@@ -1022,6 +1344,10 @@ build_nir_training_negative_exposure <- function(path) {
 }
 
 data <- load_rgb_aggregate(source_path)
+comparison_data <- load_rgb_table_comparison(
+  source_path,
+  secondary_source_path
+)
 completed_models <- as.character(data$overall$model_id)
 pending_models <- expected_models[!expected_models %in% completed_models]
 
@@ -1067,6 +1393,53 @@ workflow_manifest <- write_manifest(
   ),
   manifest_source = workflow_source_path,
   target_output_dir = shared_output_dir
+)
+
+comparison_outputs <- export_figure(
+  build_normalized_model_comparison(comparison_data),
+  "normalized_model_comparison",
+  width = 7.16,
+  height = 3.20,
+  title = "Normalized RGB accuracy, speed, and complexity comparison",
+  figure_id = "rgb_normalized_model_comparison"
+)
+comparison_manifest <- write_manifest(
+  "normalized_model_comparison",
+  "rgb_normalized_model_comparison",
+  comparison_outputs,
+  completed_models,
+  pending_models,
+  list(
+    metrics = list(
+      "map_50",
+      "map_50_95",
+      "micro_f1",
+      "macro_f1",
+      "far_per_100_negative_frames",
+      "tensor_to_final_detections_p50_ms",
+      "tensor_to_final_detections_sustained_fps",
+      "parameters",
+      "flop_estimates.thop"
+    ),
+    normalization = list(
+      range = list(0, 100),
+      right_is_better = TRUE,
+      anchors = "observed_mean_plus_or_minus_sample_sd_envelope",
+      lower_is_better = list(
+        "far_per_100_negative_frames",
+        "tensor_to_final_detections_p50_ms",
+        "parameters",
+        "flop_estimates.thop"
+      )
+    ),
+    inputs = list(
+      list(
+        role = "macro_f1_source",
+        path = relative_path(secondary_source_path),
+        sha256 = sha256_file(secondary_source_path)
+      )
+    )
+  )
 )
 
 accuracy_outputs <- export_figure(
@@ -1239,6 +1612,8 @@ if (length(pending_models) > 0L) {
 output_paths <- c(
   unlist(workflow_outputs),
   workflow_manifest,
+  unlist(comparison_outputs),
+  comparison_manifest,
   unlist(accuracy_outputs),
   accuracy_manifest,
   unlist(class_outputs),

@@ -1,0 +1,69 @@
+{
+  "artifact": "publication_figure_manifest",
+  "figure": "rgb_normalized_model_comparison",
+  "generator": "ggplot2",
+  "generator_script": "tools/publication/figures.R",
+  "r_version": "4.6.1",
+  "packages": {
+    "ggplot2": "4.0.3",
+    "jsonlite": "2.0.0",
+    "digest": "0.6.39",
+    "png": "0.1.9"
+  },
+  "source": "results/RGB/summary/final_benchmark_aggregate.json",
+  "source_sha256": "283c73853ba247bf01603bf26d58fe430aa6e4857063f2ce790892694617aa58",
+  "models": [
+    "yolo11n",
+    "yolo26n"
+  ],
+  "pending_models": [
+    "dfine_n"
+  ],
+  "dispersion": "sample_standard_deviation",
+  "outputs": {
+    "pdf": {
+      "path": "results/RGB/summary/figures/normalized_model_comparison.pdf",
+      "sha256": "2d5b1bd91d30684a23023d49bcd98d6fe02705b8d93d49fc38bfe120353600b6"
+    },
+    "svg": {
+      "path": "results/RGB/summary/figures/normalized_model_comparison.svg",
+      "sha256": "cbb845beb4a874892bb4b16c3e99b4af886a0515d85b9034741e919b40673dfd"
+    },
+    "png": {
+      "path": "results/RGB/summary/figures/normalized_model_comparison.png",
+      "sha256": "8626f59316bf278f1769a7346692b70fd16e34b6739c06518ab9a3cb1e858442"
+    }
+  },
+  "metrics": [
+    "map_50",
+    "map_50_95",
+    "micro_f1",
+    "macro_f1",
+    "far_per_100_negative_frames",
+    "tensor_to_final_detections_p50_ms",
+    "tensor_to_final_detections_sustained_fps",
+    "parameters",
+    "flop_estimates.thop"
+  ],
+  "normalization": {
+    "range": [
+      0,
+      100
+    ],
+    "right_is_better": true,
+    "anchors": "observed_mean_plus_or_minus_sample_sd_envelope",
+    "lower_is_better": [
+      "far_per_100_negative_frames",
+      "tensor_to_final_detections_p50_ms",
+      "parameters",
+      "flop_estimates.thop"
+    ]
+  },
+  "inputs": [
+    {
+      "role": "macro_f1_source",
+      "path": "results/RGB/summary/secondary_analysis.json",
+      "sha256": "8cda9071c5149f68dce004849ce6f72cfb6f33e531cc4db961c67b2406d6a293"
+    }
+  ]
+}

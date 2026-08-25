@@ -55,6 +55,7 @@ def test_r_package_lock_and_figure_hashes() -> None:
     assert len(versions) == len(packages)
     manifests = (
         REPO_ROOT / "results" / "summary" / "figures" / "protocol_workflow.manifest.json",
+        REPO_ROOT / "results" / "RGB" / "summary" / "figures" / "normalized_model_comparison.manifest.json",
         REPO_ROOT / "results" / "RGB" / "summary" / "figures" / "accuracy_vs_speed.manifest.json",
         REPO_ROOT / "results" / "RGB" / "summary" / "figures" / "per_class_ap.manifest.json",
         REPO_ROOT / "results" / "RGB" / "summary" / "figures" / "qualitative_examples.manifest.json",

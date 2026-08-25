@@ -149,18 +149,8 @@ D-FINE-N & \multicolumn{9}{c}{\ph} \\
 
 \begin{figure*}[t]
 \centering
-\begin{minipage}[t]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{accuracy_vs_speed.pdf}
-    \par\vspace{0.65ex}{\scriptsize (a) Accuracy--throughput trade-off.}
-\end{minipage}\hfill
-\begin{minipage}[t]{0.48\textwidth}
-    \centering
-    \includegraphics[width=\linewidth]{per_class_ap.pdf}
-    \par\vspace{0.65ex}{\scriptsize (b) Per-class $\mathrm{AP}_{50:95}$ with test support.}
-\end{minipage}
-\vspace{0.6ex}
-\caption{Completed RGB YOLO results. Error bars show sample SD across seeds 13, 37, and 73. Model identities are encoded in a separate legend so labels do not obscure observations. D-FINE-N is added automatically when its aggregate is frozen.}
+\includegraphics[width=0.98\textwidth]{normalized_model_comparison.pdf}
+\caption{Normalized Cleveland dot plot of the aggregate RGB results in Table~\ref{tab:rgbresults}. Rows are grouped into accuracy, speed, and complexity; right always indicates better performance. Within each metric, 0--100 spans the observed mean $\pm$ sample-SD envelope (the observed mean range for parameters and GFLOPs). The $\fd$, latency, parameter, and GFLOP scales are reversed because lower is better. Whiskers show sample SD across seeds 13, 37, and 73, and labels retain the original values. D-FINE-N is added automatically when its aggregate is frozen.}
 \label{fig:rgbplots}
 \end{figure*}
 

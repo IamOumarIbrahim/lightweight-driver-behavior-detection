@@ -239,6 +239,11 @@ def repository_checks(checks: Checks) -> None:
     figure_failures = []
     figure_manifests = [
         RESULTS_ROOT / "summary" / "figures" / "protocol_workflow.manifest.json",
+        RESULTS_ROOT
+        / "RGB"
+        / "summary"
+        / "figures"
+        / "normalized_model_comparison.manifest.json",
         RESULTS_ROOT / "RGB" / "summary" / "figures" / "accuracy_vs_speed.manifest.json",
         RESULTS_ROOT / "RGB" / "summary" / "figures" / "per_class_ap.manifest.json",
         RESULTS_ROOT / "RGB" / "summary" / "figures" / "qualitative_examples.manifest.json",
