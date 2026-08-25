@@ -74,7 +74,7 @@ The task is bounding-box localization of four visible RGB cues: yawning, hand ov
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{protocol_workflow.pdf}
-\caption{End-to-end benchmark workflow. RGB and NIR share the validation-before-test gate but retain dataset-specific sampling, ontology, seeds, and training conditions. FPS denotes frames per second. The diagram and all subsequent plots were generated with R/ggplot2.}
+\caption{End-to-end benchmark workflow with representative annotated DMD and Drive\&Act frames. RGB and NIR share the validation-before-test gate but retain dataset-specific sampling, ontology, seeds, and training conditions. FPS denotes frames per second. The diagram and all subsequent plots were generated with R/ggplot2.}
 \label{fig:workflow}
 \end{figure*}
 
@@ -170,22 +170,15 @@ Phone use accounts for 497 of 614 positive test instances, whereas hand over mou
 The class-wise mean differences, YOLO26n minus YOLO11n, are $+6.21$ points for hand over mouth, $-3.85$ for yawning, $+1.02$ for drinking, and $+3.02$ for phone use. The aggregate $\mathrm{mAP}_{50:95}$ advantage is $+1.60$ points. Across paired seeds, YOLO11n is consistently higher for yawning, while YOLO26n is consistently higher for hand over mouth and phone use. The drinking direction changes with seed, so no consistent difference is claimed for that class. Reporting macro-$F_1$ and per-class AP beside micro-$F_1$ prevents the majority phone-use class from silently defining the conclusion, although the wide SD for low-support cues still warrants caution.
 
 \subsection{Held-Out Subject Sensitivity}
-Figure~\ref{fig:subjects} shows individual seeds and their mean $\pm$ sample SD for every held-out driver. Averaged across seeds, YOLO11n micro-$F_1$ is 94.94\%, 62.41\%, and 94.72\% for Subjects 05, 10, and 12; YOLO26n obtains 96.11\%, 54.11\%, and 92.29\%. The between-subject change is far larger than the pooled seed SD. Reporting only the pooled test set would therefore hide the difficult driver.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.98\textwidth]{subject_sensitivity.pdf}
-\caption{RGB operating performance by held-out test subject. Pale offset ticks are individual seeds; filled markers and thin error bars show mean $\pm$ sample SD. These bars describe optimization variation on one frozen subject split, not population-level uncertainty across drivers.}
-\label{fig:subjects}
-\end{figure*}
+Averaged across seeds, YOLO11n micro-$F_1$ is 94.94\%, 62.41\%, and 94.72\% for Subjects 05, 10, and 12; YOLO26n obtains 96.11\%, 54.11\%, and 92.29\%. The between-subject change is far larger than the pooled seed SD. Reporting only the pooled test set would therefore hide the difficult driver.
 
 \subsection{Validation Operating Point}
-Figure~\ref{fig:calibration} makes the validation-only operating-point decision explicit. Lines and light ribbons show the seed mean and SD across the full confidence sweep. Each model has one filled marker at the mean validation-selected operating point; the horizontal and vertical whiskers show the sample SD of the selected confidence threshold and its corresponding metric, respectively. YOLO11n selects lower thresholds and gives higher validation micro- and macro-$F_1$, whereas YOLO26n maintains high $F_1$ farther into the threshold range. The false-detection panel shows the corresponding reduction on negative validation frames. None of these curves uses the protected test set.
+Figure~\ref{fig:calibration} makes the validation-only operating-point decision explicit. Lines and ribbons show the seed mean and sample SD across the full confidence sweep. Each model has one filled marker at its mean validation-selected operating point. YOLO11n selects lower thresholds and gives higher validation micro- and macro-$F_1$, whereas YOLO26n maintains high $F_1$ farther into the threshold range. The false-detection panel shows the corresponding reduction on negative validation frames. None of these curves uses the protected test set.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{validation_operating_point.pdf}
-\caption{RGB validation confidence sweep. Lines show the seed mean and light ribbons show sample SD. Each filled marker is the mean micro-$F_1$-selected operating point; horizontal and vertical whiskers show the sample SD of its confidence threshold and corresponding metric.}
+\caption{RGB validation confidence sweep. Lines show the seed mean and translucent ribbons show sample SD. Dark-edged markers identify the mean micro-$F_1$-selected operating points.}
 \label{fig:calibration}
 \end{figure*}
 
@@ -194,7 +187,7 @@ Figure~\ref{fig:qual} shows predeclared seed-13 examples from frozen predictions
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.96\textwidth]{qualitative_examples.pdf}
+\includegraphics[width=0.62\textwidth]{qualitative_examples.pdf}
 \caption{Representative seed-13 RGB outcomes. Green boxes denote ground truth and orange boxes denote predictions at the validation-selected threshold. Rows are completed detector systems; columns show a true positive, a false detection on a nominal negative, and a false negative.}
 \label{fig:qual}
 \end{figure*}

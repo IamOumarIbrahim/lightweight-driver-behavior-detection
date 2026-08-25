@@ -63,6 +63,12 @@ validation_source_path <- file.path(
   repo_root, "results", "RGB", "summary", "validation_operating_point_sweep.csv"
 )
 workflow_source_path <- file.path(repo_root, "configs", "RGB", "protocol.yaml")
+workflow_image_paths <- c(
+  file.path(repo_root, "docs", "assets", "examples", "drinking_annotation_example.png"),
+  file.path(repo_root, "docs", "assets", "examples", "hand_over_mouth_annotation_example.png"),
+  file.path(repo_root, "docs", "assets", "examples", "driveact_drinking_midpoint.png"),
+  file.path(repo_root, "docs", "assets", "examples", "driveact_phone_midpoint.png")
+)
 nir_source_path <- file.path(
   repo_root, "results", "NIR", "summary",
   "training_negative_exposure_source.json"
@@ -575,13 +581,13 @@ build_protocol_workflow <- function() {
   steps <- data.frame(
     x = 1:7,
     label = c(
-      "Licensed\nsource media",
+      "Source\nmedia",
       "Subject-disjoint\nsplit",
       "Model\ntraining",
       "Validation:\ncheckpoint +\nthreshold",
-      "Checksum +\nconfirmation\ngate",
+      "Checksum +\nconfirmation",
       "Protected\ntest",
-      "Tables,\nfigures, public\nartifacts"
+      "Public\nartifacts"
     ),
     stringsAsFactors = FALSE
   )
@@ -592,26 +598,72 @@ build_protocol_workflow <- function() {
     ymin = c(0.12, 0.12),
     ymax = c(0.86, 0.86),
     fill = c("#EAF4FB", "#E8F5EE"),
-    label = c(
-      "Primary RGB | DMD | 1 FPS | four cues\nSeeds 13, 37, 73; 15,723 frames retained",
-      "Exploratory NIR | Drive&Act | 1 FPS midpoint | two cues\nSeed 13; training negatives 1:2 versus 1:6"
+    stringsAsFactors = FALSE
+  )
+  lane_images <- data.frame(
+    path = workflow_image_paths,
+    xmin = c(0.64, 1.32, 4.04, 4.72),
+    xmax = c(1.23, 1.91, 4.63, 5.31),
+    ymin = 0.17,
+    ymax = 0.80,
+    stringsAsFactors = FALSE
+  )
+  lane_text <- data.frame(
+    x = c(2.04, 5.44),
+    title = c("Primary RGB | DMD", "Exploratory NIR | Drive&Act"),
+    detail = c(
+      "1 FPS | 4 cues | 15,723 frames\nSeeds 13, 37, 73",
+      "1 FPS midpoint | 2 cues | seed 13\nTraining negatives: 1:2 vs. 1:6"
     ),
     stringsAsFactors = FALSE
   )
 
-  ggplot() +
+  plot <- ggplot() +
     geom_rect(
       data = lanes,
       aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = fill),
       colour = "grey35",
       linewidth = 0.45,
       show.legend = FALSE
+    )
+  for (index in seq_len(nrow(lane_images))) {
+    if (!file.exists(lane_images$path[index])) {
+      stop("Workflow image is missing: ", lane_images$path[index])
+    }
+    plot <- plot + annotation_custom(
+      grid::rasterGrob(
+        png::readPNG(lane_images$path[index]),
+        interpolate = TRUE
+      ),
+      xmin = lane_images$xmin[index],
+      xmax = lane_images$xmax[index],
+      ymin = lane_images$ymin[index],
+      ymax = lane_images$ymax[index]
+    )
+  }
+
+  plot +
+    geom_rect(
+      data = lane_images,
+      aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax),
+      fill = NA,
+      colour = "grey20",
+      linewidth = 0.3
     ) +
     geom_text(
-      data = lanes,
-      aes(x = (xmin + xmax) / 2, y = (ymin + ymax) / 2, label = label),
+      data = lane_text,
+      aes(x = x, y = 0.66, label = title),
       family = "Times New Roman",
-      size = 2.65,
+      fontface = "bold",
+      hjust = 0,
+      size = 2.35
+    ) +
+    geom_text(
+      data = lane_text,
+      aes(x = x, y = 0.43, label = detail),
+      family = "Times New Roman",
+      hjust = 0,
+      size = 2.05,
       lineheight = 1.05
     ) +
     geom_segment(
@@ -797,37 +849,11 @@ build_validation_operating_point <- function(path) {
   ) +
     geom_ribbon(
       aes(ymin = pmax(0, mean - sample_sd), ymax = mean + sample_sd),
-      alpha = 0.09,
+      alpha = 0.14,
       colour = NA,
       linetype = 0
     ) +
     geom_line(linewidth = 0.62) +
-    geom_errorbar(
-      data = selected_summary,
-      aes(
-        x = threshold_mean,
-        ymin = pmax(0, value_mean - value_sd),
-        ymax = value_mean + value_sd,
-        colour = model_id
-      ),
-      width = 0.012,
-      linewidth = 0.35,
-      linetype = "solid",
-      inherit.aes = FALSE
-    ) +
-    geom_segment(
-      data = selected_summary,
-      aes(
-        x = threshold_mean - threshold_sd,
-        xend = threshold_mean + threshold_sd,
-        y = value_mean,
-        yend = value_mean,
-        colour = model_id
-      ),
-      linewidth = 0.35,
-      linetype = "solid",
-      inherit.aes = FALSE
-    ) +
     geom_point(
       data = selected_summary,
       aes(
@@ -836,9 +862,9 @@ build_validation_operating_point <- function(path) {
         shape = model_id,
         fill = model_id
       ),
-      colour = "black",
-      size = 2.05,
-      stroke = 0.4,
+      colour = "#1A1A1A",
+      size = 2.55,
+      stroke = 0.65,
       inherit.aes = FALSE
     ) +
     facet_wrap(~metric, nrow = 1, scales = "free_y") +
@@ -1003,7 +1029,7 @@ workflow_outputs <- export_figure(
   build_protocol_workflow(),
   "protocol_workflow",
   width = 7.16,
-  height = 2.05,
+  height = 2.20,
   title = "Benchmark workflow and protected-test gate",
   figure_id = "protocol_workflow",
   metadata_source = workflow_source_path,
@@ -1017,17 +1043,26 @@ workflow_manifest <- write_manifest(
   expected_models,
   character(0),
   list(
-    inputs = list(
+    inputs = c(
       list(
-        track = "RGB",
-        path = relative_path(workflow_source_path),
-        sha256 = sha256_file(workflow_source_path)
+        list(
+          track = "RGB",
+          path = relative_path(workflow_source_path),
+          sha256 = sha256_file(workflow_source_path)
+        ),
+        list(
+          track = "NIR",
+          path = relative_path(nir_protocol_path),
+          sha256 = sha256_file(nir_protocol_path)
+        )
       ),
-      list(
-        track = "NIR",
-        path = relative_path(nir_protocol_path),
-        sha256 = sha256_file(nir_protocol_path)
-      )
+      lapply(workflow_image_paths, function(path) {
+        list(
+          role = "dataset_example",
+          path = relative_path(path),
+          sha256 = sha256_file(path)
+        )
+      })
     )
   ),
   manifest_source = workflow_source_path,
