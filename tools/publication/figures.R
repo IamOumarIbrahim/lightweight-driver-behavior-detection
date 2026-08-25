@@ -357,7 +357,7 @@ load_rgb_table_comparison <- function(aggregate_path, secondary_path) {
   plot_data$score <- NA_real_
   plot_data$score_low <- NA_real_
   plot_data$score_high <- NA_real_
-  domain_fraction <- 0.75
+  domain_fraction <- 2 / 3
   for (metric_id in metric_ids) {
     rows <- which(plot_data$metric_id == metric_id)
     means <- plot_data$mean[rows]
@@ -375,7 +375,7 @@ load_rgb_table_comparison <- function(aggregate_path, secondary_path) {
     }
     domain_span <- domain_high - domain_low
     if (!is.finite(domain_span) || domain_span <= 0 || domain_low < 0) {
-      stop("Invalid three-quarter-to-full normalization domain for ", metric_id)
+      stop("Invalid two-thirds-to-full normalization domain for ", metric_id)
     }
     if (plot_data$higher_is_better[rows][[1]]) {
       scores <- 100 * (means - domain_low) / domain_span
@@ -383,9 +383,9 @@ load_rgb_table_comparison <- function(aggregate_path, secondary_path) {
       scores <- 100 * (domain_high - means) / domain_span
     }
     score_sd <- 100 * sds / domain_span
-    plot_data$score[rows] <- scores
-    plot_data$score_low[rows] <- scores - score_sd
-    plot_data$score_high[rows] <- scores + score_sd
+    plot_data$score[rows] <- pmin(100, pmax(0, scores))
+    plot_data$score_low[rows] <- pmin(100, pmax(0, scores - score_sd))
+    plot_data$score_high[rows] <- pmin(100, pmax(0, scores + score_sd))
   }
 
   plot_data$metric_group <- factor(
@@ -740,19 +740,6 @@ build_normalized_model_comparison <- function(plot_data) {
   dodge_width <- 0.68
   dodge <- position_dodge(width = dodge_width, orientation = "y")
   metric_order <- levels(plot_data$metric_label)
-  plot_min <- min(
-    -30,
-    5 * floor((min(plot_data$label_x) - 15) / 5)
-  )
-  band_midpoint <- (plot_min + 100) / 2
-  band_width <- 100 - plot_min
-  shaded_metric_ids <- c(
-    "map_50", "micro_f1", "fd_100", "latency", "parameters"
-  )
-  band_data <- unique(plot_data[c(
-    "metric_id", "metric_group", "metric_label"
-  )])
-  band_data <- band_data[band_data$metric_id %in% shaded_metric_ids, ]
   present_models <- expected_models[
     expected_models %in% as.character(unique(plot_data$model_id))
   ]
@@ -776,21 +763,12 @@ build_normalized_model_comparison <- function(plot_data) {
   })
 
   ggplot(plot_data, aes(x = score, y = metric_label, colour = model_id)) +
-    geom_tile(
-      data = band_data,
-      aes(x = band_midpoint, y = metric_label),
-      width = band_width,
-      height = 0.96,
-      inherit.aes = FALSE,
-      fill = "grey95",
-      colour = NA
-    ) +
     geom_errorbar(
       data = plot_data[plot_data$has_sd, ],
       aes(xmin = score_low, xmax = score_high),
       orientation = "y",
-      width = 0.17,
-      linewidth = 0.38,
+      width = 0.22,
+      linewidth = 0.55,
       position = dodge
     ) +
     geom_point(
@@ -823,10 +801,10 @@ build_normalized_model_comparison <- function(plot_data) {
       labels = model_labels
     ) +
     scale_x_continuous(
-      name = "Directional position (0 = three-quarter reference; 100 = best bound)",
-      limits = c(plot_min, 100),
+      name = "Directional position (0 = two-thirds reference; 100 = best bound)",
+      limits = c(0, 100),
       breaks = seq(0, 100, by = 25),
-      expand = expansion(mult = c(0, 0.01))
+      expand = expansion(mult = c(0, 0))
     ) +
     scale_y_discrete(
       name = NULL,
@@ -836,7 +814,14 @@ build_normalized_model_comparison <- function(plot_data) {
     theme(
       legend.position = "bottom",
       legend.box.spacing = grid::unit(1, "pt"),
-      panel.spacing.y = grid::unit(5, "pt"),
+      panel.spacing.y = grid::unit(7, "pt"),
+      panel.background = element_rect(fill = "white", colour = NA),
+      panel.border = element_rect(
+        fill = NA,
+        colour = "grey72",
+        linewidth = 0.18
+      ),
+      panel.grid.major.x = element_line(linewidth = 0.22, colour = "grey82"),
       panel.grid.major.y = element_blank(),
       strip.background = element_rect(
         fill = "grey94",
@@ -1406,7 +1391,7 @@ comparison_outputs <- export_figure(
   build_normalized_model_comparison(comparison_data),
   "normalized_model_comparison",
   width = 7.16,
-  height = 4.15,
+  height = 5.81,
   title = "Normalized RGB accuracy, speed, and complexity comparison",
   figure_id = "rgb_normalized_model_comparison"
 )
@@ -1433,14 +1418,14 @@ comparison_manifest <- write_manifest(
       right_is_better = TRUE,
       anchors = "best_directional_sample_sd_bound",
       higher_is_better_domain = list(
-        left = "0.75 * max(mean + sample_sd)",
+        left = "(2 / 3) * max(mean + sample_sd)",
         right = "max(mean + sample_sd)"
       ),
       lower_is_better_domain = list(
-        left = "min(mean - sample_sd) / 0.75",
+        left = "min(mean - sample_sd) / (2 / 3)",
         right = "min(mean - sample_sd)"
       ),
-      out_of_domain_values = "retained_below_zero_not_clipped",
+      out_of_domain_values = "clipped_to_zero_or_100",
       lower_is_better = list(
         "far_per_100_negative_frames",
         "tensor_to_final_detections_p50_ms",

@@ -149,8 +149,8 @@ D-FINE-N & \multicolumn{9}{c}{\ph} \\
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.98\textwidth]{normalized_model_comparison.pdf}
-\caption{Directional dot-and-whisker plot of the aggregate RGB results in Table~\ref{tab:rgbresults}. Rows are grouped into accuracy, speed, and complexity; right always indicates better performance. For higher-is-better metrics, 0--100 spans three-quarters of the best observed mean-plus-SD bound to that bound. For lower-is-better metrics, it spans four-thirds of the best observed mean-minus-SD bound to that bound. Observations outside the three-quarter reference are retained left of zero rather than clipped. Alternating row bands separate metrics. Whiskers show sample SD across seeds 13, 37, and 73; units appear in the row labels, and each value label is placed at a fixed distance left of its whisker. D-FINE-N is added automatically when its aggregate is frozen.}
+\includegraphics[width=0.686\textwidth]{normalized_model_comparison.pdf}
+\caption{Directional dot-and-whisker plot of the aggregate RGB results in Table~\ref{tab:rgbresults}. Rows are grouped into accuracy, speed, and complexity; right always indicates better performance. For higher-is-better metrics, 0 marks two-thirds of the best observed mean-plus-SD bound and 100 marks that bound. For lower-is-better metrics, 0 marks one-and-a-half times the best observed mean-minus-SD bound and 100 marks that bound. The white panels use vertical guides every 25 points. Whiskers show sample SD across seeds 13, 37, and 73; units appear in the row labels, and each value label is placed at a fixed distance left of its whisker. D-FINE-N is added automatically when its aggregate is frozen.}
 \label{fig:rgbplots}
 \end{figure*}
 
@@ -230,7 +230,6 @@ Future work will add independent multi-annotator semantic review, increase rare-
 \noindent\textbf{Data and code:} Authored annotations, frozen partitions and checksums, sanitized predictions, evaluation tools, and publication artifacts are available at \url{https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection}; licensed DMD and Drive\&Act media and trained checkpoints remain local under their original access terms.
 
 \FloatBarrier
-\IEEEtriggeratref{8}
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 
