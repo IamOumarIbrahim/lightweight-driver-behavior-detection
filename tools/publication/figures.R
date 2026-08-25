@@ -803,8 +803,8 @@ build_normalized_model_comparison <- function(plot_data) {
     ) +
     scale_x_continuous(
       name = "Directional position (0 = two-thirds reference; 100 = best bound)",
-      limits = c(0, 100),
-      breaks = seq(0, 100, by = 25),
+      limits = c(0, 105),
+      breaks = c(seq(0, 100, by = 25), 105),
       expand = expansion(mult = c(0, 0))
     ) +
     scale_y_discrete(
@@ -1416,6 +1416,7 @@ comparison_manifest <- write_manifest(
     ),
     normalization = list(
       range = list(0, 100),
+      display_range = list(0, 105),
       right_is_better = TRUE,
       anchors = "best_directional_sample_sd_bound",
       higher_is_better_domain = list(

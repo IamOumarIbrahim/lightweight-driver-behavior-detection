@@ -23,15 +23,15 @@
   "outputs": {
     "pdf": {
       "path": "results/RGB/summary/figures/normalized_model_comparison.pdf",
-      "sha256": "b51e641c6335a82e85d1f08a89ad6a890bb3506561e0d79cbdd338b77312ba01"
+      "sha256": "14b1f169b5ba48a1e7f61891cf81df6b9aed23563f4bd0a8c172aa1107ba8033"
     },
     "svg": {
       "path": "results/RGB/summary/figures/normalized_model_comparison.svg",
-      "sha256": "945b6d95fc34757474cffa6729505e3c16b433750293e1ba2c479a7676bc3c83"
+      "sha256": "a29c857c70e59e60333b8cb55e09a832d1618513b3c74e7214c29a3286639a06"
     },
     "png": {
       "path": "results/RGB/summary/figures/normalized_model_comparison.png",
-      "sha256": "fe72f138863f6b10dc93c9e2d5660e0ed82954d4840fed5e74ba09653c4d3873"
+      "sha256": "b1ce39c0cb2f5f6ceca0cdda0f7e49912cc7e004b1d05ad5a546813dd79a7b45"
     }
   },
   "metrics": [
@@ -49,6 +49,10 @@
     "range": [
       0,
       100
+    ],
+    "display_range": [
+      0,
+      105
     ],
     "right_is_better": true,
     "anchors": "best_directional_sample_sd_bound",
