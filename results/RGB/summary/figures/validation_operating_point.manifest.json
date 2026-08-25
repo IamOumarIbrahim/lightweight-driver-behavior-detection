@@ -1,0 +1,44 @@
+{
+  "artifact": "publication_figure_manifest",
+  "figure": "rgb_validation_operating_point",
+  "generator": "ggplot2",
+  "generator_script": "tools/publication/figures.R",
+  "r_version": "4.6.1",
+  "packages": {
+    "ggplot2": "4.0.3",
+    "jsonlite": "2.0.0",
+    "digest": "0.6.39",
+    "png": "0.1.9"
+  },
+  "source": "results/RGB/summary/validation_operating_point_sweep.csv",
+  "source_sha256": "4890216c61adcee6e5b1ca4a0a5d75a9a5b5425be35267dd9b481017eb176e7e",
+  "models": [
+    "yolo11n",
+    "yolo26n"
+  ],
+  "pending_models": [
+    "dfine_n"
+  ],
+  "dispersion": "sample_standard_deviation",
+  "outputs": {
+    "pdf": {
+      "path": "results/RGB/summary/figures/validation_operating_point.pdf",
+      "sha256": "db1c0475d75c913d7817adde5530c34c34ec5d93fc32ea68604ab50ca1895b21"
+    },
+    "svg": {
+      "path": "results/RGB/summary/figures/validation_operating_point.svg",
+      "sha256": "fd2b607770a3aa08cd1c70c06fbcf05a4a2bf7c66c585f4d87dbb6936e38049c"
+    },
+    "png": {
+      "path": "results/RGB/summary/figures/validation_operating_point.png",
+      "sha256": "e57e0bfb3e08d9e85a5a9645427fa797878bbcca7d7a94b9ea4dbf8a73538904"
+    }
+  },
+  "split": "validation",
+  "thresholds": {
+    "start": 0.01,
+    "stop": 0.99,
+    "step": 0.01
+  },
+  "primary_selection_metric": "micro_f1"
+}

@@ -23,16 +23,19 @@
   "outputs": {
     "pdf": {
       "path": "results/RGB/summary/figures/accuracy_vs_speed.pdf",
-      "sha256": "dd477f24ff6b900d51d205ac41f78a7e0d3b75d60b40e28e81b68360103aafd8"
+      "sha256": "d5c29c8dd74c0bbcb213ec43937addbd1db02c5b52e118688c60624b45c59efb"
     },
     "svg": {
       "path": "results/RGB/summary/figures/accuracy_vs_speed.svg",
-      "sha256": "b0b60b766a27b78661a754ecdaa48ba8effba38335675121855f31eba9e03e49"
+      "sha256": "df7b50a74caec61222be873eb41e3b290355d3a1392ba2f405f18eacd1fa433a"
     },
     "png": {
       "path": "results/RGB/summary/figures/accuracy_vs_speed.png",
-      "sha256": "aa5fec9021af1ecca35b85ccd69f3253ecbc2fe6bb638f39d8c658c8eb94adfc"
+      "sha256": "98604a3bb7dc075be4f08e301487136805a03853dc8af95097aa4d02dfbb1f6d"
     }
   },
-  "bubble_area": "inference_artifact_bytes"
+  "metrics": [
+    "map_50_95",
+    "tensor_to_final_detections_sustained_fps"
+  ]
 }

@@ -55,8 +55,23 @@ qualitative_source_path <- file.path(
   "summary",
   "qualitative_examples.json"
 )
-output_dir <- file.path(repo_root, "results", "RGB", "summary", "figures")
-dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
+subject_source_path <- file.path(
+  repo_root, "results", "RGB", "summary", "operating_point_by_subject.csv"
+)
+validation_source_path <- file.path(
+  repo_root, "results", "RGB", "summary", "validation_operating_point_sweep.csv"
+)
+workflow_source_path <- file.path(repo_root, "configs", "RGB", "protocol.yaml")
+nir_source_path <- file.path(
+  repo_root, "results", "NIR", "summary",
+  "training_negative_exposure_source.json"
+)
+rgb_output_dir <- file.path(repo_root, "results", "RGB", "summary", "figures")
+shared_output_dir <- file.path(repo_root, "results", "summary", "figures")
+nir_output_dir <- file.path(repo_root, "results", "NIR", "summary", "figures")
+for (directory in c(rgb_output_dir, shared_output_dir, nir_output_dir)) {
+  dir.create(directory, recursive = TRUE, showWarnings = FALSE)
+}
 
 sha256_file <- function(path) {
   digest::digest(file = path, algo = "sha256", serialize = FALSE)
@@ -176,7 +191,9 @@ publication_theme <- function() {
       legend.text = element_text(size = 7),
       legend.key.height = grid::unit(9, "pt"),
       legend.key.width = grid::unit(12, "pt"),
-      plot.margin = margin(3, 4, 3, 3, unit = "pt")
+      legend.margin = margin(2, 0, 0, 0, unit = "pt"),
+      legend.box.spacing = grid::unit(2, "pt"),
+      plot.margin = margin(5, 6, 6, 5, unit = "pt")
     )
 }
 
@@ -281,12 +298,13 @@ export_figure <- function(
   height,
   title,
   figure_id,
-  metadata_source = source_path
+  metadata_source = source_path,
+  target_output_dir = rgb_output_dir
 ) {
   outputs <- list(
-    pdf = file.path(output_dir, paste0(stem, ".pdf")),
-    svg = file.path(output_dir, paste0(stem, ".svg")),
-    png = file.path(output_dir, paste0(stem, ".png"))
+    pdf = file.path(target_output_dir, paste0(stem, ".pdf")),
+    svg = file.path(target_output_dir, paste0(stem, ".svg")),
+    png = file.path(target_output_dir, paste0(stem, ".png"))
   )
   write_pdf(
     plot,
@@ -309,7 +327,8 @@ write_manifest <- function(
   models,
   pending_models,
   details,
-  manifest_source = source_path
+  manifest_source = source_path,
+  target_output_dir = rgb_output_dir
 ) {
   package_versions <- list(
     ggplot2 = as.character(packageVersion("ggplot2")),
@@ -343,7 +362,7 @@ write_manifest <- function(
     pretty = TRUE,
     null = "null"
   )
-  manifest_path <- file.path(output_dir, paste0(stem, ".manifest.json"))
+  manifest_path <- file.path(target_output_dir, paste0(stem, ".manifest.json"))
   connection <- file(manifest_path, open = "wb")
   on.exit(close(connection), add = TRUE)
   writeChar(paste0(json_text, "\n"), connection, eos = NULL)
@@ -364,14 +383,6 @@ build_accuracy_speed <- function(data) {
   y_span <- diff(range(c(plot_data$map_low, plot_data$map_high)))
   x_cap <- max(0.15, x_span * 0.012)
   y_cap <- max(0.00025, y_span * 0.018)
-  plot_data$label <- sprintf(
-    "%s\n%.2f MB",
-    plot_data$model_label,
-    plot_data$artifact_mb
-  )
-  plot_data$label_x <- plot_data$fps_mean + 0.8
-  plot_data$label_y <- plot_data$map_mean
-
   ggplot(
     plot_data,
     aes(x = fps_mean, y = map_mean, colour = model_id)
@@ -421,39 +432,18 @@ build_accuracy_speed <- function(data) {
       linewidth = 0.45
     ) +
     geom_point(
-      aes(fill = model_id, shape = model_id, size = artifact_mb),
+      aes(fill = model_id, shape = model_id),
       colour = "black",
+      size = 3.3,
       stroke = 0.45
     ) +
-    geom_text(
-      aes(x = label_x, y = label_y, label = label),
-      hjust = 0,
-      vjust = 0.5,
-      lineheight = 0.9,
-      family = "Times New Roman",
-      size = 2.45,
-      colour = "black",
-      show.legend = FALSE
-    ) +
-    annotate(
-      "text",
-      x = Inf,
-      y = -Inf,
-      label = "Marker area scales with model file size",
-      hjust = 1.03,
-      vjust = -0.55,
-      family = "Times New Roman",
-      size = 2.1,
-      colour = "grey25"
-    ) +
-    scale_colour_manual(values = model_colors, guide = "none") +
-    scale_fill_manual(values = model_colors, guide = "none") +
-    scale_shape_manual(values = model_shapes, guide = "none") +
-    scale_size_area(max_size = 7.2, guide = "none") +
+    scale_colour_manual(values = model_colors, labels = model_labels, guide = "none") +
+    scale_fill_manual(values = model_colors, labels = model_labels) +
+    scale_shape_manual(values = model_shapes, labels = model_labels) +
     scale_x_continuous(
       name = "Sustained throughput (FPS)",
       breaks = scales::breaks_pretty(n = 5),
-      expand = expansion(mult = c(0.12, 0.22))
+      expand = expansion(mult = c(0.12, 0.12))
     ) +
     scale_y_continuous(
       name = "mAP@0.5:0.95",
@@ -461,9 +451,8 @@ build_accuracy_speed <- function(data) {
       breaks = scales::breaks_pretty(n = 5),
       expand = expansion(mult = c(0.14, 0.16))
     ) +
-    coord_cartesian(clip = "off") +
     publication_theme() +
-    theme(legend.position = "none")
+    theme(legend.position = "bottom")
 }
 
 build_per_class_ap <- function(data) {
@@ -518,8 +507,7 @@ build_per_class_ap <- function(data) {
     publication_theme() +
     theme(
       legend.position = "bottom",
-      legend.box.spacing = grid::unit(0, "pt"),
-      legend.margin = margin(0, 0, 0, 0, unit = "pt")
+      legend.box.spacing = grid::unit(2, "pt")
     )
 }
 
@@ -582,15 +570,325 @@ build_qualitative_grid <- function(examples) {
     theme(plot.margin = margin(1, 1, 1, 1, unit = "pt"))
 }
 
+build_protocol_workflow <- function() {
+  steps <- data.frame(
+    x = 1:7,
+    label = c(
+      "Licensed\nsource media",
+      "Subject-disjoint\nsplit",
+      "Model\ntraining",
+      "Validation:\ncheckpoint +\nthreshold",
+      "Checksum +\nconfirmation\ngate",
+      "Protected\ntest",
+      "Tables,\nfigures, public\nartifacts"
+    ),
+    stringsAsFactors = FALSE
+  )
+  arrows <- data.frame(x = 1:6, xend = 2:7)
+  lanes <- data.frame(
+    xmin = c(0.55, 3.95),
+    xmax = c(3.75, 7.45),
+    ymin = c(0.12, 0.12),
+    ymax = c(0.86, 0.86),
+    fill = c("#EAF4FB", "#E8F5EE"),
+    label = c(
+      "Primary RGB | DMD | 1 FPS | four cues\nSeeds 13, 37, 73; 15,723 frames retained",
+      "Exploratory NIR | Drive&Act | 10 FPS | two cues\nSeed 13; training negatives 1:2 versus 1:6"
+    ),
+    stringsAsFactors = FALSE
+  )
+
+  ggplot() +
+    geom_rect(
+      data = lanes,
+      aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax, fill = fill),
+      colour = "grey35",
+      linewidth = 0.45,
+      show.legend = FALSE
+    ) +
+    geom_text(
+      data = lanes,
+      aes(x = (xmin + xmax) / 2, y = (ymin + ymax) / 2, label = label),
+      family = "Times New Roman",
+      size = 2.65,
+      lineheight = 1.05
+    ) +
+    geom_segment(
+      data = arrows,
+      aes(x = x + 0.39, xend = xend - 0.39, y = 1.62, yend = 1.62),
+      linewidth = 0.55,
+      colour = "#3B5B73",
+      arrow = grid::arrow(length = grid::unit(4.5, "pt"), type = "closed")
+    ) +
+    geom_rect(
+      data = steps,
+      aes(xmin = x - 0.39, xmax = x + 0.39, ymin = 1.25, ymax = 1.99),
+      fill = "white",
+      colour = "black",
+      linewidth = 0.5
+    ) +
+    geom_rect(
+      data = steps[steps$x == 5, ],
+      aes(xmin = x - 0.39, xmax = x + 0.39, ymin = 1.25, ymax = 1.99),
+      fill = "#FFF4CC",
+      colour = "#A65E00",
+      linewidth = 0.65
+    ) +
+    geom_text(
+      data = steps,
+      aes(x = x, y = 1.62, label = label),
+      family = "Times New Roman",
+      size = 2.35,
+      lineheight = 0.95
+    ) +
+    annotate(
+      "text", x = 5, y = 1.12, label = "NO TEST TUNING",
+      family = "Times New Roman", fontface = "bold", size = 2.25,
+      colour = "#8C4B00"
+    ) +
+    coord_cartesian(xlim = c(0.45, 7.55), ylim = c(0.05, 2.05), clip = "off") +
+    scale_fill_identity() +
+    theme_void(base_family = "Times New Roman") +
+    theme(plot.margin = margin(4, 4, 4, 4, unit = "pt"))
+}
+
+build_subject_sensitivity <- function(path) {
+  plot_data <- read.csv(path, check.names = FALSE)
+  plot_data$model_id <- factor(plot_data$model_id, levels = expected_models)
+  subject_levels <- c("subject_05", "subject_10", "subject_12")
+  plot_data$subject <- factor(plot_data$subject, levels = subject_levels)
+  plot_data$x <- as.numeric(plot_data$subject)
+  model_offset <- c(yolo11n = -0.12, yolo26n = 0.12, dfine_n = 0)
+  seed_offset <- c(`13` = -0.035, `37` = 0, `73` = 0.035)
+  plot_data$x_seed <- plot_data$x +
+    unname(model_offset[as.character(plot_data$model_id)]) +
+    unname(seed_offset[as.character(plot_data$training_seed)])
+  groups <- split(
+    plot_data,
+    interaction(plot_data$model_id, plot_data$subject, drop = TRUE)
+  )
+  means <- do.call(rbind, lapply(groups, function(group) {
+    data.frame(
+      model_id = group$model_id[1],
+      subject = group$subject[1],
+      x = group$x[1] + unname(model_offset[as.character(group$model_id[1])]),
+      mean = mean(group$micro_f1),
+      sample_sd = stats::sd(group$micro_f1)
+    )
+  }))
+  means$model_id <- factor(means$model_id, levels = expected_models)
+
+  ggplot() +
+    geom_point(
+      data = plot_data,
+      aes(x = x_seed, y = micro_f1, colour = model_id, shape = model_id),
+      size = 1.45,
+      alpha = 0.45,
+      stroke = 0.35
+    ) +
+    geom_errorbar(
+      data = means,
+      aes(x = x, ymin = mean - sample_sd, ymax = mean + sample_sd, colour = model_id),
+      width = 0.065,
+      linewidth = 0.55
+    ) +
+    geom_point(
+      data = means,
+      aes(x = x, y = mean, fill = model_id, shape = model_id),
+      colour = "black",
+      size = 2.6,
+      stroke = 0.45
+    ) +
+    scale_x_continuous(
+      name = "Held-out test subject",
+      breaks = 1:3,
+      labels = c("Subject 05", "Subject 10", "Subject 12"),
+      expand = expansion(mult = c(0.12, 0.12))
+    ) +
+    scale_y_continuous(
+      name = "Micro-F1",
+      labels = scales::label_percent(accuracy = 1),
+      breaks = scales::breaks_pretty(n = 5),
+      expand = expansion(mult = c(0.08, 0.10))
+    ) +
+    scale_colour_manual(values = model_colors, labels = model_labels, guide = "none") +
+    scale_fill_manual(values = model_colors, labels = model_labels) +
+    scale_shape_manual(values = model_shapes, labels = model_labels) +
+    publication_theme() +
+    theme(legend.position = "bottom")
+}
+
+build_validation_operating_point <- function(path) {
+  source <- read.csv(path, check.names = FALSE)
+  source$selected_primary <- tolower(as.character(source$selected_primary)) == "true"
+  metrics <- c(
+    micro_f1 = "Micro-F1 (%)",
+    macro_f1 = "Macro-F1 (%)",
+    false_detections_per_100_negative_frames = "False detections / 100 negative frames"
+  )
+  long <- do.call(rbind, lapply(names(metrics), function(metric) {
+    scale <- if (metric %in% c("micro_f1", "macro_f1")) 100 else 1
+    data.frame(
+      model_id = source$model_id,
+      training_seed = source$training_seed,
+      threshold = source$threshold,
+      selected_primary = source$selected_primary,
+      metric = unname(metrics[metric]),
+      value = source[[metric]] * scale,
+      stringsAsFactors = FALSE
+    )
+  }))
+  long$model_id <- factor(long$model_id, levels = expected_models)
+  long$metric <- factor(long$metric, levels = unname(metrics))
+  groups <- split(
+    long,
+    interaction(long$model_id, long$metric, long$threshold, drop = TRUE)
+  )
+  summary_data <- do.call(rbind, lapply(groups, function(group) {
+    data.frame(
+      model_id = group$model_id[1],
+      metric = group$metric[1],
+      threshold = group$threshold[1],
+      mean = mean(group$value),
+      sample_sd = stats::sd(group$value)
+    )
+  }))
+  summary_data$model_id <- factor(summary_data$model_id, levels = expected_models)
+  summary_data$metric <- factor(summary_data$metric, levels = unname(metrics))
+  selected <- long[long$selected_primary, ]
+
+  ggplot(
+    summary_data,
+    aes(x = threshold, y = mean, colour = model_id, fill = model_id)
+  ) +
+    geom_ribbon(
+      aes(ymin = pmax(0, mean - sample_sd), ymax = mean + sample_sd),
+      alpha = 0.13,
+      colour = NA
+    ) +
+    geom_line(linewidth = 0.65) +
+    geom_point(
+      data = selected,
+      aes(x = threshold, y = value, shape = model_id, fill = model_id),
+      colour = "black",
+      size = 1.8,
+      stroke = 0.35,
+      inherit.aes = FALSE
+    ) +
+    facet_wrap(~metric, nrow = 1, scales = "free_y") +
+    scale_x_continuous(
+      name = "Confidence threshold",
+      breaks = seq(0, 1, by = 0.2),
+      limits = c(0, 1),
+      expand = expansion(mult = c(0.01, 0.01))
+    ) +
+    scale_y_continuous(name = NULL, breaks = scales::breaks_pretty(n = 4)) +
+    scale_colour_manual(values = model_colors, labels = model_labels) +
+    scale_fill_manual(values = model_colors, labels = model_labels) +
+    scale_shape_manual(values = model_shapes, labels = model_labels) +
+    publication_theme() +
+    theme(
+      legend.position = "bottom",
+      strip.text = element_text(size = 7, face = "bold"),
+      panel.spacing = grid::unit(7, "pt")
+    )
+}
+
+build_nir_training_negative_exposure <- function(path) {
+  payload <- jsonlite::fromJSON(path, simplifyVector = FALSE)
+  if (!identical(payload$artifact, "nir_training_negative_exposure_figure_source")) {
+    stop("Unexpected NIR figure source type in ", path)
+  }
+  metric_labels <- c(
+    "mAP@0.5:0.95",
+    "Snippet macro-F1",
+    "FP snippets / 100 negatives"
+  )
+  legend_data <- expand.grid(
+    model_id = expected_models,
+    metric = metric_labels,
+    ratio = c("1:2", "1:6"),
+    stringsAsFactors = FALSE
+  )
+  legend_data$value <- 0.5
+  legend_data$model_id <- factor(legend_data$model_id, levels = expected_models)
+  legend_data$metric <- factor(legend_data$metric, levels = metric_labels)
+  legend_data$ratio <- factor(legend_data$ratio, levels = c("1:2", "1:6"))
+
+  ggplot(legend_data, aes(x = ratio, y = value, fill = model_id, shape = model_id)) +
+    geom_point(alpha = 0, size = 2.5, show.legend = TRUE) +
+    annotate(
+      "text", x = 1.5, y = 0.5,
+      label = "Protected-test results pending",
+      family = "Times New Roman", fontface = "italic", size = 2.65,
+      colour = "grey35"
+    ) +
+    facet_wrap(~metric, nrow = 1) +
+    scale_x_discrete(name = "Training positive:negative ratio") +
+    scale_y_continuous(name = NULL, breaks = NULL, limits = c(0, 1)) +
+    scale_fill_manual(values = model_colors, labels = model_labels) +
+    scale_shape_manual(values = model_shapes, labels = model_labels) +
+    guides(
+      fill = guide_legend(override.aes = list(
+        alpha = 1,
+        shape = unname(model_shapes),
+        fill = unname(model_colors),
+        colour = "black"
+      )),
+      shape = "none"
+    ) +
+    publication_theme() +
+    theme(
+      legend.position = "bottom",
+      strip.text = element_text(size = 7, face = "bold"),
+      panel.spacing = grid::unit(7, "pt")
+    )
+}
+
 data <- load_rgb_aggregate(source_path)
 completed_models <- as.character(data$overall$model_id)
 pending_models <- expected_models[!expected_models %in% completed_models]
+
+workflow_outputs <- export_figure(
+  build_protocol_workflow(),
+  "protocol_workflow",
+  width = 7.16,
+  height = 2.05,
+  title = "Benchmark workflow and protected-test gate",
+  figure_id = "protocol_workflow",
+  metadata_source = workflow_source_path,
+  target_output_dir = shared_output_dir
+)
+nir_protocol_path <- file.path(repo_root, "configs", "NIR", "protocol.yaml")
+workflow_manifest <- write_manifest(
+  "protocol_workflow",
+  "protocol_workflow",
+  workflow_outputs,
+  expected_models,
+  character(0),
+  list(
+    inputs = list(
+      list(
+        track = "RGB",
+        path = relative_path(workflow_source_path),
+        sha256 = sha256_file(workflow_source_path)
+      ),
+      list(
+        track = "NIR",
+        path = relative_path(nir_protocol_path),
+        sha256 = sha256_file(nir_protocol_path)
+      )
+    )
+  ),
+  manifest_source = workflow_source_path,
+  target_output_dir = shared_output_dir
+)
 
 accuracy_outputs <- export_figure(
   build_accuracy_speed(data),
   "accuracy_vs_speed",
   width = 3.5,
-  height = 2.45,
+  height = 2.58,
   title = "RGB accuracy-efficiency trade-off",
   figure_id = "rgb_accuracy_vs_speed"
 )
@@ -600,7 +898,7 @@ accuracy_manifest <- write_manifest(
   accuracy_outputs,
   completed_models,
   pending_models,
-  list(bubble_area = "inference_artifact_bytes")
+  list(metrics = list("map_50_95", "tensor_to_final_detections_sustained_fps"))
 )
 
 class_outputs <- export_figure(
@@ -651,6 +949,73 @@ qualitative_manifest <- write_manifest(
   manifest_source = qualitative_source_path
 )
 
+subject_outputs <- export_figure(
+  build_subject_sensitivity(subject_source_path),
+  "subject_sensitivity",
+  width = 7.16,
+  height = 2.55,
+  title = "RGB held-out subject sensitivity",
+  figure_id = "rgb_subject_sensitivity",
+  metadata_source = subject_source_path
+)
+subject_manifest <- write_manifest(
+  "subject_sensitivity",
+  "rgb_subject_sensitivity",
+  subject_outputs,
+  completed_models,
+  pending_models,
+  list(
+    metric = "micro_f1",
+    points = "individual_training_seeds",
+    error_bars = "sample_standard_deviation_across_seeds"
+  ),
+  manifest_source = subject_source_path
+)
+
+validation_outputs <- export_figure(
+  build_validation_operating_point(validation_source_path),
+  "validation_operating_point",
+  width = 7.16,
+  height = 2.55,
+  title = "RGB validation confidence sweep",
+  figure_id = "rgb_validation_operating_point",
+  metadata_source = validation_source_path
+)
+validation_manifest <- write_manifest(
+  "validation_operating_point",
+  "rgb_validation_operating_point",
+  validation_outputs,
+  completed_models,
+  pending_models,
+  list(
+    split = "validation",
+    thresholds = list(start = 0.01, stop = 0.99, step = 0.01),
+    primary_selection_metric = "micro_f1"
+  ),
+  manifest_source = validation_source_path
+)
+
+nir_outputs <- export_figure(
+  build_nir_training_negative_exposure(nir_source_path),
+  "training_negative_exposure",
+  width = 7.16,
+  height = 2.35,
+  title = "Pending NIR training-negative exposure results",
+  figure_id = "nir_training_negative_exposure",
+  metadata_source = nir_source_path,
+  target_output_dir = nir_output_dir
+)
+nir_manifest <- write_manifest(
+  "training_negative_exposure",
+  "nir_training_negative_exposure",
+  nir_outputs,
+  character(0),
+  expected_models,
+  list(status = "pending", seed = 13L, ratios = list("1:2", "1:6")),
+  manifest_source = nir_source_path,
+  target_output_dir = nir_output_dir
+)
+
 cat(
   "Built ggplot2 publication figures for:",
   paste(completed_models, collapse = ", "),
@@ -664,12 +1029,20 @@ if (length(pending_models) > 0L) {
   )
 }
 output_paths <- c(
+  unlist(workflow_outputs),
+  workflow_manifest,
   unlist(accuracy_outputs),
   accuracy_manifest,
   unlist(class_outputs),
   class_manifest,
   unlist(qualitative_outputs),
-  qualitative_manifest
+  qualitative_manifest,
+  unlist(subject_outputs),
+  subject_manifest,
+  unlist(validation_outputs),
+  validation_manifest,
+  unlist(nir_outputs),
+  nir_manifest
 )
 for (path in output_paths) {
   cat(normalizePath(path, winslash = "/", mustWork = TRUE), "\n")

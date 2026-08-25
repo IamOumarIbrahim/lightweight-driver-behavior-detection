@@ -1,0 +1,42 @@
+{
+  "artifact": "publication_figure_manifest",
+  "figure": "nir_training_negative_exposure",
+  "generator": "ggplot2",
+  "generator_script": "tools/publication/figures.R",
+  "r_version": "4.6.1",
+  "packages": {
+    "ggplot2": "4.0.3",
+    "jsonlite": "2.0.0",
+    "digest": "0.6.39",
+    "png": "0.1.9"
+  },
+  "source": "results/NIR/summary/training_negative_exposure_source.json",
+  "source_sha256": "50b8e98bd75a825fba9fe4677c11163b479edbbec5ecdc7e1d5988eff5256ba1",
+  "models": [],
+  "pending_models": [
+    "yolo11n",
+    "yolo26n",
+    "dfine_n"
+  ],
+  "dispersion": "sample_standard_deviation",
+  "outputs": {
+    "pdf": {
+      "path": "results/NIR/summary/figures/training_negative_exposure.pdf",
+      "sha256": "d7f9d8e5efea1f9d51f8d26b9285bf5403845ed5a72cdcf70e6396211620c821"
+    },
+    "svg": {
+      "path": "results/NIR/summary/figures/training_negative_exposure.svg",
+      "sha256": "a59790e62ff54114c80e662deea5e96216bee08db805eba231790e249ca8aaab"
+    },
+    "png": {
+      "path": "results/NIR/summary/figures/training_negative_exposure.png",
+      "sha256": "40a9ee3c1593f8cee80dbc4cdec9f706ea61bf4c8251c7ea995cf577727088c8"
+    }
+  },
+  "status": "pending",
+  "seed": 13,
+  "ratios": [
+    "1:2",
+    "1:6"
+  ]
+}

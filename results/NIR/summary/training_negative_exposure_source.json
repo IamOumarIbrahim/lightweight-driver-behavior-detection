@@ -1,0 +1,13 @@
+{
+  "artifact": "nir_training_negative_exposure_figure_source",
+  "status": "pending",
+  "seed": 13,
+  "ratios": ["1:2", "1:6"],
+  "models": ["yolo11n", "yolo26n", "dfine_n"],
+  "metrics": [
+    "map_50_95",
+    "snippet_macro_f1",
+    "false_positive_snippets_per_100_negative_snippets"
+  ],
+  "rows": []
+}

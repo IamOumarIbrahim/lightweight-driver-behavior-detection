@@ -1,0 +1,48 @@
+{
+  "artifact": "publication_figure_manifest",
+  "figure": "protocol_workflow",
+  "generator": "ggplot2",
+  "generator_script": "tools/publication/figures.R",
+  "r_version": "4.6.1",
+  "packages": {
+    "ggplot2": "4.0.3",
+    "jsonlite": "2.0.0",
+    "digest": "0.6.39",
+    "png": "0.1.9"
+  },
+  "source": "configs/RGB/protocol.yaml",
+  "source_sha256": "c8c540f47a0701cb3c6ff10d11571879eae21dcba4a9a6b861bae33fbcf72ca4",
+  "models": [
+    "yolo11n",
+    "yolo26n",
+    "dfine_n"
+  ],
+  "pending_models": [],
+  "dispersion": "sample_standard_deviation",
+  "outputs": {
+    "pdf": {
+      "path": "results/summary/figures/protocol_workflow.pdf",
+      "sha256": "1b126dd65d1ebebd4104e694eed3255d7939937c5ceb2839d04a27a4fa011e35"
+    },
+    "svg": {
+      "path": "results/summary/figures/protocol_workflow.svg",
+      "sha256": "e5a3d1c23a076677d48c1077bfc3e5c88d01e3c374f74479e6d50abb47e14497"
+    },
+    "png": {
+      "path": "results/summary/figures/protocol_workflow.png",
+      "sha256": "94be322d8d69fe12b7a7ef7eb49050d79d7df0058cbf36883d57189960c82987"
+    }
+  },
+  "inputs": [
+    {
+      "track": "RGB",
+      "path": "configs/RGB/protocol.yaml",
+      "sha256": "c8c540f47a0701cb3c6ff10d11571879eae21dcba4a9a6b861bae33fbcf72ca4"
+    },
+    {
+      "track": "NIR",
+      "path": "configs/NIR/protocol.yaml",
+      "sha256": "624c8eb8cecb1cb78479e2b026571b15e95a523ba95b60e263ac03f57aaf4ae7"
+    }
+  ]
+}

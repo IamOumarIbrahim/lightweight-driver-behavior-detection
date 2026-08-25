@@ -53,15 +53,16 @@ def test_r_package_lock_and_figure_hashes() -> None:
     assert versions["jsonlite"] == "2.0.0"
     assert versions["png"] == "0.1-9"
     assert len(versions) == len(packages)
-    for stem in ("accuracy_vs_speed", "per_class_ap", "qualitative_examples"):
-        manifest_path = (
-            REPO_ROOT
-            / "results"
-            / "RGB"
-            / "summary"
-            / "figures"
-            / f"{stem}.manifest.json"
-        )
+    manifests = (
+        REPO_ROOT / "results" / "summary" / "figures" / "protocol_workflow.manifest.json",
+        REPO_ROOT / "results" / "RGB" / "summary" / "figures" / "accuracy_vs_speed.manifest.json",
+        REPO_ROOT / "results" / "RGB" / "summary" / "figures" / "per_class_ap.manifest.json",
+        REPO_ROOT / "results" / "RGB" / "summary" / "figures" / "qualitative_examples.manifest.json",
+        REPO_ROOT / "results" / "RGB" / "summary" / "figures" / "subject_sensitivity.manifest.json",
+        REPO_ROOT / "results" / "RGB" / "summary" / "figures" / "validation_operating_point.manifest.json",
+        REPO_ROOT / "results" / "NIR" / "summary" / "figures" / "training_negative_exposure.manifest.json",
+    )
+    for manifest_path in manifests:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         assert manifest["generator"] == "ggplot2"
         for output in manifest["outputs"].values():
@@ -72,3 +73,35 @@ def test_r_package_lock_and_figure_hashes() -> None:
             path = REPO_ROOT / source["path"]
             assert path.is_file()
             assert sha256(path) == source["sha256"]
+
+
+def test_validation_sweep_is_complete_and_path_safe() -> None:
+    sweep_path = (
+        REPO_ROOT
+        / "results"
+        / "RGB"
+        / "summary"
+        / "validation_operating_point_sweep.csv"
+    )
+    text = sweep_path.read_text(encoding="utf-8")
+    assert "C:\\" not in text
+    with sweep_path.open(encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 2 * 3 * 99
+    assert sum(row["selected_primary"] == "true" for row in rows) == 6
+    assert {row["model_id"] for row in rows} == {"yolo11n", "yolo26n"}
+
+
+def test_nir_exposure_figure_is_explicitly_pending() -> None:
+    source_path = (
+        REPO_ROOT
+        / "results"
+        / "NIR"
+        / "summary"
+        / "training_negative_exposure_source.json"
+    )
+    source = json.loads(source_path.read_text(encoding="utf-8"))
+    assert source["status"] == "pending"
+    assert source["seed"] == 13
+    assert source["ratios"] == ["1:2", "1:6"]
+    assert source["rows"] == []

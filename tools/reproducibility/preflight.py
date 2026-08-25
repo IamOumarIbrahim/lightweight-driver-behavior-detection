@@ -140,8 +140,8 @@ def repository_checks(checks: Checks) -> None:
     if manuscript_pdf.is_file():
         manuscript_pages = len(PdfReader(str(manuscript_pdf)).pages)
         checks.check(
-            manuscript_pages < 7,
-            f"Manuscript is below seven pages including references ({manuscript_pages} pages)",
+            manuscript_pages <= 8,
+            f"Expanded review manuscript is at most eight pages ({manuscript_pages} pages)",
         )
 
     aggregate_path = RESULTS_ROOT / "RGB" / "summary" / "final_benchmark_aggregate.json"
@@ -237,11 +237,14 @@ def repository_checks(checks: Checks) -> None:
     )
 
     figure_failures = []
-    figure_directory = RESULTS_ROOT / "RGB" / "summary" / "figures"
     figure_manifests = [
-        figure_directory / "accuracy_vs_speed.manifest.json",
-        figure_directory / "per_class_ap.manifest.json",
-        figure_directory / "qualitative_examples.manifest.json",
+        RESULTS_ROOT / "summary" / "figures" / "protocol_workflow.manifest.json",
+        RESULTS_ROOT / "RGB" / "summary" / "figures" / "accuracy_vs_speed.manifest.json",
+        RESULTS_ROOT / "RGB" / "summary" / "figures" / "per_class_ap.manifest.json",
+        RESULTS_ROOT / "RGB" / "summary" / "figures" / "qualitative_examples.manifest.json",
+        RESULTS_ROOT / "RGB" / "summary" / "figures" / "subject_sensitivity.manifest.json",
+        RESULTS_ROOT / "RGB" / "summary" / "figures" / "validation_operating_point.manifest.json",
+        RESULTS_ROOT / "NIR" / "summary" / "figures" / "training_negative_exposure.manifest.json",
     ]
     for figure_manifest_path in figure_manifests:
         if not figure_manifest_path.is_file():

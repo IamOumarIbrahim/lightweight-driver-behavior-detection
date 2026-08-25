@@ -16,5 +16,5 @@ if errorlevel 1 (
   exit /b 1
 )
 echo.
-echo Publication figures are ready under results\RGB\summary\figures.
+echo Publication figures are ready under results\summary and results\{RGB,NIR}\summary.
 endlocal
