@@ -1,8 +1,0 @@
-@echo off
-setlocal
-cd /d "%~dp0\..\.."
-if not exist ".venv\Scripts\python.exe" echo Run scripts\setup\01_create_environment.bat first.& exit /b 2
-echo This runs all six NIR jobs sequentially with safe resume and per-run logs.
-set /p CONFIRM=Type TRAIN_ALL_SIX to continue:
-if /I not "%CONFIRM%"=="TRAIN_ALL_SIX" echo Cancelled.& exit /b 3
-.venv\Scripts\python.exe -m tools.workflow.train_all_nir --execute-training

@@ -3,7 +3,7 @@ from pathlib import Path
 import yaml
 
 from tools.backends.docker_backend import command, container_path, image_tag
-from tools.benchmark.paths import REPO_ROOT
+from tools.benchmark.paths import NIR_MODELS, NIR_RATIOS, REPO_ROOT
 from tools.workflow.train import build_plan
 
 
@@ -50,3 +50,15 @@ def test_rtmdet_config_preserves_negatives_and_stage_switch():
     assert 'filter_cfg=dict(filter_empty_gt=False' in source
     assert "accumulative_counts=4" in source
     assert "stage2_epoch = 93" in source
+
+
+def test_ten_run_launchers_match_the_frozen_matrix():
+    assert len(NIR_MODELS) * len(NIR_RATIOS) == 10
+    scripts = REPO_ROOT / "scripts" / "NIR"
+    assert (scripts / "train_all_ten.bat").is_file()
+    assert (scripts / "validate_all_ten.bat").is_file()
+    assert (scripts / "test_all_ten.bat").is_file()
+    assert not (scripts / "train_all_six.bat").exists()
+    for model in NIR_MODELS:
+        for ratio in NIR_RATIOS:
+            assert (scripts / f"train_{model}_ratio_{ratio}.bat").is_file()

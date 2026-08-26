@@ -1,4 +1,4 @@
-"""Run all six NIR training jobs sequentially with safe resume."""
+"""Run all ten NIR training jobs sequentially with safe resume."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ def main() -> int:
     parser.add_argument("--execute-training", action="store_true")
     args = parser.parse_args()
     if not args.execute_training:
-        print("Dry-run: six jobs will run in model order, ratio 1to2 then 1to6.")
+        print("Dry-run: ten jobs will run in model order, ratio 1to2 then 1to6.")
         return 0
     for model in MODELS:
         for ratio in NIR_RATIOS:
