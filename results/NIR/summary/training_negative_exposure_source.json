@@ -3,7 +3,13 @@
   "status": "pending",
   "seed": 13,
   "ratios": ["1:2", "1:6"],
-  "models": ["yolo11n", "yolo26n", "dfine_n"],
+  "models": [
+    "yolo11n",
+    "yolo26n",
+    "rtmdet_tiny",
+    "efficientdet_d1",
+    "dfine_n"
+  ],
   "sampling": {
     "fps": 1,
     "sample_time_seconds": 0.5,

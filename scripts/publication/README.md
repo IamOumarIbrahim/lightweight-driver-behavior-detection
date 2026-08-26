@@ -21,4 +21,5 @@ These scripts never load checkpoints.
 
 Run `build_manuscript.bat` to compile `docs/manuscript/main.tex` with MiKTeX.
 The script runs `pdflatex` and BibTeX directly, so Perl and `latexmk` are not
-required. The source remains authoritative; `main.pdf` is the review copy.
+required. The source remains authoritative; `docs/manuscript/main.pdf` is the
+only supported compiled review copy.

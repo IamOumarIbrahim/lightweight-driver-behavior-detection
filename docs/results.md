@@ -3,7 +3,7 @@
 [← Back to Main README](../README.md)
 
 > [!IMPORTANT]
-> The six RGB YOLO result directories and the values below are final and authoritative. D-FINE-N and NIR cells remain intentionally blank until their frozen runs complete.
+> The six RGB YOLO result directories and the values below are final and authoritative. D-FINE-N and all ten NIR cells remain intentionally blank until their frozen runs complete.
 
 ## RGB YOLO Summary
 
@@ -64,6 +64,8 @@ Machine-readable per-run and aggregate values are in [`results/RGB/summary`](../
 | RGB | D-FINE-N | Seeds 13, 37, 73 | Awaiting complete three-seed validation/test result |
 | NIR | YOLO11n | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
 | NIR | YOLO26n | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
+| NIR | RTMDet-Tiny | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
+| NIR | EfficientDet-D1 | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
 | NIR | D-FINE-N | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
 
 > [!NOTE]

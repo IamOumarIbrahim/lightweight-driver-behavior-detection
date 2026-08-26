@@ -9,16 +9,16 @@
 
 | Parameter / Shared Element | Frozen Specification | Notes |
 | :---: | :---: | :---: |
-| **Models** | YOLO11n, YOLO26n, D-FINE-N | Complete released nano systems with native recipes |
+| **Models** | RGB: YOLO11n, YOLO26n, D-FINE-N; NIR: those three plus RTMDet-Tiny and EfficientDet-D1 | Complete released systems with native architecture recipes |
 | **Input Resolution** | 640 × 640 px | All models and tracks |
 | **Physical Batch Size** | 8 | Per iteration |
 | **Gradient Accumulation** | 4 steps | Effective batch size 32 |
 | **Training Budget** | RGB: 220 epochs; NIR: 100 epochs | Early stopping disabled; best model-native validation checkpoint retained |
-| **Optimization** | Pinned model-native recipe | YOLO uses `optimizer=auto`, linear schedule, `cos_lr=false`; D-FINE uses AdamW/MultiStepLR |
+| **Optimization** | Pinned model-native recipe | YOLO: native auto optimizer; D-FINE: AdamW/MultiStepLR; RTMDet: AdamW/cosine; EfficientDet: momentum/cosine with EMA |
 | **Evaluation** | COCO mAP and validation-calibrated operating point | Test is never used for tuning |
 | **Profiling** | Batch 1, 640 × 640, CUDA AMP FP16 | RTX 4060 values are hardware-specific |
 
-The fixed accumulation patches normalize the final incomplete window by its actual sample count. Every image is therefore retained without giving a short last window disproportionate gradient weight. The NIR D-FINE augmentation transition is set at epoch 67, preserving its approximate relative position from the 148-of-220 RGB schedule; the optimizer and base learning rates are unchanged. External package versions, upstream commit, weight checksums, and patch files are frozen in `configs/backends.yaml`.
+The fixed accumulation patches normalize the final incomplete window by its actual sample count where the native trainer requires a patch. Every image is retained without giving a short last window disproportionate gradient weight. The NIR D-FINE augmentation transition is set at epoch 67, preserving its approximate relative position from the 148-of-220 RGB schedule; RTMDet switches from cached Mosaic/MixUp to its weak stage at epoch 93, preserving the final 20-of-300 fraction. External package versions, upstream commits, weight checksums, and patch files are frozen in `configs/backends.yaml`.
 
 ### Validation and Protected Test Policy
 
@@ -113,7 +113,9 @@ NIR uses one seed—13—and two conditions. There is no NIR multi-seed experime
 
 Only the training negatives change. The 1:2 negatives are a subject-stratified, seed-13 deterministic subset of the 1:6 negative pool. The positive training pool, validation tasks, test tasks, temporal sampling, ontology, model recipes, and metric code are identical across both ratios. Derived validation/test COCO and YOLO files are physically shared under `data/processed/NIR/*/evaluation` to prevent silent drift.
 
-All six NIR runs use a fixed 100-epoch maximum with no early stopping and retain the best model-native validation checkpoint. The 1:2 condition produces 26 optimizer updates per epoch, or 2,600 total, while 1:6 produces 60 per epoch, or 6,000 total. Thus, 1:6 contains three times the unique training negatives and approximately 2.31 times the optimization updates. This is a training-negative exposure study, not a causal ratio ablation under matched training signal. At one frame per snippet, frame- and snippet-level operating decisions are identical; the publication therefore reports COCO AP, micro/macro-F1, and false detections per 100 negative frames without duplicating equivalent snippet metrics.
+The five NIR systems span four detector families: two convolutional YOLO generations, anchor-free CSPNeXt/PAFPN RTMDet-Tiny, anchor-based EfficientNet-B1/BiFPN EfficientDet-D1, and transformer-based D-FINE-N. YOLO11n and RTMDet-Tiny use NMS, YOLO26n and D-FINE-N use their native end-to-end paths, and EfficientDet-D1 uses its anchor decoder and NMS. This breadth is intentional; native training and postprocessing remain part of each complete-system comparison.
+
+All ten NIR runs use a fixed 100-epoch maximum with no early stopping and retain the best model-native validation checkpoint. The 1:2 condition produces 26 optimizer updates per epoch, or 2,600 total, while 1:6 produces 60 per epoch, or 6,000 total. Thus, 1:6 contains three times the unique training negatives and approximately 2.31 times the optimization updates. This is a training-negative exposure study, not a causal ratio ablation under matched training signal. At one frame per snippet, frame- and snippet-level operating decisions are identical; the publication therefore reports COCO AP, micro/macro-F1, and false detections per 100 negative frames without duplicating equivalent snippet metrics.
 
 ## Reproducibility and Data Availability
 

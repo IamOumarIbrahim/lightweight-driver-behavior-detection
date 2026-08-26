@@ -22,7 +22,7 @@
   "outputs": {
     "pdf": {
       "path": "results/summary/figures/protocol_workflow.pdf",
-      "sha256": "db0edf33041d0c695942d5d86f294ff4dfb1eccc8f151eacf65c1dff38b081ad"
+      "sha256": "1302a371ca6ae027fe8b5d7275dbc7d7f0fa7a347923b08c95978ef07611a882"
     },
     "svg": {
       "path": "results/summary/figures/protocol_workflow.svg",
@@ -42,7 +42,7 @@
     {
       "track": "NIR",
       "path": "configs/NIR/protocol.yaml",
-      "sha256": "db6226f1d56156aa86382279e0f404266e665ea2108f4f255b1c59c0d5b46ae3"
+      "sha256": "20df20715ab092841ca929ebcade9b72fc8f8ba009c4310149cb599b25b5411c"
     },
     {
       "role": "dataset_example",

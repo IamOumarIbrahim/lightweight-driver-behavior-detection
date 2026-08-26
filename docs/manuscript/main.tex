@@ -20,8 +20,9 @@
 \newcommand{\fd}{\mathrm{FD}_{100}}
 
 \begin{document}
+\bstctlcite{IEEEexample:BSTcontrol}
 
-\title{Subject-Disjoint Benchmarking of Nano Detectors for Visible Driver-Cue Localization}
+\title{Subject-Disjoint Benchmarking of Lightweight Detectors for Visible Driver-Cue Localization}
 
 \author{
 \IEEEauthorblockN{Oumar Mamoun Ibrahim}
@@ -55,7 +56,7 @@ Recent work proposes specialized lightweight networks for in-cabin recognition a
 \begin{itemize}
     \item a primary subject-disjoint RGB benchmark for four explicitly defined visible cues, with all sampled frames preserved and annotation structure automatically audited;
     \item validation-only operating-point selection followed by protected testing, three paired RGB seeds, class- and subject-level analysis, false detections on negative frames, and synchronized latency; and
-    \item a checksum-backed reproduction workflow plus a clearly separated, one-seed NIR training-negative exposure study with deterministic 1-FPS midpoint sampling.
+    \item a checksum-backed reproduction workflow plus a clearly separated, one-seed, five-system NIR training-negative exposure study with deterministic 1-FPS midpoint sampling.
 \end{itemize}
 
 \section{Related Work}
@@ -65,7 +66,7 @@ MobileVGG and convolution--transformer hybrids demonstrate efficient distracted-
 Detection-specific work modifies YOLO backbones, attention, or multiscale aggregation for dangerous-driving or fatigue cues \cite{wang2024mfyolo,li2024yolosgc,jin2025yolo11cr}. Comparative studies assess convolutional neural networks (CNNs) against transformers \cite{koay2021cnnvit} or several YOLO generations \cite{herath2025yolocomparison}. However, differences in driver separation, retained negatives, operating-point calibration, and runtime protocol limit direct cross-paper ranking.
 
 \subsection{Released Detector Systems}
-The Detection Transformer (DETR) casts object detection as bipartite set prediction \cite{carion2020detr}; the Real-Time Detection Transformer (RT-DETR) makes this formulation practical for real-time use \cite{zhao2024rtdetr}; and D-FINE refines box-edge distributions for improved localization \cite{peng2025dfine}. We compare D-FINE-N with YOLO11n and YOLO26n as shipped systems, including their native training and inference recipes. The pinned YOLO26 implementation uses end-to-end one-to-one predictions without non-maximum suppression (NMS), whereas YOLO11n uses its conventional NMS path \cite{ultralytics2026}. This is therefore a system-level benchmark, not an isolation of architecture alone.
+The Detection Transformer (DETR) casts object detection as bipartite set prediction \cite{carion2020detr}; the Real-Time Detection Transformer (RT-DETR) makes this formulation practical for real-time use \cite{zhao2024rtdetr}; and D-FINE refines box-edge distributions for improved localization \cite{peng2025dfine}. EfficientDet instead compound-scales an EfficientNet backbone, bidirectional feature pyramid network (BiFPN), and anchor heads \cite{tan2020efficientdet}, while RTMDet is an anchor-free one-stage family built around CSPNeXt and a path-aggregation pyramid \cite{lyu2022rtmdet}. The RGB comparison uses D-FINE-N, YOLO11n, and YOLO26n as shipped systems. The exploratory NIR comparison adds EfficientDet-D1 and RTMDet-Tiny to broaden the architecture families. Native training and inference recipes remain part of each system: the pinned YOLO26 and D-FINE paths are end-to-end, whereas YOLO11n, RTMDet-Tiny, and EfficientDet-D1 retain their required NMS. This is therefore a system-level benchmark, not an isolation of architecture alone.
 
 \section{Methodology}
 \subsection{Task Definition and Workflow}
@@ -122,7 +123,9 @@ Batch-1 16-bit floating-point (FP16) profiling uses an NVIDIA GeForce RTX 4060 8
 \subsection{Exploratory NIR Protocol}
 The secondary NIR source pool contains 3,786 one-second front-top active-NIR ($850$ nm) Drive\&Act snippets from 15 drivers. Twenty-three unilluminated task snippets are excluded before splitting, leaving 3,763. Drinking and phone-use tracklets provide two positive classes. Each snippet contributes one deterministic frame at 1 FPS: the temporal midpoint at $t=0.5$ s, or zero-based source-frame offset 14. The corresponding box is linearly interpolated at the same instant, then the driver crop is resized to $640\times640$. Unlike RGB, NIR therefore has dataset-specific frame exclusion and interpolated annotations.
 
-A fixed $9{:}3{:}3$ subject partition is shared across all six model--condition runs. Validation and test contain identical ordered examples. Training always contains 270 positive snippets and either 540 or 1,620 negative snippets, corresponding to nominal positive:negative ratios of 1:2 and 1:6. The 1:2 negatives are a subject-stratified seed-13 subset of the 1:6 pool. All runs use a fixed 100-epoch maximum without early stopping and retain the best model-native validation checkpoint; the NIR D-FINE augmentation transition is proportionally placed at epoch 67, while its optimizer and base learning rates remain unchanged. The 1:2 and 1:6 conditions produce 2,600 and 6,000 optimizer updates, respectively. Thus, 1:6 has three times the unique negatives and approximately 2.31 times the optimization updates. It is consequently a \emph{training-negative exposure study}, not a causal class-ratio ablation under matched training signal.
+A fixed $9{:}3{:}3$ subject partition is shared across all ten model--condition runs. The five systems span convolutional YOLO, anchor-free CSPNeXt/PAFPN (RTMDet-Tiny), anchor-based EfficientNet-B1/BiFPN (EfficientDet-D1), and transformer (D-FINE-N) families. Validation and test contain identical ordered examples. Training always contains 270 positive snippets and either 540 or 1,620 negative snippets, corresponding to nominal positive:negative ratios of 1:2 and 1:6. The 1:2 negatives are a subject-stratified seed-13 subset of the 1:6 pool.
+
+All runs use physical batch 8, four-step accumulation, a fixed 100-epoch maximum without early stopping, and the best model-native validation checkpoint. Native optimizers and schedules are retained. The D-FINE augmentation transition is placed at epoch 67; RTMDet switches from cached Mosaic/MixUp to its weak stage at epoch 93; and EfficientDet retains momentum optimization, cosine decay, warm-up, and exponential moving average. The 1:2 and 1:6 conditions produce 2,600 and 6,000 optimizer updates, respectively. Thus, 1:6 has three times the unique negatives and approximately 2.31 times the optimization updates. It is consequently a \emph{training-negative exposure study}, not a causal class-ratio ablation under matched training signal.
 
 All NIR jobs use seed 13, and operating metrics follow the RGB protocol. Since one frame represents each snippet, frame- and snippet-level decisions coincide; equivalent snippet metrics are not duplicated in the publication tables.
 
@@ -183,7 +186,7 @@ Figure~\ref{fig:qual} shows predeclared seed-13 examples from frozen predictions
 \end{figure*}
 
 \subsection{Exploratory NIR Results}
-Table~\ref{tab:nirresults} and Fig.~\ref{fig:nir} reserve the final six protected-test results. Both artifacts are deliberately marked pending; no value is imputed from RGB or validation. The final analysis will compare each model only between its 1:2 and 1:6 training-negative exposures using the same deterministic midpoint frame for every condition.
+Table~\ref{tab:nirresults} and Fig.~\ref{fig:nir} reserve the final ten protected-test results. Both artifacts are deliberately marked pending; no value is imputed from RGB or validation. The final analysis will compare each model only between its 1:2 and 1:6 training-negative exposures using the same deterministic midpoint frame for every condition.
 
 \begin{table}[t]
 \caption{Exploratory NIR Test Results at Seed 13}
@@ -199,6 +202,10 @@ YOLO11n & 1:2 & \multicolumn{5}{c}{\ph} \\
 YOLO11n & 1:6 & \multicolumn{5}{c}{\ph} \\
 YOLO26n & 1:2 & \multicolumn{5}{c}{\ph} \\
 YOLO26n & 1:6 & \multicolumn{5}{c}{\ph} \\
+RTMDet-Tiny & 1:2 & \multicolumn{5}{c}{\ph} \\
+RTMDet-Tiny & 1:6 & \multicolumn{5}{c}{\ph} \\
+EfficientDet-D1 & 1:2 & \multicolumn{5}{c}{\ph} \\
+EfficientDet-D1 & 1:6 & \multicolumn{5}{c}{\ph} \\
 D-FINE-N & 1:2 & \multicolumn{5}{c}{\ph} \\
 D-FINE-N & 1:6 & \multicolumn{5}{c}{\ph} \\
 \bottomrule
@@ -208,7 +215,7 @@ D-FINE-N & 1:6 & \multicolumn{5}{c}{\ph} \\
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.735\textwidth]{training_negative_exposure.pdf}
-\caption{Final inventory for the exploratory NIR training-negative exposure comparison at deterministic 1-FPS midpoint sampling. The checked-in template remains visibly pending until all six seed-13 protected tests are complete; it will then show strict-IoU accuracy, macro-$F_1$, and false detections per 100 negative frames.}
+\caption{Pending inventory for ten NIR seed-13 runs at deterministic 1-FPS midpoint sampling. Final panels will show strict-IoU accuracy, macro-$F_1$, and false detections per 100 negative frames.}
 \label{fig:nir}
 \end{figure*}
 
@@ -225,7 +232,7 @@ Subject-disjoint evaluation reduces identity leakage but does not establish popu
 \section{Conclusion and Future Work}
 The completed RGB YOLO comparison establishes a reproducible system-level trade-off: YOLO11n provides the stronger validation-calibrated operating point and throughput, while YOLO26n provides higher strict-IoU AP. Paired seeds support those aggregate directions, but class and subject analyses prevent an overgeneralized winner claim. The final three-model RGB conclusion after D-FINE-N and the separate NIR exposure findings are \ph.
 
-Future work will add independent multi-annotator semantic review, increase rare-cue and held-out-driver coverage, repeat the benchmark across multiple subject partitions and external cabins, and test class-balanced or matched-step training without changing the protected baseline. Temporal confirmation and snippet-level alert logic will connect frame localization to user-facing warnings. The NIR study will be strengthened with matched optimization exposure and additional seeds, while embedded-device profiling will include preprocessing and end-to-end input latency. These extensions directly target the uncertainty exposed by the present class, subject, and qualitative analyses.
+Future work will add independent multi-annotator review, increase rare-cue and held-out-driver coverage, repeat the benchmark across subject partitions and external cabins, and test class-balanced or matched-step training. Temporal alert logic will connect frame localization to user-facing warnings. The NIR study will be strengthened with matched optimization exposure and additional seeds, while embedded-device profiling will include preprocessing and end-to-end input latency. These extensions directly target the uncertainty exposed by the present class, subject, and qualitative analyses.
 
 \noindent\textbf{Data and code:} Authored annotations, frozen partitions and checksums, sanitized predictions, evaluation tools, and publication artifacts are available at \url{https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection}; licensed DMD and Drive\&Act media and trained checkpoints remain local under their original access terms.
 

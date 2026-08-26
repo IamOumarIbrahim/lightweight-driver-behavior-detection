@@ -3,6 +3,7 @@
 options(stringsAsFactors = FALSE, warn = 1)
 
 trailing_arguments <- commandArgs(trailingOnly = TRUE)
+only_nir <- "--only-nir" %in% trailing_arguments
 script_argument <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
 if (length(script_argument) != 1L) {
   stop("Unable to resolve tools/publication/figures.R")
@@ -31,18 +32,31 @@ suppressPackageStartupMessages({
 })
 
 expected_models <- c("yolo11n", "yolo26n", "dfine_n")
+nir_expected_models <- c(
+  "yolo11n", "yolo26n", "rtmdet_tiny", "efficientdet_d1", "dfine_n"
+)
 model_labels <- c(
   yolo11n = "YOLO11n",
   yolo26n = "YOLO26n",
+  rtmdet_tiny = "RTMDet-Tiny",
+  efficientdet_d1 = "EfficientDet-D1",
   dfine_n = "D-FINE-N"
 )
 model_colors <- c(
   yolo11n = "#0072B2",
   yolo26n = "#D55E00",
+  rtmdet_tiny = "#CC79A7",
+  efficientdet_d1 = "#E69F00",
   dfine_n = "#009E73"
 )
-model_shapes <- c(yolo11n = 21, yolo26n = 22, dfine_n = 24)
-model_linetypes <- c(yolo11n = "solid", yolo26n = "22", dfine_n = "42")
+model_shapes <- c(
+  yolo11n = 21, yolo26n = 22, rtmdet_tiny = 23,
+  efficientdet_d1 = 25, dfine_n = 24
+)
+model_linetypes <- c(
+  yolo11n = "solid", yolo26n = "22", rtmdet_tiny = "31",
+  efficientdet_d1 = "13", dfine_n = "42"
+)
 source_path <- file.path(
   repo_root,
   "results",
@@ -1237,11 +1251,13 @@ build_nir_training_negative_exposure <- function(path) {
         )
       }))
     }))
-    plot_data$model_id <- factor(plot_data$model_id, levels = expected_models)
+    plot_data$model_id <- factor(
+      plot_data$model_id, levels = nir_expected_models
+    )
     plot_data$metric <- factor(plot_data$metric, levels = unname(metric_labels))
     plot_data$ratio <- factor(plot_data$ratio, levels = c("1:2", "1:6"))
     legend_models <- intersect(
-      expected_models,
+      nir_expected_models,
       unique(as.character(plot_data$model_id))
     )
 
@@ -1297,13 +1313,15 @@ build_nir_training_negative_exposure <- function(path) {
 
   metric_labels <- unname(metric_labels)
   legend_data <- expand.grid(
-    model_id = expected_models,
+    model_id = nir_expected_models,
     metric = metric_labels,
     ratio = c("1:2", "1:6"),
     stringsAsFactors = FALSE
   )
   legend_data$value <- 0.5
-  legend_data$model_id <- factor(legend_data$model_id, levels = expected_models)
+  legend_data$model_id <- factor(
+    legend_data$model_id, levels = nir_expected_models
+  )
   legend_data$metric <- factor(legend_data$metric, levels = metric_labels)
   legend_data$ratio <- factor(legend_data$ratio, levels = c("1:2", "1:6"))
 
@@ -1337,6 +1355,7 @@ build_nir_training_negative_exposure <- function(path) {
     )
 }
 
+if (!only_nir) {
 data <- load_rgb_aggregate(source_path)
 comparison_data <- load_rgb_table_comparison(
   source_path,
@@ -1561,11 +1580,12 @@ validation_manifest <- write_manifest(
   ),
   manifest_source = validation_source_path
 )
+}
 
 nir_payload <- jsonlite::fromJSON(nir_source_path, simplifyVector = FALSE)
 nir_completed_models <- if (length(nir_payload$rows) > 0L) {
   intersect(
-    expected_models,
+    nir_expected_models,
     unique(vapply(nir_payload$rows, function(row) {
       as.character(row$model_id)
     }, character(1)))
@@ -1573,7 +1593,9 @@ nir_completed_models <- if (length(nir_payload$rows) > 0L) {
 } else {
   character(0)
 }
-nir_pending_models <- expected_models[!expected_models %in% nir_completed_models]
+nir_pending_models <- nir_expected_models[
+  !nir_expected_models %in% nir_completed_models
+]
 nir_status <- if (length(nir_pending_models) == 0L) "complete" else "pending"
 
 nir_outputs <- export_figure(
@@ -1605,6 +1627,14 @@ nir_manifest <- write_manifest(
   manifest_source = nir_source_path,
   target_output_dir = nir_output_dir
 )
+
+if (only_nir) {
+  cat("Built ggplot2 publication figure: training_negative_exposure\n")
+  for (path in c(unlist(nir_outputs), nir_manifest)) {
+    cat(normalizePath(path, winslash = "/", mustWork = TRUE), "\n")
+  }
+  quit(save = "no", status = 0L)
+}
 
 cat(
   "Built ggplot2 publication figures for:",
