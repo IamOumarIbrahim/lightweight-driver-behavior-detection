@@ -5,6 +5,8 @@ track: NIR
 models:
   - {id: yolo11n, adapter: ultralytics, architecture: YOLO11n}
   - {id: yolo26n, adapter: ultralytics, architecture: YOLO26n}
+  - {id: rtmdet_tiny, adapter: docker_mmyolo, architecture: RTMDet-Tiny}
+  - {id: efficientdet_d1, adapter: docker_effdet, architecture: EfficientDet-D1}
   - {id: dfine_n, adapter: dfine, architecture: D-FINE-N}
 
 dataset:
@@ -56,6 +58,14 @@ training:
       optimizer: AdamW
       scheduler: MultiStepLR
       augmentation_stop_epoch: 67
+    rtmdet:
+      optimizer: AdamW
+      scheduler: cosine
+      augmentation_stop_epoch: 93
+    efficientdet:
+      optimizer: momentum
+      scheduler: cosine
+      warmup_epochs: 5
 
 evaluation:
   validation_before_test: true

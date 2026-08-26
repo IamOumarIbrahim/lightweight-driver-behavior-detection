@@ -29,6 +29,7 @@ from tools.benchmark.paths import (
     result_dir,
     run_dir,
 )
+from tools.backends.docker_backend import infer as container_infer
 from tools.benchmark.profiling import CudaForwardProfiler, model_flop_estimates
 from tools.benchmark.protocol import (
     ProtocolError,
@@ -60,6 +61,16 @@ def identity(track: str, seed: int | None, ratio: str | None) -> dict[str, Any]:
 def checkpoint_for(model: str, training_dir: Path) -> Path:
     if model.startswith("yolo"):
         candidates = [training_dir / "weights" / "best.pt"]
+    elif model == "rtmdet_tiny":
+        candidates = sorted(training_dir.glob("best_coco_bbox_mAP_epoch_*.pth"), reverse=True)
+        candidates.extend(sorted(training_dir.glob("epoch_*.pth"), reverse=True))
+    elif model == "efficientdet_d1":
+        candidates = [
+            training_dir / "model_best.pth.tar",
+            training_dir / "last.pth.tar",
+            training_dir / "checkpoint-latest.pth.tar",
+        ]
+        candidates.extend(sorted(training_dir.glob("checkpoint-*.pth.tar"), reverse=True))
     else:
         candidates = [
             training_dir / "best_stg2.pth",
@@ -120,6 +131,33 @@ def adapter_for(track: str, model: str, checkpoint: Path, ratio: str | None = No
     ).load()
 
 
+def additional_config(model: str, ratio: str) -> Path:
+    if model == "rtmdet_tiny":
+        return CONFIGS_ROOT / "NIR" / "rtmdet" / f"ratio_{ratio}.py"
+    if model == "efficientdet_d1":
+        return CONFIGS_ROOT / "NIR" / "efficientdet" / "base.yaml"
+    raise ProtocolError(f"Model {model} is not an isolated additional backend")
+
+
+def additional_predictions(
+    *,
+    model: str,
+    ratio: str,
+    checkpoint: Path,
+    ground_truth: Path,
+    output: Path,
+    profile: bool,
+) -> dict[str, Any]:
+    return container_infer(
+        model=model,
+        config=additional_config(model, ratio),
+        checkpoint=checkpoint,
+        ground_truth=ground_truth,
+        output=output,
+        profile=profile,
+    )
+
+
 @torch.inference_mode()
 def predict(
     adapter, track: str, ground_truth: dict[str, Any], *, profile: bool
@@ -169,8 +207,19 @@ def validation(args: argparse.Namespace) -> int:
     if not torch.cuda.is_available():
         raise ProtocolError("CUDA is required for benchmark inference")
     ground_truth = load_ground_truth(track, "val")
-    adapter = adapter_for(track, args.model, checkpoint, run_identity["ratio"])
-    predictions, _ = predict(adapter, track, ground_truth, profile=False)
+    if args.model in {"rtmdet_tiny", "efficientdet_d1"}:
+        payload = additional_predictions(
+            model=args.model,
+            ratio=run_identity["ratio"],
+            checkpoint=checkpoint,
+            ground_truth=ground_truth_path(track, "val"),
+            output=paths["validation"] / "backend_inference.json",
+            profile=False,
+        )
+        predictions = payload["predictions"]
+    else:
+        adapter = adapter_for(track, args.model, checkpoint, run_identity["ratio"])
+        predictions, _ = predict(adapter, track, ground_truth, profile=False)
     metrics = coco_metrics(ground_truth, predictions)
     threshold = calibrate_threshold(ground_truth, predictions)
     predictions_path = paths["validation"] / "predictions.json"
@@ -243,8 +292,24 @@ def test(args: argparse.Namespace) -> int:
         datetime.now(timezone.utc).isoformat() + "\n", encoding="utf-8", newline="\n"
     )
     ground_truth = load_ground_truth(track, "test")
-    adapter = adapter_for(track, args.model, checkpoint, run_identity["ratio"])
-    predictions, runtime = predict(adapter, track, ground_truth, profile=True)
+    if args.model in {"rtmdet_tiny", "efficientdet_d1"}:
+        payload = additional_predictions(
+            model=args.model,
+            ratio=run_identity["ratio"],
+            checkpoint=checkpoint,
+            ground_truth=ground_truth_path(track, "test"),
+            output=paths["test"] / "backend_inference.json",
+            profile=True,
+        )
+        predictions = payload["predictions"]
+        runtime = payload["runtime_profile"]
+        parameters = payload["parameters"]
+        flop_estimates = payload["flop_estimates"]
+    else:
+        adapter = adapter_for(track, args.model, checkpoint, run_identity["ratio"])
+        predictions, runtime = predict(adapter, track, ground_truth, profile=True)
+        parameters = adapter.parameter_count()
+        flop_estimates = model_flop_estimates(adapter)
     metrics = coco_metrics(ground_truth, predictions)
     operating = operating_point_metrics(
         ground_truth, predictions, manifest["operating_point"]["threshold"]
@@ -264,8 +329,8 @@ def test(args: argparse.Namespace) -> int:
         "coco_metrics": metrics,
         "operating_point": operating,
         "runtime_profile": runtime,
-        "parameters": adapter.parameter_count(),
-        "flop_estimates": model_flop_estimates(adapter),
+        "parameters": parameters,
+        "flop_estimates": flop_estimates,
         "checkpoint_bytes_local": checkpoint.stat().st_size,
     }
     if track == "NIR":

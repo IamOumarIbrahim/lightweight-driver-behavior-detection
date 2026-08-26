@@ -9,6 +9,13 @@ def test_rgb_protocol_and_fingerprints():
 
 def test_nir_protocol_and_fingerprints():
     protocol = validate_protocol("NIR")
+    assert [item["id"] for item in protocol["models"]] == [
+        "yolo11n",
+        "yolo26n",
+        "rtmdet_tiny",
+        "efficientdet_d1",
+        "dfine_n",
+    ]
     assert protocol["training"]["epochs"] == 100
     assert protocol["training"]["seed"] == 13
     assert protocol["training"]["ratios"] == ["1to2", "1to6"]
@@ -23,3 +30,5 @@ def test_nir_protocol_and_fingerprints():
     policy = dfine["train_dataloader"]["dataset"]["transforms"]["policy"]
     assert policy["epoch"] == 67
     assert dfine["train_dataloader"]["collate_fn"]["stop_epoch"] == 67
+    assert protocol["training"]["optimization"]["rtmdet"]["augmentation_stop_epoch"] == 93
+    assert protocol["training"]["optimization"]["efficientdet"]["warmup_epochs"] == 5

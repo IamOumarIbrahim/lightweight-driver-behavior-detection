@@ -9,7 +9,15 @@ from typing import Any
 
 import yaml
 
-from .paths import CONFIGS_ROOT, NIR_RATIOS, NIR_SEED, RGB_SEEDS, repo_path
+from .paths import (
+    CONFIGS_ROOT,
+    NIR_MODELS,
+    NIR_RATIOS,
+    NIR_SEED,
+    RGB_MODELS,
+    RGB_SEEDS,
+    repo_path,
+)
 
 TRAINING_SEEDS = RGB_SEEDS
 BACKEND_CONFIG = CONFIGS_ROOT / "backends.yaml"
@@ -84,11 +92,12 @@ def model_spec(
     if model is None:
         raise ProtocolError(f"Unknown frozen model: {model_id}")
     backends = load_backends()
-    backend = (
-        backends["ultralytics"]["models"][model_id]
-        if model["adapter"] == "ultralytics"
-        else backends["dfine"]
-    )
+    if model["adapter"] == "ultralytics":
+        backend = backends["ultralytics"]["models"][model_id]
+    elif model["adapter"] == "dfine":
+        backend = backends["dfine"]
+    else:
+        backend = backends["additional_models"]["models"][model_id]
     return model, backend
 
 
@@ -99,12 +108,11 @@ def validate_protocol(
     protocol = load_protocol(normalized)
     if protocol.get("track") != normalized:
         raise ProtocolError(f"Protocol track must be {normalized}")
-    if [item.get("id") for item in protocol.get("models", [])] != [
-        "yolo11n",
-        "yolo26n",
-        "dfine_n",
-    ]:
-        raise ProtocolError("Model order must be yolo11n, yolo26n, dfine_n")
+    expected_models = RGB_MODELS if normalized == "RGB" else NIR_MODELS
+    if tuple(item.get("id") for item in protocol.get("models", [])) != expected_models:
+        raise ProtocolError(
+            f"{normalized} model order must be {', '.join(expected_models)}"
+        )
 
     dataset = protocol["dataset"]
     if (dataset.get("width"), dataset.get("height")) != (640, 640):

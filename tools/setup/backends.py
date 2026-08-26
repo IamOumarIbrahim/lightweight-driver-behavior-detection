@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import shutil
 import subprocess
 import sys
 import urllib.request
@@ -159,6 +160,56 @@ def ensure_weight(spec: dict, install: bool) -> dict[str, str | int]:
     return {"file": str(path), "size_bytes": path.stat().st_size, "sha256": actual_hash}
 
 
+def ensure_additional_image(install: bool) -> dict[str, str]:
+    spec = load_backends()["additional_models"]
+    if shutil.which("docker") is None:
+        raise ProtocolError(
+            "Docker Desktop is required for RTMDet-Tiny and EfficientDet-D1"
+        )
+    inspect = subprocess.run(
+        ["docker", "image", "inspect", spec["image"]],
+        cwd=REPO_ROOT,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    if inspect.returncode != 0:
+        if not install:
+            raise ProtocolError(
+                "Pinned additional-model image is missing; start Docker Desktop and rerun setup"
+            )
+        dockerfile = resolve_repo_path(spec["dockerfile"])
+        command = [
+            "docker",
+            "build",
+            "--file",
+            str(dockerfile),
+            "--tag",
+            spec["image"],
+            "--build-arg",
+            f"MMYOLO_COMMIT={spec['mmyolo']['commit']}",
+            "--build-arg",
+            f"EFFDET_COMMIT={spec['efficientdet']['commit']}",
+            str(REPO_ROOT),
+        ]
+        run(command)
+    smoke = subprocess.run(
+        ["docker", "run", "--rm", spec["image"], "--help"],
+        cwd=REPO_ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        check=False,
+    )
+    if smoke.returncode != 0:
+        raise ProtocolError(f"Additional-model image smoke test failed: {smoke.stdout}")
+    return {
+        "image": spec["image"],
+        "mmyolo_commit": spec["mmyolo"]["commit"],
+        "efficientdet_commit": spec["efficientdet"]["commit"],
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -178,6 +229,9 @@ def main() -> int:
     report["weights"]["dfine_n"] = ensure_weight(
         backends["dfine"]["weight"], args.install
     )
+    for model_id, spec in backends["additional_models"]["models"].items():
+        report["weights"][model_id] = ensure_weight(spec, args.install)
+    report["additional_models"] = ensure_additional_image(args.install)
     for key, value in report.items():
         print(f"{key}: {value}")
     print("Backend artifact verification PASSED")

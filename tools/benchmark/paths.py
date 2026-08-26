@@ -12,7 +12,15 @@ RESULTS_ROOT = REPO_ROOT / "results"
 THIRD_PARTY_ROOT = REPO_ROOT / "third_party"
 
 TRACKS = ("RGB", "NIR")
-MODELS = ("yolo11n", "yolo26n", "dfine_n")
+RGB_MODELS = ("yolo11n", "yolo26n", "dfine_n")
+NIR_MODELS = (
+    "yolo11n",
+    "yolo26n",
+    "rtmdet_tiny",
+    "efficientdet_d1",
+    "dfine_n",
+)
+MODELS = NIR_MODELS
 RGB_SEEDS = (13, 37, 73)
 NIR_RATIOS = ("1to2", "1to6")
 NIR_SEED = 13

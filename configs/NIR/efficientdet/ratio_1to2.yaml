@@ -1,0 +1,4 @@
+# Inherits the frozen values in base.yaml through the host launcher.
+ratio: 1to2
+train_annotations: data/processed/NIR/coco/dfine/ratio_1to2/instances_train.json
+validation_annotations: data/processed/NIR/coco/evaluation/instances_val.json

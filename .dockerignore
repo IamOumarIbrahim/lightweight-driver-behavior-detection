@@ -1,0 +1,8 @@
+*
+!.dockerignore
+!docker/
+!docker/additional-models/
+!docker/additional-models/Dockerfile
+!configs/
+!configs/patches/
+!configs/patches/efficientdet-gradient-accumulation.patch
