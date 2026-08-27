@@ -12,8 +12,6 @@ def test_nir_protocol_and_fingerprints():
     assert [item["id"] for item in protocol["models"]] == [
         "yolo11n",
         "yolo26n",
-        "rtmdet_tiny",
-        "efficientdet_d1",
         "dfine_n",
     ]
     assert protocol["training"]["epochs"] == 100
@@ -30,5 +28,3 @@ def test_nir_protocol_and_fingerprints():
     policy = dfine["train_dataloader"]["dataset"]["transforms"]["policy"]
     assert policy["epoch"] == 67
     assert dfine["train_dataloader"]["collate_fn"]["stop_epoch"] == 67
-    assert protocol["training"]["optimization"]["rtmdet"]["augmentation_stop_epoch"] == 93
-    assert protocol["training"]["optimization"]["efficientdet"]["warmup_epochs"] == 5

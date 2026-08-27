@@ -25,8 +25,6 @@ from tools.benchmark.paths import (
 )
 from tools.benchmark.protocol import ProtocolError, load_backends, load_protocol
 from tools.setup.backends import ensure_dfine, ensure_ultralytics, ensure_weight
-from tools.backends.docker_backend import run as run_docker_backend
-from tools.setup.backends import ensure_additional_image
 
 
 def append_event(path: Path, event: str, **details: Any) -> None:
@@ -47,11 +45,6 @@ def completed(model: str, training_dir: Path, epochs: int) -> bool:
             results.is_file()
             and len(results.read_text(encoding="utf-8").splitlines()) - 1 >= epochs
         )
-    if model == "rtmdet_tiny":
-        return (training_dir / f"epoch_{epochs}.pth").is_file()
-    if model == "efficientdet_d1":
-        summary = training_dir / "summary.csv"
-        return summary.is_file() and len(summary.read_text(encoding="utf-8").splitlines()) - 1 >= epochs
     log = training_dir / "log.txt"
     if not log.is_file():
         return False
@@ -101,12 +94,6 @@ def build_plan(
         "training_dir": str(root / "training"),
         "dataset": str(dataset),
         "dfine_config": str(dfine_config),
-        "additional_config": str(
-            CONFIGS_ROOT
-            / "NIR"
-            / ("rtmdet" if model == "rtmdet_tiny" else "efficientdet")
-            / f"ratio_{ratio}.{'py' if model == 'rtmdet_tiny' else 'yaml'}"
-        ) if model in {"rtmdet_tiny", "efficientdet_d1"} else None,
     }
 
 
@@ -128,22 +115,7 @@ def require_dataset(plan: dict[str, Any]) -> None:
                 f"D-FINE configuration is missing: {plan['dfine_config']}"
             )
     else:
-        if plan["track"] != "NIR" or not Path(plan["additional_config"]).is_file():
-            raise ProtocolError(
-                f"Additional-model configuration is missing: {plan['additional_config']}"
-            )
-        annotations = (
-            REPO_ROOT
-            / "data"
-            / "processed"
-            / "NIR"
-            / "coco"
-            / "dfine"
-            / f"ratio_{plan['ratio']}"
-            / "instances_train.json"
-        )
-        if not annotations.is_file():
-            raise ProtocolError(f"Prepared NIR COCO annotations are missing: {annotations}")
+        raise ProtocolError(f"Unsupported model backend: {plan['model']}")
 
 
 def run_yolo(plan: dict[str, Any]) -> None:
@@ -257,18 +229,6 @@ def run_dfine(plan: dict[str, Any]) -> None:
             raise subprocess.CalledProcessError(process.returncode, command)
 
 
-def run_additional(plan: dict[str, Any]) -> None:
-    backend = load_backends()["additional_models"]
-    ensure_additional_image(False)
-    ensure_weight(backend["models"][plan["model"]], False)
-    if completed(plan["model"], Path(plan["training_dir"]), plan["epochs"]):
-        print(f"Already complete; skipping {plan['training_dir']}")
-        return
-    run_docker_backend(
-        "train", "--model", plan["model"], "--ratio", str(plan["ratio"])
-    )
-
-
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--track", required=True, choices=["RGB", "NIR", "rgb", "nir"])
@@ -290,8 +250,6 @@ def main() -> int:
             run_yolo
             if args.model.startswith("yolo")
             else run_dfine
-            if args.model == "dfine_n"
-            else run_additional
         )
         runner(plan)
     except Exception as exc:

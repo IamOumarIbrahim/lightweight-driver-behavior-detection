@@ -33,29 +33,23 @@ suppressPackageStartupMessages({
 
 expected_models <- c("yolo11n", "yolo26n", "dfine_n")
 nir_expected_models <- c(
-  "yolo11n", "yolo26n", "rtmdet_tiny", "efficientdet_d1", "dfine_n"
+  "yolo11n", "yolo26n", "dfine_n"
 )
 model_labels <- c(
   yolo11n = "YOLO11n",
   yolo26n = "YOLO26n",
-  rtmdet_tiny = "RTMDet-Tiny",
-  efficientdet_d1 = "EfficientDet-D1",
   dfine_n = "D-FINE-N"
 )
 model_colors <- c(
   yolo11n = "#0072B2",
   yolo26n = "#D55E00",
-  rtmdet_tiny = "#CC79A7",
-  efficientdet_d1 = "#E69F00",
   dfine_n = "#009E73"
 )
 model_shapes <- c(
-  yolo11n = 21, yolo26n = 22, rtmdet_tiny = 23,
-  efficientdet_d1 = 25, dfine_n = 24
+  yolo11n = 21, yolo26n = 22, dfine_n = 24
 )
 model_linetypes <- c(
-  yolo11n = "solid", yolo26n = "22", rtmdet_tiny = "31",
-  efficientdet_d1 = "13", dfine_n = "42"
+  yolo11n = "solid", yolo26n = "22", dfine_n = "42"
 )
 source_path <- file.path(
   repo_root,

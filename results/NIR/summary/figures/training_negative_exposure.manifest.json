@@ -11,21 +11,18 @@
     "png": "0.1.9"
   },
   "source": "results/NIR/summary/training_negative_exposure_source.json",
-  "source_sha256": "f9d6444abfcd6331c45a073c54d595d4e614d34122893c551373779aa5dea9f5",
+  "source_sha256": "019bc846a33be452b98781a5402d0cd17f4746790757f3d6c5491fb7cfd37a38",
   "models": [
     "yolo11n",
     "yolo26n",
     "dfine_n"
   ],
-  "pending_models": [
-    "rtmdet_tiny",
-    "efficientdet_d1"
-  ],
+  "pending_models": [],
   "dispersion": "sample_standard_deviation",
   "outputs": {
     "pdf": {
       "path": "results/NIR/summary/figures/training_negative_exposure.pdf",
-      "sha256": "530e970d4e99d37e3be327564e3bdbea9964596fe3606ae070b222f386f57353"
+      "sha256": "54c265aeebaa4d4d8e62d4fe1fc24ed1e43e14f90cb21486ded0f6f03bddca49"
     },
     "svg": {
       "path": "results/NIR/summary/figures/training_negative_exposure.svg",
@@ -36,7 +33,7 @@
       "sha256": "192cd01938bc7f101a90be1afabf2fb474b41c792433cd4581ce6d87d7afbeee"
     }
   },
-  "status": "partial",
+  "status": "complete",
   "seed": 13,
   "ratios": [
     "1:2",

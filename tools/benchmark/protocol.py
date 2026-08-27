@@ -97,7 +97,7 @@ def model_spec(
     elif model["adapter"] == "dfine":
         backend = backends["dfine"]
     else:
-        backend = backends["additional_models"]["models"][model_id]
+        raise ProtocolError(f"Unsupported adapter: {model['adapter']}")
     return model, backend
 
 

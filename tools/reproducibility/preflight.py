@@ -101,6 +101,8 @@ def repository_checks(checks: Checks) -> None:
         if not relative.lower().endswith(".md"):
             continue
         source = REPO_ROOT / relative
+        if not source.is_file():
+            continue
         for match in link_pattern.finditer(source.read_text(encoding="utf-8")):
             target = next(group for group in match.groups() if group)
             if target.startswith(("http://", "https://", "mailto:", "#")):

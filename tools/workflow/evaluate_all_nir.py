@@ -1,4 +1,4 @@
-"""Run all ten NIR validations or protected tests sequentially."""
+"""Run every frozen NIR validation or protected test sequentially."""
 
 from __future__ import annotations
 
@@ -15,8 +15,9 @@ def main() -> int:
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args()
     if not args.execute:
+        jobs = len(MODELS) * len(NIR_RATIOS)
         print(
-            f"Dry-run: ten NIR {args.phase} jobs will run in model order, "
+            f"Dry-run: {jobs} NIR {args.phase} jobs will run in model order, "
             "ratio 1to2 then 1to6."
         )
         return 0

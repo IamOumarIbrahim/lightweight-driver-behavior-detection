@@ -4,7 +4,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0"></a>
   <img src="https://img.shields.io/badge/Modality-RGB%20%7C%20NIR-blueviolet?style=flat" alt="Modality: RGB | NIR">
   <img src="https://img.shields.io/badge/Input-640%C3%97640-555?style=flat" alt="Input: 640×640">
-  <img src="https://img.shields.io/badge/NIR%20Detectors-5%20architecturally%20diverse%20systems-4c1?style=flat" alt="Five NIR detector systems">
+  <img src="https://img.shields.io/badge/NIR%20Detectors-3%20native%20Windows%20systems-4c1?style=flat" alt="Three NIR detector systems">
 </p>
 
 <p align="center">
@@ -28,12 +28,12 @@ How do complete nano detector systems trade single-frame cue localization, false
 
 ### Abstract
 
-This repository benchmarks released lightweight detector systems for bounding-box localization of discrete, momentary visual driver cues. The primary RGB benchmark compares [Ultralytics YOLO11n](https://docs.ultralytics.com/models/yolo11/), [Ultralytics YOLO26n](https://docs.ultralytics.com/models/yolo26), and [D-FINE-N](https://github.com/Peterande/D-FINE) on the [Driver Monitoring Dataset (DMD)](https://dmd.vicomtech.org/). A separate exploratory NIR training-negative exposure study adds [RTMDet-Tiny](https://github.com/open-mmlab/mmyolo/tree/main/configs/rtmdet) and [EfficientDet-D1](https://github.com/rwightman/efficientdet-pytorch) on [Drive&Act](https://driveandact.com/), with `drinking` and `phone_use` sampled deterministically at each one-second snippet's midpoint. Both tracks use subject-disjoint partitions, validation-only operating-point selection, and confirmation-gated protected testing. The task does not infer temporal fatigue, intent, or driver state.
+This repository benchmarks released lightweight detector systems for bounding-box localization of discrete, momentary visual driver cues. The primary RGB benchmark compares [Ultralytics YOLO11n](https://docs.ultralytics.com/models/yolo11/), [Ultralytics YOLO26n](https://docs.ultralytics.com/models/yolo26), and [D-FINE-N](https://github.com/Peterande/D-FINE) on the [Driver Monitoring Dataset (DMD)](https://dmd.vicomtech.org/). A separate exploratory NIR training-negative exposure study compares the same three systems on [Drive&Act](https://driveandact.com/), with `drinking` and `phone_use` sampled deterministically at each one-second snippet's midpoint. Both tracks use subject-disjoint partitions, validation-only operating-point selection, and confirmation-gated protected testing. The task does not infer temporal fatigue, intent, or driver state.
 
 ## Current Benchmark Status
 
 > [!IMPORTANT]
-> All nine RGB runs are complete. Six of ten NIR protected passes are also complete and checksum-published for YOLO11n, YOLO26n, and D-FINE-N; RTMDet-Tiny and EfficientDet-D1 remain pending.
+> All nine RGB runs and all six frozen NIR runs are complete.
 
 | Track | Model | Conditions | Status |
 | --- | --- | --- | --- |
@@ -41,7 +41,6 @@ This repository benchmarks released lightweight detector systems for bounding-bo
 | RGB | YOLO26n | Seeds 13, 37, 73 | Final |
 | RGB | D-FINE-N | Seeds 13, 37, 73 | Final three-seed result |
 | NIR | YOLO11n, YOLO26n, D-FINE-N | Ratios 1:2 and 1:6, seed 13, 100 epochs | Six protected results published |
-| NIR | RTMDet-Tiny, EfficientDet-D1 | Ratios 1:2 and 1:6, seed 13, 100 epochs | Four runs pending |
 
 See the [results documentation](./docs/results.md) for authoritative values and the [methodology](./docs/methodology.md) for the frozen protocol.
 
@@ -58,9 +57,6 @@ scripts\setup\02_setup_backends.bat
 scripts\preflight.bat
 ```
 
-Start Docker Desktop before backend setup. The container isolates RTMDet-Tiny
-and EfficientDet-D1 from the native environment used by the existing models.
-
 Place the licensed source folders at `data/DMD` and `data/Drive&Act`, then run:
 
 ```bat
@@ -72,7 +68,7 @@ scripts\data\06_check_rgb_dataset.bat
 scripts\data\07_check_nir_dataset.bat
 ```
 
-Published annotations are already under `data/annotations`; dataset frames and trained checkpoints remain local. For the NIR experiment, `scripts\NIR\train_all_ten.bat` runs YOLO11n, YOLO26n, RTMDet-Tiny, EfficientDet-D1, and D-FINE-N at ratios 1:2 and 1:6 sequentially for the frozen 100-epoch maximum, with safe resume and logs. Validation and testing are deliberately separate.
+Published annotations are already under `data/annotations`; dataset frames and trained checkpoints remain local. For the NIR experiment, `scripts\NIR\train_all_six.bat` runs YOLO11n, YOLO26n, and D-FINE-N at ratios 1:2 and 1:6 sequentially for the frozen 100-epoch maximum, with safe resume and logs. Validation and testing are deliberately separate.
 
 > [!CAUTION]
 > Dataset licenses govern the source media. This repository redistributes authored annotations and split metadata, not DMD or Drive&Act frames/videos.
@@ -114,4 +110,4 @@ Only these six semantic folders are published. Local `runs`, `third_party`, and 
 
 ## Acknowledgments & License
 
-This work builds on [Ultralytics YOLO](https://github.com/ultralytics/ultralytics), [D-FINE](https://github.com/Peterande/D-FINE), [MMYOLO](https://github.com/open-mmlab/mmyolo), [EfficientDet-PyTorch](https://github.com/rwightman/efficientdet-pytorch), [Label Studio](https://github.com/HumanSignal/label-studio), [DMD](https://dmd.vicomtech.org/), and [Drive&Act](https://driveandact.com/). Code is licensed under [Apache License 2.0](LICENSE); third-party datasets and dependencies retain their own licenses.
+This work builds on [Ultralytics YOLO](https://github.com/ultralytics/ultralytics), [D-FINE](https://github.com/Peterande/D-FINE), [Label Studio](https://github.com/HumanSignal/label-studio), [DMD](https://dmd.vicomtech.org/), and [Drive&Act](https://driveandact.com/). Code is licensed under [Apache License 2.0](LICENSE); third-party datasets and dependencies retain their own licenses.

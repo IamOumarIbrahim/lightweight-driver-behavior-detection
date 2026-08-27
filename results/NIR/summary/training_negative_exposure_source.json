@@ -1,6 +1,6 @@
 {
   "artifact": "nir_training_negative_exposure_figure_source",
-  "status": "partial",
+  "status": "complete",
   "seed": 13,
   "ratios": [
     "1:2",
@@ -9,8 +9,6 @@
   "models": [
     "yolo11n",
     "yolo26n",
-    "rtmdet_tiny",
-    "efficientdet_d1",
     "dfine_n"
   ],
   "completed_models": [
@@ -18,10 +16,7 @@
     "yolo26n",
     "dfine_n"
   ],
-  "pending_models": [
-    "rtmdet_tiny",
-    "efficientdet_d1"
-  ],
+  "pending_models": [],
   "sampling": {
     "fps": 1,
     "sample_time_seconds": 0.5,

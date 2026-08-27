@@ -32,33 +32,3 @@ dfine:
   recipe:
     file: configs/dfine/dfine_hgnetv2_n_coco.yml
     sha256: d15c3cc0ad0f8e5b0977fd88c56948350b4898a51abd2709bc3d5535a689080d
-additional_models:
-  image: dms-eval-additional-models:2026-08-27
-  dockerfile: configs/docker/additional-models.Dockerfile
-  base_image: pytorch/pytorch:2.0.1-cuda11.8-cudnn8-devel
-  mmyolo:
-    repository: https://github.com/open-mmlab/mmyolo.git
-    commit: 8c4d9dc503dc8e327bec8147e8dc97124052f693
-    version: 0.6.0
-    mmcv: 2.0.1
-    mmdet: 3.3.0
-    mmengine: 0.10.7
-    recipe: configs/rtmdet/rtmdet_tiny_syncbn_fast_8xb32-300e_coco.py
-  efficientdet:
-    repository: https://github.com/rwightman/efficientdet-pytorch.git
-    commit: c6dff775a36cea0bf9b76c58e59f936411c5ce01
-    version: 0.4.1
-    timm: 0.9.16
-    recipe: effdet/config/model_config.py
-    trainer_patch: configs/patches/efficientdet-gradient-accumulation.patch
-  models:
-    rtmdet_tiny:
-      file: third_party/weights/rtmdet_tiny_coco.pth
-      url: https://download.openmmlab.com/mmyolo/v0/rtmdet/rtmdet_tiny_syncbn_fast_8xb32-300e_coco/rtmdet_tiny_syncbn_fast_8xb32-300e_coco_20230102_140117-dbb1dc83.pth
-      size_bytes: 19786920
-      sha256: dbb1dc83b3654b777da638f0ec036746163fb9af5d3abca82199af658a2b18b3
-    efficientdet_d1:
-      file: third_party/weights/tf_efficientdet_d1_40-a30f94af.pth
-      url: https://github.com/rwightman/efficientdet-pytorch/releases/download/v0.1/tf_efficientdet_d1_40-a30f94af.pth
-      size_bytes: 26957295
-      sha256: a30f94afc3326a6ef7a61c1657baefe3ea7168139006fbf0fe41807260b885b8

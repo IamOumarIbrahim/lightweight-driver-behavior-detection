@@ -16,8 +16,6 @@ RGB_MODELS = ("yolo11n", "yolo26n", "dfine_n")
 NIR_MODELS = (
     "yolo11n",
     "yolo26n",
-    "rtmdet_tiny",
-    "efficientdet_d1",
     "dfine_n",
 )
 MODELS = NIR_MODELS

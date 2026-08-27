@@ -15,15 +15,3 @@ def test_canonical_artifact_paths():
         result_dir("NIR", "dfine_n", ratio="1to6").relative_to(REPO_ROOT).as_posix()
         == "results/NIR/dfine_n/ratio_1to6"
     )
-    assert (
-        run_dir("NIR", "rtmdet_tiny", ratio="1to2")
-        .relative_to(REPO_ROOT)
-        .as_posix()
-        == "runs/NIR/rtmdet_tiny/ratio_1to2"
-    )
-    assert (
-        result_dir("NIR", "efficientdet_d1", ratio="1to6")
-        .relative_to(REPO_ROOT)
-        .as_posix()
-        == "results/NIR/efficientdet_d1/ratio_1to6"
-    )
