@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import os
+import io
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
@@ -17,7 +18,8 @@ FIXED_CREATION_DATE = "D:20260825000000+04'00'"
 def normalize_pdf(path: Path, title: str, figure_id: str, source_sha256: str) -> None:
     resolved = path.resolve()
     resolved.relative_to(REPO_ROOT.resolve())
-    reader = PdfReader(resolved)
+    data = resolved.read_bytes()
+    reader = PdfReader(io.BytesIO(data))
     writer = PdfWriter()
     writer.clone_document_from_reader(reader)
     writer._info.clear()  # Cairo's timestamp lives in this cloned dictionary.

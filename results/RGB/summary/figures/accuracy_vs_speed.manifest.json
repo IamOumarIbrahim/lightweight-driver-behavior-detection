@@ -27,7 +27,7 @@
     },
     "svg": {
       "path": "results/RGB/summary/figures/accuracy_vs_speed.svg",
-      "sha256": "fd700b7114925769e21bd43efc3e0c02045553099429fa9dda49a5db79fbdbd4"
+      "sha256": "a275382464e749af3b6088b44c26cdba36d2f14f3bf7fdf3e11cc795fe5d3fe1"
     },
     "png": {
       "path": "results/RGB/summary/figures/accuracy_vs_speed.png",

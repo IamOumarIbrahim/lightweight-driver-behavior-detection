@@ -234,13 +234,13 @@ format_comparison_value <- function(metric_id, estimate) {
   sd <- estimate[["sample_std"]]
   switch(
     metric_id,
-    map_50 = sprintf("%.2f ± %.2f", 100 * mean, 100 * sd),
-    map_50_95 = sprintf("%.2f ± %.2f", 100 * mean, 100 * sd),
-    micro_f1 = sprintf("%.2f ± %.2f", 100 * mean, 100 * sd),
-    macro_f1 = sprintf("%.2f ± %.2f", 100 * mean, 100 * sd),
-    fd_100 = sprintf("%.2f ± %.2f", mean, sd),
-    latency = sprintf("%.2f ± %.2f", mean, sd),
-    fps = sprintf("%.1f ± %.1f", mean, sd),
+    map_50 = sprintf("%.2f \u00b1 %.2f", 100 * mean, 100 * sd),
+    map_50_95 = sprintf("%.2f \u00b1 %.2f", 100 * mean, 100 * sd),
+    micro_f1 = sprintf("%.2f \u00b1 %.2f", 100 * mean, 100 * sd),
+    macro_f1 = sprintf("%.2f \u00b1 %.2f", 100 * mean, 100 * sd),
+    fd_100 = sprintf("%.2f \u00b1 %.2f", mean, sd),
+    latency = sprintf("%.2f \u00b1 %.2f", mean, sd),
+    fps = sprintf("%.1f \u00b1 %.1f", mean, sd),
     parameters = sprintf("%.2f", mean / 1000000),
     gflops = sprintf("%.2f", mean / 1000000000),
     stop("Unknown comparison metric: ", metric_id)
@@ -279,11 +279,11 @@ load_rgb_table_comparison <- function(aggregate_path, secondary_path, dfine_path
     gflops = "Complexity"
   )
   metric_labels <- c(
-    map_50 = "mAP₅₀ (%)",
-    map_50_95 = "mAP₅₀:₉₅ (%)",
-    micro_f1 = "Micro-F₁ (%)",
-    macro_f1 = "Macro-F₁ (%)",
-    fd_100 = "FD₁₀₀ (per 100 negatives)",
+    map_50 = "mAP50 (%)",
+    map_50_95 = "mAP50:95 (%)",
+    micro_f1 = "Micro-F1 (%)",
+    macro_f1 = "Macro-F1 (%)",
+    fd_100 = "FD100 (%)",
     latency = "p50 latency (ms)",
     fps = "Throughput (FPS)",
     parameters = "Parameters (M)",
@@ -487,7 +487,7 @@ draw_figure <- function(plot) {
 }
 
 write_svg <- function(plot, path, width, height) {
-  temp_svg <- tempfile(fileext = ".svg")
+  temp_svg <- file.path(dirname(path), paste0(".", basename(path), ".tmp.svg"))
   grDevices::svg(
     filename = temp_svg,
     width = width,
@@ -499,13 +499,8 @@ write_svg <- function(plot, path, width, height) {
   )
   draw_figure(plot)
   invisible(grDevices::dev.off())
-  lines <- sub(
-    "[[:blank:]]+$",
-    "",
-    readLines(temp_svg, warn = FALSE, encoding = "UTF-8")
-  )
+  file.copy(temp_svg, path, overwrite = TRUE)
   unlink(temp_svg)
-  writeLines(lines, path, useBytes = TRUE)
 }
 
 normalize_pdf_metadata <- function(path, title, figure_id, metadata_source) {
@@ -834,10 +829,15 @@ build_normalized_model_comparison <- function(plot_data) {
   make_label_layers <- function(sub_data) {
     lapply(seq_along(present_models), function(index) {
       model_id <- present_models[[index]]
-      geom_text(
+      geom_label(
         data = sub_data[as.character(sub_data$model_id) == model_id, ],
         aes(x = label_x, label = value_label, hjust = label_hjust),
         colour = "black",
+        fill = "white",
+        label.size = 0,
+        linewidth = 0,
+        label.padding = grid::unit(1.2, "pt"),
+        label.r = grid::unit(0, "pt"),
         size = 3.525,
         family = "Times New Roman",
         position = position_nudge(y = label_offsets[[index]]),
@@ -1025,9 +1025,10 @@ build_normalized_model_comparison <- function(plot_data) {
     theme(
       legend.position = "bottom",
       legend.text = element_text(size = 10.5, colour = "black"),
-      legend.key.height = grid::unit(12, "pt"),
-      legend.key.width = grid::unit(16, "pt"),
-      legend.margin = margin(0, 0, 0, 0, unit = "pt"),
+      legend.key.height = grid::unit(14, "pt"),
+      legend.key.width = grid::unit(18, "pt"),
+      legend.margin = margin(t = 2, b = 6, unit = "pt"),
+      legend.box.margin = margin(t = 0, b = 4, unit = "pt"),
       legend.box.spacing = grid::unit(0, "pt")
     )
 
@@ -1038,7 +1039,7 @@ build_normalized_model_comparison <- function(plot_data) {
 
   layout_gt <- gtable::gtable(
     widths = grid::unit(c(1.08, 0.04, 1.0), c("null", "null", "null")),
-    heights = grid::unit.c(grid::unit(1, "null"), grid::unit(24, "pt"))
+    heights = grid::unit.c(grid::unit(1, "null"), grid::unit(30, "pt"))
   )
   layout_gt <- gtable::gtable_add_grob(
     layout_gt, list(g_acc), t = 1, l = 1, b = 1, r = 1, name = "plot-acc"
@@ -1628,7 +1629,7 @@ comparison_outputs <- export_figure(
   build_normalized_model_comparison(comparison_data),
   "normalized_model_comparison",
   width = 11.2,
-  height = 5.2,
+  height = 5.35,
   title = "Normalized RGB accuracy, speed, and complexity comparison",
   figure_id = "rgb_normalized_model_comparison"
 )

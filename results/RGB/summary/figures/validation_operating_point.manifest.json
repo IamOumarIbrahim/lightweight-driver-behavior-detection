@@ -27,7 +27,7 @@
     },
     "svg": {
       "path": "results/RGB/summary/figures/validation_operating_point.svg",
-      "sha256": "c8d4f8ed805a5d95fbff163eb4385e15e4bcb39c82ab4663b7f4fe52bbbfbe62"
+      "sha256": "8ed3abea27755d6e6986c43b9b96c5847d6119997602cc0dea6abb6187e48c61"
     },
     "png": {
       "path": "results/RGB/summary/figures/validation_operating_point.png",
