@@ -18,6 +18,16 @@ ultralytics:
       url: https://github.com/ultralytics/assets/releases/download/v8.4.0/yolo26n.pt
       size_bytes: 5544453
       sha256: 9b09cc8bf347f0fc8a5f7657480587f25db09b34bf33b0652110fb03a8ad4fef
+    yolov10n:
+      file: third_party/weights/yolov10n.pt
+      url: https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov10n.pt
+      size_bytes: 5860383
+      sha256: 11287ed0735678e7ba1ac2a9b3098c049155b3fde123992e724c1264bcc16b6f
+    yolov8n:
+      file: third_party/weights/yolov8n.pt
+      url: https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8n.pt
+      size_bytes: 6549796
+      sha256: f59b3d833e2ff32e194b5bb8e08d211dc7c5bdf144b90d2c8412c47ccfc83b36
 dfine:
   repository: https://github.com/Peterande/D-FINE.git
   commit: 956d1709314c2c6a4df6f34de232054578a7449f
@@ -32,3 +42,42 @@ dfine:
   recipe:
     file: configs/dfine/dfine_hgnetv2_n_coco.yml
     sha256: d15c3cc0ad0f8e5b0977fd88c56948350b4898a51abd2709bc3d5535a689080d
+torchvision_ssdlite:
+  package: torchvision
+  version: 0.19.1+cu121
+  model: ssdlite320_mobilenet_v3_large
+  input_adaptation: pretrained_320_detector_finetuned_at_frozen_640
+  weight:
+    file: third_party/weights/ssdlite320_mobilenet_v3_large_coco.pth
+    url: https://download.pytorch.org/models/ssdlite320_mobilenet_v3_large_coco-a79551df.pth
+    size_bytes: 14069355
+    sha256: a79551df90c79834bcd3bb3845ef9d966b5449a3a9b2833ae8404778ca5d65d2
+rtdetrv2:
+  repository: https://github.com/lyuwenyu/RT-DETR.git
+  commit: 068dfde65f2667ad6555883c69d73de886518cad
+  checkout: third_party/RT-DETR
+  model: rtdetrv2_s
+  weight:
+    file: third_party/weights/rtdetrv2_r18vd_120e_coco.pth
+    url: https://github.com/lyuwenyu/storage/releases/download/v0.2/rtdetrv2_r18vd_120e_coco_rerun_48.1.pth
+    size_bytes: 81198974
+    sha256: 2ace52184b620204004509b72752ac7bfe64aadaf7fc1d076b18df8ab5a5c77e
+  recipe:
+    file: rtdetrv2_pytorch/configs/rtdetrv2/rtdetrv2_r18vd_120e_coco.yml
+    sha256: 3fc6fda05f01ac16a90cf4116bd3793682fa780979ac37b09f459a66bd21cc54
+  trainer_patch: configs/patches/rtdetrv2-gradient-accumulation.patch
+yolox:
+  repository: https://github.com/Megvii-BaseDetection/YOLOX.git
+  commit: 6ddff4824372906469a7fae2dc3206c7aa4bbaee
+  checkout: third_party/YOLOX
+  model: yolox_nano
+  input_adaptation: official_nano_architecture_finetuned_at_frozen_640
+  weight:
+    file: third_party/weights/yolox_nano.pth
+    url: https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_nano.pth
+    size_bytes: 7694953
+    sha256: cd28f55fbbc1829f99d9ac9b38a16d259a22889739c8728ea877610201feff7b
+  recipe:
+    file: exps/default/yolox_nano.py
+    sha256: 3ebfb63b1e5af67a3c0bdfb23d28b71090a6337e1fa05933b5563a3be275eec1
+  trainer_patch: configs/patches/yolox-gradient-accumulation.patch

@@ -1,8 +1,12 @@
 # NIR Workflow
 
-Six named training launchers cover three models at ratios 1:2 and 1:6. All jobs
-use seed 13 and a fixed 100-epoch maximum. `train_all_six.bat` runs them in the
-frozen model order with safe resume; pass `--yes` only when an unattended start
-is intentional. Run `validate_all_six.bat` before the confirmation-gated
-`test_all_six.bat`. All active backends run natively in the main Windows virtual
-environment.
+Sixteen named training jobs cover eight models at ratios 1:2 and 1:6. All jobs
+use seed 13, 640x640 input, a fixed 100-epoch maximum, physical batch 8, and
+effective batch 32. `train_all_sixteen.ps1` verifies every pinned backend and
+runs the jobs sequentially with safe resume. Pass `-Yes` only for an unattended
+start. Run `validate_all_sixteen.bat` before the confirmation-gated
+`test_all_sixteen.bat`.
+
+The suite is YOLO11n, YOLO26n, D-FINE-N, SSDLite-MobileNetV3-Large,
+RT-DETRv2-S, YOLOX-Nano, YOLOv10n, and YOLOv8n. All active backends run natively
+inside the main Windows virtual environment; Docker and WSL are not used.

@@ -1,0 +1,9 @@
+__include__: [base.yml]
+
+train_dataloader:
+  dataset:
+    ann_file: data/processed/NIR/coco/dfine/ratio_1to2/instances_train.json
+
+output_dir: runs/NIR/rtdetrv2_s/ratio_1to2/training
+summary_dir: runs/NIR/rtdetrv2_s/ratio_1to2/training/summary
+seed: 13

@@ -1,6 +1,6 @@
 {
   "artifact": "nir_training_negative_exposure_figure_source",
-  "status": "complete",
+  "status": "partial",
   "seed": 13,
   "ratios": [
     "1:2",
@@ -9,14 +9,25 @@
   "models": [
     "yolo11n",
     "yolo26n",
-    "dfine_n"
+    "dfine_n",
+    "ssdlite_mobilenet_v3_large",
+    "rtdetrv2_s",
+    "yolox_nano",
+    "yolov10n",
+    "yolov8n"
   ],
   "completed_models": [
     "yolo11n",
     "yolo26n",
     "dfine_n"
   ],
-  "pending_models": [],
+  "pending_models": [
+    "ssdlite_mobilenet_v3_large",
+    "rtdetrv2_s",
+    "yolox_nano",
+    "yolov10n",
+    "yolov8n"
+  ],
   "sampling": {
     "fps": 1,
     "sample_time_seconds": 0.5,

@@ -21,9 +21,11 @@ from tools.benchmark.evaluation import (
 from tools.benchmark.paths import (
     CONFIGS_ROOT,
     MODELS,
+    NIR_MODELS,
     NIR_RATIOS,
     NIR_SEED,
     REPO_ROOT,
+    RGB_MODELS,
     RGB_SEEDS,
     is_authoritative_rgb_yolo,
     result_dir,
@@ -36,6 +38,15 @@ from tools.benchmark.protocol import (
     validate_protocol,
     verify_authoritative_fingerprints,
 )
+
+
+ULTRALYTICS_MODELS = {"yolo11n", "yolo26n", "yolov10n", "yolov8n"}
+
+
+def require_frozen_model(track: str, model: str) -> None:
+    expected = RGB_MODELS if track == "RGB" else NIR_MODELS
+    if model not in expected:
+        raise ProtocolError(f"Model {model} is not frozen for the {track} track")
 
 
 def write_json(path: Path, value: Any) -> None:
@@ -58,8 +69,17 @@ def identity(track: str, seed: int | None, ratio: str | None) -> dict[str, Any]:
 
 
 def checkpoint_for(model: str, training_dir: Path) -> Path:
-    if model.startswith("yolo"):
+    if model in ULTRALYTICS_MODELS:
         candidates = [training_dir / "weights" / "best.pt"]
+    elif model == "ssdlite_mobilenet_v3_large":
+        candidates = [training_dir / "best.pt", training_dir / "last.pt"]
+    elif model == "rtdetrv2_s":
+        candidates = [training_dir / "best.pth", training_dir / "last.pth"]
+    elif model == "yolox_nano":
+        candidates = [
+            training_dir / "best_ckpt.pth",
+            training_dir / "latest_ckpt.pth",
+        ]
     else:
         candidates = [
             training_dir / "best_stg2.pth",
@@ -112,8 +132,14 @@ def load_ground_truth(track: str, split: str) -> dict[str, Any]:
 
 
 def adapter_for(track: str, model: str, checkpoint: Path, ratio: str | None = None):
-    config_name = "base.yml" if track == "RGB" else f"ratio_{ratio}.yml"
-    config = CONFIGS_ROOT / track / "dfine" / config_name
+    config = None
+    if model == "dfine_n":
+        config_name = "base.yml" if track == "RGB" else f"ratio_{ratio}.yml"
+        config = CONFIGS_ROOT / track / "dfine" / config_name
+    elif model == "rtdetrv2_s":
+        config = CONFIGS_ROOT / "NIR" / "rtdetrv2" / f"ratio_{ratio}.yml"
+    elif model == "yolox_nano":
+        config = CONFIGS_ROOT / "NIR" / "yolox" / f"ratio_{ratio}.py"
     class_count = 4 if track == "RGB" else 2
     return create_adapter(
         model, checkpoint, device="cuda:0", class_count=class_count, config_path=config
@@ -143,6 +169,7 @@ def predict(
 
 def validation(args: argparse.Namespace) -> int:
     track = args.track.upper()
+    require_frozen_model(track, args.model)
     protocol = validate_protocol(track)
     run_identity = identity(track, args.seed, args.ratio)
     paths = paths_for(track, args.model, run_identity)
@@ -206,6 +233,7 @@ def validation(args: argparse.Namespace) -> int:
 
 def test(args: argparse.Namespace) -> int:
     track = args.track.upper()
+    require_frozen_model(track, args.model)
     validate_protocol(track)
     run_identity = identity(track, args.seed, args.ratio)
     paths = paths_for(track, args.model, run_identity)

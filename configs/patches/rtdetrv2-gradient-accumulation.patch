@@ -1,0 +1,126 @@
+diff --git a/rtdetrv2_pytorch/src/solver/det_engine.py b/rtdetrv2_pytorch/src/solver/det_engine.py
+index 441ef39..053f05d 100644
+--- a/rtdetrv2_pytorch/src/solver/det_engine.py
++++ b/rtdetrv2_pytorch/src/solver/det_engine.py
+@@ -17,6 +17,7 @@ from torch.cuda.amp.grad_scaler import GradScaler
+ from ..optim import ModelEMA, Warmup
+ from ..data import CocoEvaluator
+ from ..misc import MetricLogger, SmoothedValue, dist_utils
++from tools.benchmark.training import accumulation_loss_scale
+ 
+ 
+ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
+@@ -34,12 +35,29 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
+     ema :ModelEMA = kwargs.get('ema', None)
+     scaler :GradScaler = kwargs.get('scaler', None)
+     lr_warmup_scheduler :Warmup = kwargs.get('lr_warmup_scheduler', None)
++    gradient_accumulation_steps = int(kwargs.get('gradient_accumulation_steps', 1))
++    if gradient_accumulation_steps < 1:
++        raise ValueError('gradient_accumulation_steps must be >= 1')
+ 
++    optimizer.zero_grad()
+     for i, (samples, targets) in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
+         samples = samples.to(device)
+         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
+         global_step = epoch * len(data_loader) + i
+         metas = dict(epoch=epoch, step=i, global_step=global_step)
++        loss_scale = accumulation_loss_scale(
++            batch_index=i,
++            total_batches=len(data_loader),
++            accumulation_steps=gradient_accumulation_steps,
++            current_batch_size=len(targets),
++            total_samples=len(data_loader.dataset),
++            physical_batch_size=data_loader.batch_size,
++            batch_loss_reduction='mean',
++        )
++        should_step = (
++            (i + 1) % gradient_accumulation_steps == 0
++            or (i + 1) == len(data_loader)
++        )
+ 
+         if scaler is not None:
+             with torch.autocast(device_type=str(device), cache_enabled=True):
+@@ -49,34 +67,34 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
+                 loss_dict = criterion(outputs, targets, **metas)
+ 
+             loss = sum(loss_dict.values())
+-            scaler.scale(loss).backward()
+-            
+-            if max_norm > 0:
+-                scaler.unscale_(optimizer)
+-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
++            scaler.scale(loss * loss_scale).backward()
+ 
+-            scaler.step(optimizer)
+-            scaler.update()
+-            optimizer.zero_grad()
++            if should_step:
++                if max_norm > 0:
++                    scaler.unscale_(optimizer)
++                    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
++                scaler.step(optimizer)
++                scaler.update()
++                optimizer.zero_grad()
+ 
+         else:
+             outputs = model(samples, targets=targets)
+             loss_dict = criterion(outputs, targets, **metas)
+             
+             loss : torch.Tensor = sum(loss_dict.values())
+-            optimizer.zero_grad()
+-            loss.backward()
+-            
+-            if max_norm > 0:
+-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
++            (loss * loss_scale).backward()
+ 
+-            optimizer.step()
++            if should_step:
++                if max_norm > 0:
++                    torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm)
++                optimizer.step()
++                optimizer.zero_grad()
+         
+         # ema 
+-        if ema is not None:
++        if should_step and ema is not None:
+             ema.update(model)
+ 
+-        if lr_warmup_scheduler is not None:
++        if should_step and lr_warmup_scheduler is not None:
+             lr_warmup_scheduler.step()
+ 
+         loss_dict_reduced = dist_utils.reduce_dict(loss_dict)
+diff --git a/rtdetrv2_pytorch/src/solver/det_solver.py b/rtdetrv2_pytorch/src/solver/det_solver.py
+index af81989..fd8e785 100644
+--- a/rtdetrv2_pytorch/src/solver/det_solver.py
++++ b/rtdetrv2_pytorch/src/solver/det_solver.py
+@@ -24,6 +24,9 @@ class DetSolver(BaseSolver):
+         print(f'number of trainable parameters: {n_parameters}')
+ 
+         best_stat = {'epoch': -1, }
++        best_stat_path = self.output_dir / 'best_stat.json' if self.output_dir else None
++        if best_stat_path and best_stat_path.is_file():
++            best_stat.update(json.loads(best_stat_path.read_text()))
+ 
+         start_time = time.time()
+         start_epcoch = self.last_epoch + 1
+@@ -47,7 +50,8 @@ class DetSolver(BaseSolver):
+                 ema=self.ema, 
+                 scaler=self.scaler, 
+                 lr_warmup_scheduler=self.lr_warmup_scheduler,
+-                writer=self.writer
++                writer=self.writer,
++                gradient_accumulation_steps=args.yaml_cfg.get('gradient_accumulation_steps', 1),
+             )
+ 
+             if self.lr_warmup_scheduler is None or self.lr_warmup_scheduler.finished():
+@@ -90,6 +94,8 @@ class DetSolver(BaseSolver):
+                     dist_utils.save_on_master(self.state_dict(), self.output_dir / 'best.pth')
+ 
+             print(f'best_stat: {best_stat}')
++            if best_stat_path and dist_utils.is_main_process():
++                best_stat_path.write_text(json.dumps(best_stat) + '\n')
+ 
+             log_stats = {
+                 **{f'train_{k}': v for k, v in train_stats.items()},

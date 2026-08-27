@@ -1,4 +1,4 @@
-"""Ultralytics adapter for YOLO11n and YOLO26n."""
+"""Ultralytics adapter for the frozen YOLO-family models."""
 
 from __future__ import annotations
 

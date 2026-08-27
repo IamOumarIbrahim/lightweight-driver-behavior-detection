@@ -8,6 +8,8 @@
 Every transitive dependency is locked. Downloads are cached under ignored
 `third_party`, and installation uses that local cache. Setup 01 also runs the
 CPU test suite. Setup 05 installs R for the current user only, without shortcuts
-or file associations. Setup 02 verifies the native Ultralytics and D-FINE
-backends, applies their frozen accumulation patches, and downloads their
-checksum-pinned official weights.
+or file associations. Setup 02 verifies the native Ultralytics, D-FINE,
+Torchvision SSDLite, RT-DETRv2, and YOLOX backends; applies the frozen
+accumulation patches where required; and downloads checksum-pinned official
+weights. Docker, WSL, editable installs, and compiled Linux-only operators are
+not used.

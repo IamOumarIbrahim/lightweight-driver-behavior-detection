@@ -42,7 +42,7 @@
     {
       "track": "NIR",
       "path": "configs/NIR/protocol.yaml",
-      "sha256": "db6226f1d56156aa86382279e0f404266e665ea2108f4f255b1c59c0d5b46ae3"
+      "sha256": "4be47934f9ce129c4807cc269eb303e302d2ad088a2f1cb7e206ed312223cde0"
     },
     {
       "role": "dataset_example",

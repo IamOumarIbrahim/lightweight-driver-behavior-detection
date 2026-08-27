@@ -17,6 +17,11 @@ NIR_MODELS = (
     "yolo11n",
     "yolo26n",
     "dfine_n",
+    "ssdlite_mobilenet_v3_large",
+    "rtdetrv2_s",
+    "yolox_nano",
+    "yolov10n",
+    "yolov8n",
 )
 MODELS = NIR_MODELS
 RGB_SEEDS = (13, 37, 73)

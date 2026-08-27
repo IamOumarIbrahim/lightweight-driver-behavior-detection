@@ -96,6 +96,8 @@ def model_spec(
         backend = backends["ultralytics"]["models"][model_id]
     elif model["adapter"] == "dfine":
         backend = backends["dfine"]
+    elif model["adapter"] in {"torchvision_ssdlite", "rtdetrv2", "yolox"}:
+        backend = backends[model["adapter"]]
     else:
         raise ProtocolError(f"Unsupported adapter: {model['adapter']}")
     return model, backend

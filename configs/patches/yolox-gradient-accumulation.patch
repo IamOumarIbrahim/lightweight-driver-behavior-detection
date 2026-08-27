@@ -1,0 +1,116 @@
+diff --git a/yolox/core/trainer.py b/yolox/core/trainer.py
+index 8f8016e..86ae20e 100644
+--- a/yolox/core/trainer.py
++++ b/yolox/core/trainer.py
+@@ -32,6 +32,7 @@ from yolox.utils import (
+     setup_logger,
+     synchronize
+ )
++from tools.benchmark.training import accumulation_loss_scale
+ 
+ 
+ class Trainer:
+@@ -56,6 +57,11 @@ class Trainer:
+         self.data_type = torch.float16 if args.fp16 else torch.float32
+         self.input_size = exp.input_size
+         self.best_ap = 0
++        self.gradient_accumulation_steps = int(
++            getattr(exp, "gradient_accumulation_steps", 1)
++        )
++        if self.gradient_accumulation_steps < 1:
++            raise ValueError("gradient_accumulation_steps must be >= 1")
+ 
+         # metric record
+         self.meter = MeterBuffer(window_size=exp.print_interval)
+@@ -107,14 +113,27 @@ class Trainer:
+             outputs = self.model(inps, targets)
+ 
+         loss = outputs["total_loss"]
++        loss_scale = accumulation_loss_scale(
++            batch_index=self.iter,
++            total_batches=self.max_iter,
++            accumulation_steps=self.gradient_accumulation_steps,
++            current_batch_size=int(inps.shape[0]),
++            total_samples=len(self.train_loader.dataset),
++            physical_batch_size=self.args.batch_size,
++            batch_loss_reduction="mean",
++        )
++        self.scaler.scale(loss * loss_scale).backward()
++        should_step = (
++            (self.iter + 1) % self.gradient_accumulation_steps == 0
++            or (self.iter + 1) == self.max_iter
++        )
++        if should_step:
++            self.scaler.step(self.optimizer)
++            self.scaler.update()
++            self.optimizer.zero_grad()
+ 
+-        self.optimizer.zero_grad()
+-        self.scaler.scale(loss).backward()
+-        self.scaler.step(self.optimizer)
+-        self.scaler.update()
+-
+-        if self.use_model_ema:
+-            self.ema_model.update(self.model)
++            if self.use_model_ema:
++                self.ema_model.update(self.model)
+ 
+         lr = self.lr_scheduler.update_lr(self.progress_in_iter + 1)
+         for param_group in self.optimizer.param_groups:
+@@ -141,7 +160,8 @@ class Trainer:
+         model.to(self.device)
+ 
+         # solver related init
+-        self.optimizer = self.exp.get_optimizer(self.args.batch_size)
++        effective_batch_size = self.args.batch_size * self.gradient_accumulation_steps
++        self.optimizer = self.exp.get_optimizer(effective_batch_size)
+ 
+         # value of epoch will be set in `resume_train`
+         model = self.resume_train(model)
+@@ -160,7 +180,7 @@ class Trainer:
+         self.max_iter = len(self.train_loader)
+ 
+         self.lr_scheduler = self.exp.get_lr_scheduler(
+-            self.exp.basic_lr_per_img * self.args.batch_size, self.max_iter
++            self.exp.basic_lr_per_img * effective_batch_size, self.max_iter
+         )
+         if self.args.occupy:
+             occupy_mem(self.local_rank)
+@@ -170,7 +190,9 @@ class Trainer:
+ 
+         if self.use_model_ema:
+             self.ema_model = ModelEMA(model, 0.9998)
+-            self.ema_model.updates = self.max_iter * self.start_epoch
++            self.ema_model.updates = (
++                self.max_iter * self.start_epoch // self.gradient_accumulation_steps
++            )
+ 
+         self.model = model
+ 
+@@ -216,6 +238,9 @@ class Trainer:
+ 
+     def before_epoch(self):
+         logger.info("---> start train epoch{}".format(self.epoch + 1))
++        self.optimizer.zero_grad()
++        if getattr(self.exp, "reset_prefetcher_each_epoch", False):
++            self.prefetcher = DataPrefetcher(self.train_loader)
+ 
+         if self.epoch + 1 == self.max_epoch - self.exp.no_aug_epochs or self.no_aug:
+             logger.info("--->No mosaic aug now!")
+@@ -320,6 +343,8 @@ class Trainer:
+             # resume the model/optimizer state dict
+             model.load_state_dict(ckpt["model"])
+             self.optimizer.load_state_dict(ckpt["optimizer"])
++            if "scaler" in ckpt:
++                self.scaler.load_state_dict(ckpt["scaler"])
+             self.best_ap = ckpt.pop("best_ap", 0)
+             # resume the training states variables
+             start_epoch = (
+@@ -404,6 +429,7 @@ class Trainer:
+                 "start_epoch": self.epoch + 1,
+                 "model": save_model.state_dict(),
+                 "optimizer": self.optimizer.state_dict(),
++                "scaler": self.scaler.state_dict(),
+                 "best_ap": self.best_ap,
+                 "curr_ap": ap,
+             }

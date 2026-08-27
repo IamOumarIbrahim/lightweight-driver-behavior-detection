@@ -1,0 +1,20 @@
+model: ssdlite_mobilenet_v3_large
+architecture: ssdlite320_mobilenet_v3_large
+num_classes: 2
+input_size: [640, 640]
+input_adaptation: pretrained_320_detector_finetuned_at_frozen_640
+images: data/processed/NIR/images
+train_annotations: data/processed/NIR/coco/dfine/ratio_1to6/instances_train.json
+train_category_id_offset: 1
+val_annotations: data/processed/NIR/coco/evaluation/instances_val.json
+output_dir: runs/NIR/ssdlite_mobilenet_v3_large/ratio_1to6/training
+epochs: 100
+physical_batch_size: 8
+gradient_accumulation_steps: 4
+num_workers: 4
+seed: 13
+amp: true
+augmentation: {horizontal_flip_probability: 0.5}
+optimizer: {type: SGD, lr: 0.15, momentum: 0.9, weight_decay: 0.00004}
+scheduler: {type: MultiStepLR, milestones: [67, 89], gamma: 0.1}
+checkpoint_retention: {best: true, last: true, periodic_every_epochs: 100}

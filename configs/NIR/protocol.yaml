@@ -6,6 +6,11 @@ models:
   - {id: yolo11n, adapter: ultralytics, architecture: YOLO11n}
   - {id: yolo26n, adapter: ultralytics, architecture: YOLO26n}
   - {id: dfine_n, adapter: dfine, architecture: D-FINE-N}
+  - {id: ssdlite_mobilenet_v3_large, adapter: torchvision_ssdlite, architecture: SSDLite-MobileNetV3-Large}
+  - {id: rtdetrv2_s, adapter: rtdetrv2, architecture: RT-DETRv2-S}
+  - {id: yolox_nano, adapter: yolox, architecture: YOLOX-Nano}
+  - {id: yolov10n, adapter: ultralytics, architecture: YOLOv10n}
+  - {id: yolov8n, adapter: ultralytics, architecture: YOLOv8n}
 
 dataset:
   source: Drive&Act NIR
@@ -56,6 +61,9 @@ training:
       optimizer: AdamW
       scheduler: MultiStepLR
       augmentation_stop_epoch: 67
+    torchvision_ssdlite: {optimizer: SGD, scheduler: MultiStepLR, input_adaptation: 640x640}
+    rtdetrv2: {optimizer: AdamW, scheduler: MultiStepLR, augmentation_stop_epoch: 97}
+    yolox: {optimizer: SGD, scheduler: yoloxwarmcos, input_adaptation: 640x640}
 
 evaluation:
   validation_before_test: true

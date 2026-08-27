@@ -13,6 +13,11 @@ def test_nir_protocol_and_fingerprints():
         "yolo11n",
         "yolo26n",
         "dfine_n",
+        "ssdlite_mobilenet_v3_large",
+        "rtdetrv2_s",
+        "yolox_nano",
+        "yolov10n",
+        "yolov8n",
     ]
     assert protocol["training"]["epochs"] == 100
     assert protocol["training"]["seed"] == 13
@@ -28,3 +33,13 @@ def test_nir_protocol_and_fingerprints():
     policy = dfine["train_dataloader"]["dataset"]["transforms"]["policy"]
     assert policy["epoch"] == 67
     assert dfine["train_dataloader"]["collate_fn"]["stop_epoch"] == 67
+
+    ssdlite = load_yaml("configs/NIR/ssdlite/base.yaml")
+    assert ssdlite["input_size"] == [640, 640]
+    assert ssdlite["gradient_accumulation_steps"] == 4
+    assert ssdlite["physical_batch_size"] == 8
+
+    rtdetrv2 = load_yaml("configs/NIR/rtdetrv2/base.yml")
+    assert rtdetrv2["PResNet"]["depth"] == 18
+    assert rtdetrv2["eval_spatial_size"] == [640, 640]
+    assert rtdetrv2["gradient_accumulation_steps"] == 4

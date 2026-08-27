@@ -33,23 +33,39 @@ suppressPackageStartupMessages({
 
 expected_models <- c("yolo11n", "yolo26n", "dfine_n")
 nir_expected_models <- c(
-  "yolo11n", "yolo26n", "dfine_n"
+  "yolo11n", "yolo26n", "dfine_n",
+  "ssdlite_mobilenet_v3_large", "rtdetrv2_s", "yolox_nano",
+  "yolov10n", "yolov8n"
 )
 model_labels <- c(
   yolo11n = "YOLO11n",
   yolo26n = "YOLO26n",
-  dfine_n = "D-FINE-N"
+  dfine_n = "D-FINE-N",
+  ssdlite_mobilenet_v3_large = "SSDLite-MNV3-L",
+  rtdetrv2_s = "RT-DETRv2-S",
+  yolox_nano = "YOLOX-Nano",
+  yolov10n = "YOLOv10n",
+  yolov8n = "YOLOv8n"
 )
 model_colors <- c(
   yolo11n = "#0072B2",
   yolo26n = "#D55E00",
-  dfine_n = "#009E73"
+  dfine_n = "#009E73",
+  ssdlite_mobilenet_v3_large = "#CC79A7",
+  rtdetrv2_s = "#E69F00",
+  yolox_nano = "#56B4E9",
+  yolov10n = "#F0E442",
+  yolov8n = "#6A3D9A"
 )
 model_shapes <- c(
-  yolo11n = 21, yolo26n = 22, dfine_n = 24
+  yolo11n = 21, yolo26n = 22, dfine_n = 24,
+  ssdlite_mobilenet_v3_large = 23, rtdetrv2_s = 25,
+  yolox_nano = 8, yolov10n = 4, yolov8n = 3
 )
 model_linetypes <- c(
-  yolo11n = "solid", yolo26n = "22", dfine_n = "42"
+  yolo11n = "solid", yolo26n = "22", dfine_n = "42",
+  ssdlite_mobilenet_v3_large = "44", rtdetrv2_s = "13",
+  yolox_nano = "1234", yolov10n = "73", yolov8n = "2262"
 )
 source_path <- file.path(
   repo_root,

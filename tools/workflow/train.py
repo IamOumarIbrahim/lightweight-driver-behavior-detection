@@ -20,11 +20,21 @@ from tools.benchmark.paths import (
     NIR_RATIOS,
     NIR_SEED,
     REPO_ROOT,
+    RGB_MODELS,
     RGB_SEEDS,
     run_dir,
 )
 from tools.benchmark.protocol import ProtocolError, load_backends, load_protocol
-from tools.setup.backends import ensure_dfine, ensure_ultralytics, ensure_weight
+from tools.setup.backends import (
+    ensure_dfine,
+    ensure_patched_checkout,
+    ensure_torchvision_ssdlite,
+    ensure_ultralytics,
+    ensure_weight,
+)
+
+
+ULTRALYTICS_MODELS = {"yolo11n", "yolo26n", "yolov10n", "yolov8n"}
 
 
 def append_event(path: Path, event: str, **details: Any) -> None:
@@ -39,12 +49,28 @@ def append_event(path: Path, event: str, **details: Any) -> None:
 
 
 def completed(model: str, training_dir: Path, epochs: int) -> bool:
-    if model.startswith("yolo"):
+    if model in ULTRALYTICS_MODELS:
         results = training_dir / "results.csv"
         return (
             results.is_file()
             and len(results.read_text(encoding="utf-8").splitlines()) - 1 >= epochs
         )
+    if model == "yolox_nano":
+        checkpoint = training_dir / "latest_ckpt.pth"
+        if not checkpoint.is_file():
+            return False
+        import torch
+
+        state = torch.load(checkpoint, map_location="cpu", weights_only=False)
+        return int(state.get("start_epoch", 0)) >= epochs
+    if model == "ssdlite_mobilenet_v3_large":
+        checkpoint = training_dir / "last.pt"
+        if not checkpoint.is_file():
+            return False
+        import torch
+
+        state = torch.load(checkpoint, map_location="cpu", weights_only=False)
+        return int(state.get("epoch", -1)) >= epochs - 1
     log = training_dir / "log.txt"
     if not log.is_file():
         return False
@@ -67,6 +93,8 @@ def build_plan(
     if track == "RGB":
         if seed not in RGB_SEEDS or ratio is not None:
             raise ProtocolError("RGB requires --seed 13, 37, or 73")
+        if model not in RGB_MODELS:
+            raise ProtocolError(f"Model {model} is not frozen for the RGB track")
         identity = {"seed": seed}
         dataset = CONFIGS_ROOT / "RGB" / "yolo" / "dataset.yaml"
         dfine_config = CONFIGS_ROOT / "RGB" / "dfine" / "base.yml"
@@ -82,6 +110,21 @@ def build_plan(
     else:
         raise ProtocolError(f"Unknown track: {track}")
     root = run_dir(track, model, **identity)
+    backend_configs = {
+        "dfine_n": dfine_config,
+        "ssdlite_mobilenet_v3_large": CONFIGS_ROOT
+        / "NIR"
+        / "ssdlite"
+        / f"ratio_{ratio}.yaml",
+        "rtdetrv2_s": CONFIGS_ROOT
+        / "NIR"
+        / "rtdetrv2"
+        / f"ratio_{ratio}.yml",
+        "yolox_nano": CONFIGS_ROOT
+        / "NIR"
+        / "yolox"
+        / f"ratio_{ratio}.py",
+    }
     return {
         "track": track,
         "model": model,
@@ -94,11 +137,12 @@ def build_plan(
         "training_dir": str(root / "training"),
         "dataset": str(dataset),
         "dfine_config": str(dfine_config),
+        "backend_config": str(backend_configs.get(model, dataset)),
     }
 
 
 def require_dataset(plan: dict[str, Any]) -> None:
-    if plan["model"].startswith("yolo"):
+    if plan["model"] in ULTRALYTICS_MODELS:
         import yaml
 
         config = yaml.safe_load(Path(plan["dataset"]).read_text(encoding="utf-8"))
@@ -109,10 +153,15 @@ def require_dataset(plan: dict[str, Any]) -> None:
                 raise ProtocolError(
                     f"Prepared {plan['track']} {split} list is missing: {path}"
                 )
-    elif plan["model"] == "dfine_n":
-        if not Path(plan["dfine_config"]).is_file():
+    elif plan["model"] in {
+        "dfine_n",
+        "ssdlite_mobilenet_v3_large",
+        "rtdetrv2_s",
+        "yolox_nano",
+    }:
+        if not Path(plan["backend_config"]).is_file():
             raise ProtocolError(
-                f"D-FINE configuration is missing: {plan['dfine_config']}"
+                f"Backend configuration is missing: {plan['backend_config']}"
             )
     else:
         raise ProtocolError(f"Unsupported model backend: {plan['model']}")
@@ -229,6 +278,148 @@ def run_dfine(plan: dict[str, Any]) -> None:
             raise subprocess.CalledProcessError(process.returncode, command)
 
 
+def _stream_command(
+    command: list[str], training_dir: Path, *, extra_pythonpath: Path | None = None
+) -> None:
+    environment = os.environ.copy()
+    python_paths = [str(REPO_ROOT)]
+    if extra_pythonpath is not None:
+        python_paths.insert(0, str(extra_pythonpath))
+    if environment.get("PYTHONPATH"):
+        python_paths.append(environment["PYTHONPATH"])
+    environment["PYTHONPATH"] = os.pathsep.join(python_paths)
+    environment["PYTHONUNBUFFERED"] = "1"
+    training_dir.mkdir(parents=True, exist_ok=True)
+    with (training_dir / "launcher.log").open(
+        "a", encoding="utf-8", newline="\n"
+    ) as log:
+        process = subprocess.Popen(
+            command,
+            cwd=REPO_ROOT,
+            env=environment,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+        assert process.stdout is not None
+        for line in process.stdout:
+            print(line, end="")
+            log.write(line)
+            log.flush()
+        if process.wait() != 0:
+            raise subprocess.CalledProcessError(process.returncode, command)
+
+
+def run_ssdlite(plan: dict[str, Any]) -> None:
+    import torch
+
+    if not torch.cuda.is_available():
+        raise ProtocolError("CUDA is required for training")
+    ensure_torchvision_ssdlite()
+    backend = load_backends()["torchvision_ssdlite"]
+    training_dir = Path(plan["training_dir"])
+    last = training_dir / "last.pt"
+    if completed(plan["model"], training_dir, plan["epochs"]):
+        print(f"Already complete; skipping {training_dir}")
+        return
+    if training_dir.exists() and any(training_dir.iterdir()) and not last.is_file():
+        raise ProtocolError(
+            f"Cannot safely resume incomplete directory without last.pt: {training_dir}"
+        )
+    weight = ensure_weight(backend["weight"], False)
+    command = [
+        sys.executable,
+        "-m",
+        "tools.backends.train_ssdlite",
+        "--config",
+        plan["backend_config"],
+        "--pretrained",
+        str(weight["file"]),
+    ]
+    if last.is_file():
+        command.extend(["--resume", str(last)])
+    _stream_command(command, training_dir)
+
+
+def run_rtdetrv2(plan: dict[str, Any]) -> None:
+    import torch
+
+    if not torch.cuda.is_available():
+        raise ProtocolError("CUDA is required for training")
+    ensure_patched_checkout("rtdetrv2", False)
+    backend = load_backends()["rtdetrv2"]
+    training_dir = Path(plan["training_dir"])
+    last = training_dir / "last.pth"
+    if completed(plan["model"], training_dir, plan["epochs"]):
+        print(f"Already complete; skipping {training_dir}")
+        return
+    if training_dir.exists() and any(training_dir.iterdir()) and not last.is_file():
+        raise ProtocolError(
+            f"Cannot safely resume incomplete directory without last.pth: {training_dir}"
+        )
+    checkout = REPO_ROOT / "third_party" / "RT-DETR"
+    command = [
+        sys.executable,
+        str(checkout / "rtdetrv2_pytorch" / "tools" / "train.py"),
+        "--config",
+        plan["backend_config"],
+        "--device",
+        "cuda:0",
+        "--seed",
+        str(plan["seed"]),
+        "--use-amp",
+        "--output-dir",
+        plan["training_dir"],
+        "--summary-dir",
+        str(training_dir / "summary"),
+    ]
+    if last.is_file():
+        command.extend(["--resume", str(last)])
+    else:
+        weight = ensure_weight(backend["weight"], False)
+        command.extend(["--tuning", str(weight["file"])])
+    _stream_command(command, training_dir, extra_pythonpath=checkout / "rtdetrv2_pytorch")
+
+
+def run_yolox(plan: dict[str, Any]) -> None:
+    import torch
+
+    if not torch.cuda.is_available():
+        raise ProtocolError("CUDA is required for training")
+    ensure_patched_checkout("yolox", False)
+    backend = load_backends()["yolox"]
+    checkout = REPO_ROOT / "third_party" / "YOLOX"
+    training_dir = Path(plan["training_dir"])
+    last = training_dir / "latest_ckpt.pth"
+    if completed(plan["model"], training_dir, plan["epochs"]):
+        print(f"Already complete; skipping {training_dir}")
+        return
+    if training_dir.exists() and any(training_dir.iterdir()) and not last.is_file():
+        raise ProtocolError(
+            f"Cannot safely resume incomplete directory without latest_ckpt.pth: {training_dir}"
+        )
+    command = [
+        sys.executable,
+        str(checkout / "tools" / "train.py"),
+        "--exp_file",
+        plan["backend_config"],
+        "--devices",
+        "1",
+        "--batch-size",
+        str(plan["batch"]),
+        "--fp16",
+        "--experiment-name",
+        "training",
+    ]
+    if last.is_file():
+        command.extend(["--resume", "--ckpt", str(last)])
+    else:
+        weight = ensure_weight(backend["weight"], False)
+        command.extend(["--ckpt", str(weight["file"])])
+    _stream_command(command, training_dir, extra_pythonpath=checkout)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--track", required=True, choices=["RGB", "NIR", "rgb", "nir"])
@@ -246,11 +437,13 @@ def main() -> int:
     log_path = Path(plan["run_dir"]) / "events.jsonl"
     append_event(log_path, "training_requested", plan=plan)
     try:
-        runner = (
-            run_yolo
-            if args.model.startswith("yolo")
-            else run_dfine
-        )
+        runners = {
+            "dfine_n": run_dfine,
+            "ssdlite_mobilenet_v3_large": run_ssdlite,
+            "rtdetrv2_s": run_rtdetrv2,
+            "yolox_nano": run_yolox,
+        }
+        runner = run_yolo if args.model in ULTRALYTICS_MODELS else runners[args.model]
         runner(plan)
     except Exception as exc:
         append_event(log_path, "training_failed", error=repr(exc))

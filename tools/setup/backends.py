@@ -144,6 +144,59 @@ def ensure_dfine(install: bool) -> dict[str, str]:
     return {"commit": head, "patch": "applied"}
 
 
+def ensure_patched_checkout(backend: str, install: bool) -> dict[str, str]:
+    """Verify one pinned native repository and its benchmark accumulation patch."""
+
+    spec = load_backends()[backend]
+    checkout = resolve_repo_path(spec["checkout"])
+    if not checkout.exists():
+        if not install:
+            raise ProtocolError(f"Pinned {backend} checkout is missing")
+        checkout.parent.mkdir(parents=True, exist_ok=True)
+        run(["git", "clone", "--filter=blob:none", spec["repository"], str(checkout)])
+        run(["git", "checkout", "--detach", spec["commit"]], checkout)
+    head = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=checkout, text=True
+    ).strip()
+    if head != spec["commit"]:
+        raise ProtocolError(
+            f"{backend} checkout is {head}, expected {spec['commit']}"
+        )
+    recipe = checkout / spec["recipe"]["file"]
+    if sha256_file(recipe) != spec["recipe"]["sha256"]:
+        raise ProtocolError(f"Pinned {backend} official recipe fingerprint mismatch")
+    patch = resolve_repo_path(spec["trainer_patch"])
+    reverse = _run_git_patch(checkout, patch, reverse=True, check_only=True)
+    if reverse.returncode != 0:
+        if not install:
+            raise ProtocolError(f"{backend} accumulation patch is not applied")
+        applied = _run_git_patch(checkout, patch)
+        if applied.returncode != 0:
+            details = applied.stderr.decode("utf-8", errors="replace").strip()
+            raise ProtocolError(f"{backend} accumulation patch failed: {details}")
+        verified = _run_git_patch(checkout, patch, reverse=True, check_only=True)
+        if verified.returncode != 0:
+            raise ProtocolError(f"{backend} accumulation patch verification failed")
+    return {"commit": head, "patch": "applied"}
+
+
+def ensure_torchvision_ssdlite() -> dict[str, str]:
+    spec = load_backends()["torchvision_ssdlite"]
+    try:
+        actual_version = version(spec["package"])
+    except PackageNotFoundError as exc:
+        raise ProtocolError("Pinned Torchvision package is missing") from exc
+    if actual_version != spec["version"]:
+        raise ProtocolError(
+            f"Torchvision is {actual_version}, expected {spec['version']}"
+        )
+    return {
+        "version": actual_version,
+        "model": spec["model"],
+        "input_adaptation": spec["input_adaptation"],
+    }
+
+
 def ensure_weight(spec: dict, install: bool) -> dict[str, str | int]:
     path = resolve_repo_path(spec["file"])
     if not path.exists():
@@ -171,6 +224,9 @@ def main() -> int:
     report = {
         "ultralytics": ensure_ultralytics(args.install),
         "dfine_checkout": ensure_dfine(args.install),
+        "torchvision_ssdlite": ensure_torchvision_ssdlite(),
+        "rtdetrv2_checkout": ensure_patched_checkout("rtdetrv2", args.install),
+        "yolox_checkout": ensure_patched_checkout("yolox", args.install),
         "weights": {},
     }
     for model_id, spec in backends["ultralytics"]["models"].items():
@@ -178,6 +234,10 @@ def main() -> int:
     report["weights"]["dfine_n"] = ensure_weight(
         backends["dfine"]["weight"], args.install
     )
+    for backend in ("torchvision_ssdlite", "rtdetrv2", "yolox"):
+        report["weights"][backends[backend]["model"]] = ensure_weight(
+            backends[backend]["weight"], args.install
+        )
     for key, value in report.items():
         print(f"{key}: {value}")
     print("Backend artifact verification PASSED")

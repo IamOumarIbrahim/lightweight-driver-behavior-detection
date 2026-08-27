@@ -122,7 +122,7 @@ def test_validation_sweep_is_complete_and_path_safe() -> None:
     assert {row["model_id"] for row in rows} == {"yolo11n", "yolo26n"}
 
 
-def test_nir_exposure_figure_is_complete() -> None:
+def test_nir_exposure_figure_tracks_pending_extension_models() -> None:
     source_path = (
         REPO_ROOT
         / "results"
@@ -131,11 +131,17 @@ def test_nir_exposure_figure_is_complete() -> None:
         / "training_negative_exposure_source.json"
     )
     source = json.loads(source_path.read_text(encoding="utf-8"))
-    assert source["status"] == "complete"
+    assert source["status"] == "partial"
     assert source["seed"] == 13
     assert source["ratios"] == ["1:2", "1:6"]
     assert source["completed_models"] == ["yolo11n", "yolo26n", "dfine_n"]
-    assert source["pending_models"] == []
+    assert source["pending_models"] == [
+        "ssdlite_mobilenet_v3_large",
+        "rtdetrv2_s",
+        "yolox_nano",
+        "yolov10n",
+        "yolov8n",
+    ]
     assert len(source["rows"]) == 6
     for row in source["rows"]:
         metrics_path = REPO_ROOT / row["metrics_path"]
@@ -151,6 +157,6 @@ def test_nir_exposure_figure_is_complete() -> None:
         source_path.parent / "figures" / "training_negative_exposure.manifest.json"
     )
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert manifest["status"] == "complete"
+    assert manifest["status"] == "partial"
     assert manifest["models"] == source["completed_models"]
     assert manifest["pending_models"] == source["pending_models"]

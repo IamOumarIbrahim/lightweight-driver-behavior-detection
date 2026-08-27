@@ -4,7 +4,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0"></a>
   <img src="https://img.shields.io/badge/Modality-RGB%20%7C%20NIR-blueviolet?style=flat" alt="Modality: RGB | NIR">
   <img src="https://img.shields.io/badge/Input-640%C3%97640-555?style=flat" alt="Input: 640×640">
-  <img src="https://img.shields.io/badge/NIR%20Detectors-3%20native%20Windows%20systems-4c1?style=flat" alt="Three NIR detector systems">
+  <img src="https://img.shields.io/badge/NIR%20Detectors-8%20native%20Windows%20systems-4c1?style=flat" alt="Eight NIR detector systems">
 </p>
 
 <p align="center">
@@ -28,12 +28,12 @@ How do complete nano detector systems trade single-frame cue localization, false
 
 ### Abstract
 
-This repository benchmarks released lightweight detector systems for bounding-box localization of discrete, momentary visual driver cues. The primary RGB benchmark compares [Ultralytics YOLO11n](https://docs.ultralytics.com/models/yolo11/), [Ultralytics YOLO26n](https://docs.ultralytics.com/models/yolo26), and [D-FINE-N](https://github.com/Peterande/D-FINE) on the [Driver Monitoring Dataset (DMD)](https://dmd.vicomtech.org/). A separate exploratory NIR training-negative exposure study compares the same three systems on [Drive&Act](https://driveandact.com/), with `drinking` and `phone_use` sampled deterministically at each one-second snippet's midpoint. Both tracks use subject-disjoint partitions, validation-only operating-point selection, and confirmation-gated protected testing. The task does not infer temporal fatigue, intent, or driver state.
+This repository benchmarks released lightweight detector systems for bounding-box localization of discrete, momentary visual driver cues. The primary RGB benchmark compares [Ultralytics YOLO11n](https://docs.ultralytics.com/models/yolo11/), [Ultralytics YOLO26n](https://docs.ultralytics.com/models/yolo26), and [D-FINE-N](https://github.com/Peterande/D-FINE) on the [Driver Monitoring Dataset (DMD)](https://dmd.vicomtech.org/). The NIR training-negative exposure extension adds SSDLite-MobileNetV3-Large, RT-DETRv2-S, YOLOX-Nano, YOLOv10n, and YOLOv8n on [Drive&Act](https://driveandact.com/). Both tracks use subject-disjoint partitions, validation-only operating-point selection, and confirmation-gated protected testing. The task does not infer temporal fatigue, intent, or driver state.
 
 ## Current Benchmark Status
 
 > [!IMPORTANT]
-> All nine RGB runs and all six frozen NIR runs are complete.
+> All nine RGB runs and the original six NIR runs are complete. Ten native-Windows NIR extension runs are configured and pending training.
 
 | Track | Model | Conditions | Status |
 | --- | --- | --- | --- |
@@ -41,6 +41,7 @@ This repository benchmarks released lightweight detector systems for bounding-bo
 | RGB | YOLO26n | Seeds 13, 37, 73 | Final |
 | RGB | D-FINE-N | Seeds 13, 37, 73 | Final three-seed result |
 | NIR | YOLO11n, YOLO26n, D-FINE-N | Ratios 1:2 and 1:6, seed 13, 100 epochs | Six protected results published |
+| NIR extension | SSDLite-MobileNetV3-Large, RT-DETRv2-S, YOLOX-Nano, YOLOv10n, YOLOv8n | Ratios 1:2 and 1:6, seed 13, 100 epochs | Ready for sequential training |
 
 See the [results documentation](./docs/results.md) for authoritative values and the [methodology](./docs/methodology.md) for the frozen protocol.
 
@@ -68,7 +69,13 @@ scripts\data\06_check_rgb_dataset.bat
 scripts\data\07_check_nir_dataset.bat
 ```
 
-Published annotations are already under `data/annotations`; dataset frames and trained checkpoints remain local. For the NIR experiment, `scripts\NIR\train_all_six.bat` runs YOLO11n, YOLO26n, and D-FINE-N at ratios 1:2 and 1:6 sequentially for the frozen 100-epoch maximum, with safe resume and logs. Validation and testing are deliberately separate.
+Published annotations are already under `data/annotations`; dataset frames and trained checkpoints remain local. The following PowerShell command verifies the pinned native backends and starts or resumes all 16 NIR jobs sequentially:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\NIR\train_all_sixteen.ps1 -Yes
+```
+
+Validation and protected testing remain deliberately separate.
 
 > [!CAUTION]
 > Dataset licenses govern the source media. This repository redistributes authored annotations and split metadata, not DMD or Drive&Act frames/videos.

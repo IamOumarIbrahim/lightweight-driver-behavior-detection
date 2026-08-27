@@ -1,0 +1,99 @@
+# RT-DETRv2-S (R18VD) adapted to the frozen 640x640 NIR protocol.
+# Ratio files override only the training annotation and output paths.
+__include__:
+  - ../../../third_party/RT-DETR/rtdetrv2_pytorch/configs/dataset/coco_detection.yml
+  - ../../../third_party/RT-DETR/rtdetrv2_pytorch/configs/runtime.yml
+  - ../../../third_party/RT-DETR/rtdetrv2_pytorch/configs/rtdetrv2/include/dataloader.yml
+  - ../../../third_party/RT-DETR/rtdetrv2_pytorch/configs/rtdetrv2/include/optimizer.yml
+  - ../../../third_party/RT-DETR/rtdetrv2_pytorch/configs/rtdetrv2/include/rtdetrv2_r50vd.yml
+
+task: detection
+model: RTDETR
+criterion: RTDETRCriterionv2
+postprocessor: RTDETRPostProcessor
+evaluator:
+  type: CocoEvaluator
+  iou_types: [bbox]
+
+num_classes: 2
+remap_mscoco_category: false
+eval_spatial_size: [640, 640]
+
+PResNet:
+  depth: 18
+  freeze_at: -1
+  freeze_norm: false
+  # Full detector tuning weight is checksum-pinned by configs/backends.yaml.
+  pretrained: false
+
+HybridEncoder:
+  in_channels: [128, 256, 512]
+  hidden_dim: 256
+  expansion: 0.5
+
+RTDETRTransformerv2:
+  num_layers: 3
+
+train_dataloader:
+  type: DataLoader
+  total_batch_size: 8
+  shuffle: true
+  num_workers: 4
+  drop_last: false
+  dataset:
+    type: CocoDetection
+    img_folder: data/processed/NIR/images
+    ann_file: data/processed/NIR/coco/dfine/ratio_1to6/instances_train.json
+    return_masks: false
+    transforms:
+      type: Compose
+      policy:
+        name: stop_epoch
+        epoch: 97
+  collate_fn:
+    type: BatchImageCollateFunction
+    scales: null
+    stop_epoch: 97
+
+val_dataloader:
+  type: DataLoader
+  total_batch_size: 8
+  shuffle: false
+  num_workers: 4
+  drop_last: false
+  dataset:
+    type: CocoDetection
+    img_folder: data/processed/NIR/images
+    ann_file: data/processed/NIR/coco/dfine/evaluation/instances_val.json
+    return_masks: false
+    transforms:
+      type: Compose
+
+epoches: 100
+gradient_accumulation_steps: 4
+use_amp: true
+use_ema: true
+checkpoint_freq: 100
+output_dir: runs/NIR/rtdetrv2_s/ratio_1to6/training
+summary_dir: runs/NIR/rtdetrv2_s/ratio_1to6/training/summary
+seed: 13
+sync_bn: false
+find_unused_parameters: false
+
+optimizer:
+  type: AdamW
+  params:
+    - params: '^(?=.*(?:norm|bn)).*$'
+      weight_decay: 0.0
+  lr: 0.0001
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+
+lr_scheduler:
+  type: MultiStepLR
+  milestones: [1000]
+  gamma: 0.1
+
+lr_warmup_scheduler:
+  type: LinearWarmup
+  warmup_duration: 2000

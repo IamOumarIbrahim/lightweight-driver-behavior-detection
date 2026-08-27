@@ -1,0 +1,3 @@
+__include__: base.yaml
+train_annotations: data/processed/NIR/coco/dfine/ratio_1to6/instances_train.json
+output_dir: runs/NIR/ssdlite_mobilenet_v3_large/ratio_1to6/training
