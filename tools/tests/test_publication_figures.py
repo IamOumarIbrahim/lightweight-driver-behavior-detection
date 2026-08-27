@@ -42,6 +42,20 @@ def test_publication_pipeline_is_ggplot2_only() -> None:
     assert not (REPO_ROOT / "tools" / "publication" / "figures.py").exists()
 
 
+def test_nir_figure_uses_grouped_columns_and_ratio_divider() -> None:
+    script = (REPO_ROOT / "tools" / "publication" / "figures.R").read_text(
+        encoding="utf-8"
+    )
+    start = script.index("build_nir_training_negative_exposure <- function")
+    end = script.index("if (!only_nir)", start)
+    nir_figure = script[start:end]
+
+    assert "geom_col(" in nir_figure
+    assert "geom_vline(" in nir_figure
+    assert "xintercept = 1.5" in nir_figure
+    assert "geom_line(" not in nir_figure
+
+
 def test_r_package_lock_and_figure_hashes() -> None:
     with (REPO_ROOT / "tools" / "publication" / "R-packages.lock.csv").open(
         encoding="utf-8", newline=""

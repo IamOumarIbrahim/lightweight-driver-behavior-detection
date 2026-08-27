@@ -1471,45 +1471,31 @@ build_nir_training_negative_exposure <- function(path) {
     )
 
     return(
-      ggplot(
-        plot_data,
-        aes(
-          x = ratio,
-          y = value,
-          group = model_id,
-          colour = model_id,
-          fill = model_id,
-          shape = model_id,
-          linetype = model_id
-        )
-      ) +
-        geom_line(linewidth = 0.55, position = position_dodge(width = 0.2)) +
-        geom_point(
+      ggplot(plot_data, aes(x = ratio, y = value, fill = model_id)) +
+        geom_vline(
+          xintercept = 1.5,
+          colour = "grey35",
+          linewidth = 0.55
+        ) +
+        geom_col(
           colour = "black",
-          size = 2.15,
-          stroke = 0.4,
-          position = position_dodge(width = 0.2)
+          linewidth = 0.35,
+          width = 0.68,
+          position = position_dodge(width = 0.76)
         ) +
         facet_wrap(~metric, nrow = 1, scales = "free_y") +
         scale_x_discrete(name = "Training positive:negative ratio") +
         scale_y_continuous(
           name = NULL,
           breaks = scales::breaks_pretty(n = 4),
-          expand = expansion(mult = c(0.08, 0.10))
+          limits = c(0, NA),
+          expand = expansion(mult = c(0, 0.10))
         ) +
-        scale_colour_manual(values = model_colors, labels = model_labels) +
         scale_fill_manual(values = model_colors, labels = model_labels) +
-        scale_shape_manual(values = model_shapes, labels = model_labels) +
-        scale_linetype_manual(values = model_linetypes, labels = model_labels) +
         guides(
-          colour = guide_legend(override.aes = list(
-            linetype = unname(model_linetypes[legend_models]),
-            shape = unname(model_shapes[legend_models]),
+          fill = guide_legend(override.aes = list(
             fill = unname(model_colors[legend_models])
-          )),
-          fill = "none",
-          shape = "none",
-          linetype = "none"
+          ))
         ) +
         publication_theme() +
         theme(

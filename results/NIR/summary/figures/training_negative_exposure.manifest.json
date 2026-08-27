@@ -25,15 +25,15 @@
   "outputs": {
     "pdf": {
       "path": "results/NIR/summary/figures/training_negative_exposure.pdf",
-      "sha256": "5bcceec9a511b7aaaa33d66dceb3b116a0ccecb869151fb70dd2405dcd96d0dd"
+      "sha256": "8cde29cc22a983a13d7bd4bad1320fd89d39798252a9e81bec875534e9406900"
     },
     "svg": {
       "path": "results/NIR/summary/figures/training_negative_exposure.svg",
-      "sha256": "a271575a763a36694ed758dc6c08a889ade521fcf81ebd3c52dc468660ae13b7"
+      "sha256": "2859ca6b3100c1afb3eac0bb950f5d83fef48457db54e634e00ed7dcdcaba7a1"
     },
     "png": {
       "path": "results/NIR/summary/figures/training_negative_exposure.png",
-      "sha256": "e157780ac0eb568f994d084008780fbcb8d2527abe1378ac8d948ad66f29c69c"
+      "sha256": "5ff6644b54e3f016f23ef972eac4d6edf9eafd2bdd9b75112eed573e15130b9d"
     }
   },
   "status": "partial",
