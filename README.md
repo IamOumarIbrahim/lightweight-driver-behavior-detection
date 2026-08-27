@@ -69,10 +69,10 @@ scripts\data\06_check_rgb_dataset.bat
 scripts\data\07_check_nir_dataset.bat
 ```
 
-Published annotations are already under `data/annotations`; dataset frames and trained checkpoints remain local. The following PowerShell command verifies the pinned native backends and starts or resumes all 16 NIR jobs sequentially:
+Published annotations are already under `data/annotations`; dataset frames and trained checkpoints remain local. The following PowerShell command verifies the pinned native backends and starts or resumes only the ten pending extension jobs (five new models at two ratios) sequentially. It does not select the six completed YOLO11n, YOLO26n, or D-FINE-N jobs:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\NIR\train_all_sixteen.ps1 -Yes
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\NIR\train_new_ten.ps1 -Yes
 ```
 
 Validation and protected testing remain deliberately separate.

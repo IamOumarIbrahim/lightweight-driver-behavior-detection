@@ -16,6 +16,7 @@ from tools.benchmark.adapters import (
 from tools.benchmark.protocol import ProtocolError, load_backends, model_spec
 from tools.workflow.evaluate import checkpoint_for
 from tools.workflow.train import build_plan
+from tools.workflow.train_new_nir import jobs
 
 
 def test_native_backend_specs_are_pinned() -> None:
@@ -78,6 +79,21 @@ def test_new_training_plans_and_checkpoint_names(tmp_path: Path) -> None:
 def test_extension_models_are_nir_only() -> None:
     with pytest.raises(ProtocolError, match="not frozen for the RGB track"):
         build_plan("RGB", "yolov8n", 13, None)
+
+
+def test_pending_launcher_selects_only_the_ten_new_runs() -> None:
+    selected = jobs()
+    assert len(selected) == 10
+    assert {model for model, _ in selected} == {
+        "ssdlite_mobilenet_v3_large",
+        "rtdetrv2_s",
+        "yolox_nano",
+        "yolov10n",
+        "yolov8n",
+    }
+    assert not {"yolo11n", "yolo26n", "dfine_n"} & {
+        model for model, _ in selected
+    }
 
 
 def test_ssdlite_class_ids_and_validation_annotations_are_one_based(

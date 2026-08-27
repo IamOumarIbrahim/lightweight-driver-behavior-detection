@@ -12,8 +12,8 @@ if (-not (Test-Path -LiteralPath $python -PathType Leaf)) {
 
 Set-Location -LiteralPath $repoRoot
 if (-not $Yes -and -not $DryRun) {
-    $confirmation = Read-Host 'Type TRAIN_ALL_SIXTEEN to continue'
-    if ($confirmation -cne 'TRAIN_ALL_SIXTEEN') {
+    $confirmation = Read-Host 'Type TRAIN_NEW_TEN to continue'
+    if ($confirmation -cne 'TRAIN_NEW_TEN') {
         Write-Host 'Cancelled.'
         exit 3
     }
@@ -26,11 +26,11 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 if ($DryRun) {
-    Write-Host 'Dry-running the 16-job sequential plan...'
-    & $python -m tools.workflow.train_all_nir
+    Write-Host 'Dry-running only the 10 pending NIR extension jobs...'
+    & $python -m tools.workflow.train_new_nir
     exit $LASTEXITCODE
 }
 
-Write-Host 'Starting or safely resuming all 16 NIR jobs sequentially...'
-& $python -m tools.workflow.train_all_nir --execute-training
+Write-Host 'Starting or safely resuming only the 10 pending NIR extension jobs...'
+& $python -m tools.workflow.train_new_nir --execute-training
 exit $LASTEXITCODE
