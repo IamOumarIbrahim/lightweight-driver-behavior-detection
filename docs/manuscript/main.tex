@@ -10,6 +10,7 @@
 \usepackage{xcolor}
 \usepackage{url}
 \usepackage{placeins}
+\usepackage[protrusion=true,expansion=true]{microtype}
 
 \graphicspath{
   {../../results/summary/figures/}
@@ -40,7 +41,7 @@ mishak@sharjah.ac.ae}
 \raggedbottom
 
 \begin{abstract}
-Object detection can localize visible evidence inside a vehicle cabin, but detection accuracy alone does not establish a temporal driver state. We benchmark four discrete driver cues under a subject-disjoint protocol. The red--green--blue (RGB) experiment retains 15,723 Driver Monitoring Dataset frames from 14 drivers, including 12,722 negatives, and evaluates You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N) across three seeds. Confidence selection uses validation only; protected testing reports Common Objects in Context mean average precision (mAP), $F_1$, false detections, and synchronized batch-1 latency. YOLO11n leads $\mathrm{mAP}_{50}$ at $91.79\pm0.44\%$ and throughput at $68.0\pm1.3$ frames per second (FPS); YOLO26n leads $\mathrm{mAP}_{50:95}$ at $56.98\pm0.81\%$; and D-FINE-N leads micro-$F_1$ at $91.14\pm2.66\%$ and macro-$F_1$ at $84.33\pm4.51\%$, but runs slowest at $40.4\pm1.2$ FPS. Subject effects exceed seed variation. The exploratory near-infrared (NIR) study remains \ph. Claims concern visible-cue localization, not temporal fatigue or behavior inference.
+Road traffic injuries remain a leading cause of death worldwide, and driver monitoring systems (DMSs) are increasingly mandated by vehicle-safety assessment programmes. Object detection can spatially localize visible evidence of driver inattention inside a vehicle cabin, yet existing evaluations often lack subject-disjoint splits, retain no negative frames, or select operating points on test data. We present a reproducible benchmark that addresses these gaps. The primary red--green--blue (RGB) experiment retains 15,723 Driver Monitoring Dataset frames from 14 drivers, including 12,722 negatives, and evaluates three nano-scale detection systems --- You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N) --- across three paired seeds under a strict validation-only threshold protocol. No single detector dominates: YOLO11n leads coarse-IoU mean average precision (mAP$_{50}$) at $91.79\pm0.44\%$ and throughput at $68.0\pm1.3$ frames per second (FPS), while D-FINE-N leads micro-$F_1$ at $91.14\pm2.66\%$ but runs slowest at $40.4\pm1.2$ FPS. Between-subject variation exceeds seed variation, and class imbalance materially affects pooled metrics. A secondary near-infrared (NIR) training-negative exposure study remains~\ph. Claims concern visible-cue localization, not temporal fatigue or behavior inference.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -48,9 +49,9 @@ driver monitoring, object detection, subject-disjoint evaluation, visible driver
 \end{IEEEkeywords}
 
 \section{Introduction}
-Driver monitoring systems (DMSs) operate under changes in driver identity, illumination, viewpoint, and occlusion. Whole-frame recognition can describe an activity, but it may also exploit identity or cabin context without showing the visual evidence used for a decision. Object detection provides a complementary formulation: it localizes cue-specific evidence, makes false positives and misses spatially interpretable, and measures detections on frames containing no target cue. A single-frame detector also avoids the latency and architectural complexity of a temporal model when real-time throughput is the experimental focus. This formulation does \emph{not} infer fatigue, intent, duration, or another temporal driver state.
+Road traffic injuries claim approximately 1.19 million lives annually and impose a substantial economic burden worldwide \cite{who2023roadsafety}. In response, Euro NCAP now awards safety-assist credit for camera-based driver monitoring \cite{euroncap2025dms}, accelerating the deployment of in-cabin driver monitoring systems (DMSs). These systems must operate robustly under changes in driver identity, illumination, viewpoint, and occlusion. Whole-frame recognition can describe an activity, but it may also exploit identity or cabin context without showing the visual evidence used for a decision. Object detection provides a complementary formulation: it localizes cue-specific evidence, makes false positives and misses spatially interpretable, and measures detections on frames containing no target cue. A single-frame detector also avoids the latency and architectural complexity of a temporal model when real-time throughput is the experimental focus. This formulation does \emph{not} infer fatigue, intent, duration, or another temporal driver state.
 
-DMD provides multimodal attention and alertness recordings \cite{ortega2020dmd}, while Drive\&Act contains synchronized color, NIR, depth, and pose streams for fine-grained activities \cite{martin2019driveact}. Both contain temporally correlated video and repeated observations of each driver. Evaluation can therefore be optimistic if neighboring frames or identities cross partitions, natural negative frames are removed, the test set determines the confidence threshold, or latency boundaries differ.
+DMD provides multimodal attention and alertness recordings \cite{ortega2020dmd}, while Drive\&Act contains synchronized color, NIR, depth, and pose streams for fine-grained activities \cite{martin2019driveact}. Both contain temporally correlated video and repeated observations of each driver. Evaluation can therefore be optimistic if neighboring frames or identities cross partitions, natural negative frames are removed, the test set determines the confidence threshold, or latency boundaries differ. Existing driver-detection studies on DMD \cite{jain2024dmd} and posture-classification benchmarks such as the State Farm challenge \cite{abouelnaga2018sfdd} further illustrate the diversity of evaluation choices and the difficulty of cross-paper comparison.
 
 Recent work proposes specialized lightweight networks for in-cabin recognition and detection \cite{baheti2020mobilevgg,wang2024mfyolo,li2024yolosgc,jin2025yolo11cr}. Our objective is different: to compare complete, publicly released nano detector systems without task-specific architectural modification. The contributions are:
 \begin{itemize}
@@ -63,10 +64,10 @@ Recent work proposes specialized lightweight networks for in-cabin recognition a
 \subsection{Driver Recognition and Cue Localization}
 MobileVGG and convolution--transformer hybrids demonstrate efficient distracted-driver classification \cite{baheti2020mobilevgg,li2024covit}. PO-GUISE+ uses pose and object guidance for efficient driver-action recognition in Drive\&Act NIR imagery \cite{pizarro2024poguise}. Such whole-frame or temporal recognition tasks are not interchangeable with the present bounding-box task. Here, a correct prediction must identify both a cue class and its spatial evidence in one frame; no temporal state is estimated.
 
-Detection-specific work modifies YOLO backbones, attention, or multiscale aggregation for dangerous-driving or fatigue cues \cite{wang2024mfyolo,li2024yolosgc,jin2025yolo11cr}. Comparative studies assess convolutional neural networks (CNNs) against transformers \cite{koay2021cnnvit} or several YOLO generations \cite{herath2025yolocomparison}. However, differences in driver separation, retained negatives, operating-point calibration, and runtime protocol limit direct cross-paper ranking.
+Detection-specific work modifies YOLO backbones, attention, or multiscale aggregation for dangerous-driving or fatigue cues \cite{wang2024mfyolo,li2024yolosgc,jin2025yolo11cr}. Comparative studies assess convolutional neural networks (CNNs) against transformers \cite{koay2021cnnvit} or several YOLO generations \cite{herath2025yolocomparison}. The YOLO family originates with single-shot grid regression \cite{redmon2016yolo} and has evolved through multiple architectural revisions \cite{bochkovskiy2020yolov4,ultralytics2024yolo11,ultralytics2026}. However, differences in driver separation, retained negatives, operating-point calibration, and runtime protocol limit direct cross-paper ranking.
 
 \subsection{Released Detector Systems}
-The Detection Transformer (DETR) casts object detection as bipartite set prediction \cite{carion2020detr}; the Real-Time Detection Transformer (RT-DETR) makes this formulation practical for real-time use \cite{zhao2024rtdetr}; and D-FINE refines box-edge distributions for improved localization \cite{peng2025dfine}. EfficientDet instead compound-scales an EfficientNet backbone, bidirectional feature pyramid network (BiFPN), and anchor heads \cite{tan2020efficientdet}, while RTMDet is an anchor-free one-stage family built around CSPNeXt and a path-aggregation pyramid \cite{lyu2022rtmdet}. The RGB comparison uses D-FINE-N, YOLO11n, and YOLO26n as shipped systems. The exploratory NIR comparison adds EfficientDet-D1 and RTMDet-Tiny to broaden the architecture families. Native training and inference recipes remain part of each system: the pinned YOLO26 and D-FINE paths are end-to-end, whereas YOLO11n, RTMDet-Tiny, and EfficientDet-D1 retain their required NMS. This is therefore a system-level benchmark, not an isolation of architecture alone.
+The Detection Transformer (DETR) casts object detection as bipartite set prediction \cite{carion2020detr}; the Real-Time Detection Transformer (RT-DETR) makes this formulation practical for real-time use \cite{zhao2024rtdetr}; and D-FINE refines box-edge distributions for improved localization \cite{peng2025dfine}. EfficientDet instead compound-scales an EfficientNet backbone, bidirectional feature pyramid network (BiFPN), and anchor heads \cite{tan2020efficientdet}, while RTMDet is an anchor-free one-stage family built around CSPNeXt and a path-aggregation pyramid \cite{lyu2022rtmdet}. The RGB comparison uses D-FINE-N, YOLO11n \cite{ultralytics2024yolo11}, and YOLO26n \cite{ultralytics2026} as shipped systems. The exploratory NIR comparison adds EfficientDet-D1 and RTMDet-Tiny to broaden the architecture families. Native training and inference recipes remain part of each system: the pinned YOLO26 and D-FINE paths are end-to-end, whereas YOLO11n, RTMDet-Tiny, and EfficientDet-D1 retain their required non-maximum suppression (NMS) \cite{bodla2017softnms}. Recent edge-deployment work demonstrates that such lightweight systems can approach real-time performance on low-cost hardware \cite{ahsani2025edge}. This is therefore a system-level benchmark, not an isolation of architecture alone.
 
 \section{Methodology}
 \subsection{Task Definition and Workflow}
@@ -75,7 +76,7 @@ The task is bounding-box localization of four visible RGB cues: yawning, hand ov
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{protocol_workflow.pdf}
-\caption{End-to-end benchmark workflow with representative annotated DMD and Drive\&Act frames. RGB and NIR share the validation-before-test gate but retain dataset-specific sampling, ontology, seeds, and training conditions. FPS denotes frames per second. The diagram and all subsequent plots were generated with R/ggplot2.}
+\caption{End-to-end benchmark workflow with representative annotated DMD and Drive\&Act frames. RGB and NIR share the validation-before-test gate but retain dataset-specific sampling, ontology, seeds, and training conditions. FPS denotes frames per second.}
 \label{fig:workflow}
 \end{figure*}
 
@@ -107,18 +108,40 @@ An automated COCO audit found 15,723 unique images and 3,001 unique annotations,
 \subsection{Split, Models, and Training}
 An exhaustive $8{:}3{:}3$ subject assignment minimizes the worst relative class-distribution deviation, with root-mean-square deviation as a tie-breaker. The frozen training, validation, and test partitions contain 9,087, 3,423, and 3,213 frames. The three test subjects contribute 1,080, 920, and 1,213 frames and 178, 183, and 253 positives, respectively.
 
-COCO-pretrained YOLO11n, YOLO26n \cite{ultralytics2026}, and D-FINE-N \cite{peng2025dfine} use $640\times640$ input, physical batch size 8, four-step gradient accumulation for an effective batch of 32, 220 epochs, automatic mixed precision (AMP), and no early stopping. A fixed patch normalizes an incomplete final accumulation window by its actual sample count. Native recipes are retained: Ultralytics \texttt{optimizer=auto} with a linear schedule, and the official D-FINE AdamW/MultiStepLR recipe. Seeds $\{13,37,73\}$ were declared in advance, and no run was selected for presentation.
+COCO-pretrained YOLO11n \cite{ultralytics2024yolo11}, YOLO26n \cite{ultralytics2026}, and D-FINE-N \cite{peng2025dfine} use $640\times640$ input, physical batch size 8, four-step gradient accumulation for an effective batch of 32, 220 epochs, automatic mixed precision (AMP), and no early stopping. A fixed patch normalizes an incomplete final accumulation window by its actual sample count. Native recipes are retained: Ultralytics \texttt{optimizer=auto} with a linear schedule, and the official D-FINE AdamW/MultiStepLR recipe. Seeds $\{13,37,73\}$ were declared in advance, and no run was selected for presentation. Table~\ref{tab:settings} consolidates the shared settings.
+
+\begin{table}[t]
+\caption{Shared RGB Training Configuration}
+\label{tab:settings}
+\centering
+\setlength{\tabcolsep}{3.6pt}
+\scriptsize
+\begin{tabular}{ll}
+\toprule
+Setting & Value \\
+\midrule
+Input resolution & $640\times640$ \\
+Physical / effective batch & 8 / 32 (4-step accumulation) \\
+Epochs & 220 (no early stopping) \\
+Precision & AMP (FP16/FP32) \\
+Pretrained backbone & COCO \\
+Seeds & $\{13, 37, 73\}$ (predeclared) \\
+YOLO optimizer & \texttt{auto} + linear schedule \\
+D-FINE optimizer & AdamW + MultiStepLR \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Validation, Test Metrics, and Profiling}
 The best model-native validation checkpoint is retained. Its confidence threshold $\tau^*$ maximizes validation micro-$F_1$ over $[0.01,0.99]$, with higher precision and then higher $\tau$ as tie-breakers. At an intersection over union (IoU) of 0.5, predictions are greedily matched one-to-one within class. Protected testing reports COCO $\mathrm{mAP}_{50}$ and $\mathrm{mAP}_{50:95}$ \cite{lin2014coco}, precision, recall, micro- and macro-$F_1$, and
 \begin{equation}
 \fd=100\frac{\mathrm{FP}_{\mathrm{neg}}}{N_{\mathrm{neg}}},
 \end{equation}
-where $\mathrm{FP}_{\mathrm{neg}}$ is the number of above-threshold false-positive detections on negative frames. Thus, $\fd$ is a static per-frame count, not a modeled nuisance-alert rate; no temporal confirmation or debouncing is applied.
+where $\mathrm{FP}_{\mathrm{neg}}$ is the number of above-threshold false-positive detections on negative frames. We introduce $\fd$ as a simple, interpretable diagnostic: it counts how often the detector fires on frames where no target cue is present. It is a static per-frame count, not a modeled nuisance-alert rate; no temporal confirmation or debouncing is applied.
 
 RGB results are the sample mean and sample standard deviation (SD) over three seeds. Because the subject split is fixed, SD measures optimization variability, not generalization uncertainty across held-out drivers. Each test subject is therefore reported separately, and paired per-seed differences are checked for sign consistency. No significance test is claimed for $n=3$.
 
-The six YOLO passes predate the D-FINE-N extension. D-FINE-N selection remained validation-only and its three manifests were frozen before testing; differing suite identifiers preclude a single mixed-suite aggregate artifact.
+The six YOLO passes were completed before D-FINE-N was added. D-FINE-N selection remained validation-only and its three test manifests were frozen before evaluation; however, because the D-FINE runs were executed in a separate automation suite, the YOLO and D-FINE results are presented together only via the shared test partition, not via a single joint run artifact.
 
 Batch-1 16-bit floating-point (FP16) profiling uses an NVIDIA GeForce RTX 4060 8-GB graphics processing unit (GPU). CUDA synchronization brackets model-forward and tensor-to-final-detection intervals. Disk input/output, decoding, preprocessing, and metric computation are excluded. We report p50 tensor-to-final latency and sustained FPS; these measurements do not represent central-processing-unit or embedded-device deployment.
 
@@ -229,7 +252,7 @@ Future work will add independent multi-annotator review, increase rare-cue and h
 \noindent\textbf{Data and code:} Authored annotations, frozen partitions and checksums, sanitized predictions, evaluation tools, and publication artifacts are available at \url{https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection}; licensed DMD and Drive\&Act media and trained checkpoints remain local under their original access terms.
 
 \FloatBarrier
-\IEEEtriggeratref{9}
+\IEEEtriggeratref{18}
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 
