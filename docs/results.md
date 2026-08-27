@@ -3,7 +3,7 @@
 [← Back to Main README](../README.md)
 
 > [!IMPORTANT]
-> All nine RGB protected passes are complete. The D-FINE-N result is frozen separately because the six earlier YOLO passes retain their original suite ID; all ten NIR cells remain pending.
+> All nine RGB protected passes are complete. The D-FINE-N RGB result is frozen separately because the six earlier YOLO passes retain their original suite ID. Six of ten NIR protected passes are complete; RTMDet-Tiny and EfficientDet-D1 remain pending.
 
 ## RGB Summary
 
@@ -63,15 +63,27 @@ Machine-readable YOLO values are in [`results/RGB/summary`](../results/RGB/summa
 > [!NOTE]
 > D-FINE-N was added after the original six-run YOLO suite had already crossed its protected-test gate. Its checkpoints and thresholds were frozen without test feedback, and its three passes are valid under the expanded nine-run suite. A single combined nine-run aggregate is not claimed because the suite IDs differ.
 
-## Pending Results
+## Completed NIR Subset
+
+All values below are from the seed-13 protected test split after validation-only threshold selection. Macro-F1 is the stored class-presence localization metric; micro-F1 and false detections retain their detection-level definitions. Tensor-to-final latency is batch-1 CUDA AMP FP16 on the RTX 4060 and excludes input/output, decoding, and preprocessing.
+
+| Model | Train Pos:Neg | mAP@0.5:0.95 | Micro-F1 | Macro-F1 | False Det./100 Neg. Frames | Tensor→Det. p50 (ms) |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| YOLO11n | 1:2 | 0.4262 | 0.7191 | 0.6194 | 0.14 | 15.22 |
+| YOLO11n | 1:6 | 0.3707 | 0.6915 | 0.7032 | 0.41 | 13.74 |
+| YOLO26n | 1:2 | 0.3575 | 0.7654 | 0.8362 | 2.17 | 17.11 |
+| YOLO26n | 1:6 | 0.4128 | 0.6596 | 0.6557 | 0.68 | 16.84 |
+| D-FINE-N | 1:2 | **0.4638** | **0.8358** | 0.8025 | 0.54 | 24.58 |
+| D-FINE-N | 1:6 | **0.4630** | **0.7923** | 0.7645 | 0.81 | 24.10 |
+
+Increasing negative exposure does not have a uniform strict-IoU effect in the completed subset and lowers micro-F1 for all three systems. These are within-model exposure comparisons, not a controlled RGB-versus-NIR modality comparison or a final five-system rank.
+
+## Remaining NIR Results
 
 | Track | Model | Required Runs | Publication Status |
 | --- | --- | --- | --- |
-| NIR | YOLO11n | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
-| NIR | YOLO26n | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
 | NIR | RTMDet-Tiny | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
 | NIR | EfficientDet-D1 | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
-| NIR | D-FINE-N | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
 
 > [!NOTE]
-> NIR comparisons and figures will be finalized only after those runs produce checksum-backed files under `results/NIR`. RGB and NIR remain separate experiments rather than a controlled cross-spectral comparison.
+> The NIR figure shows the six completed cells and omits the four pending cells. It will become the final five-system comparison only after the remaining runs produce checksum-backed files under `results/NIR`.

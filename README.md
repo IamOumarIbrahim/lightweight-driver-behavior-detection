@@ -33,14 +33,15 @@ This repository benchmarks released lightweight detector systems for bounding-bo
 ## Current Benchmark Status
 
 > [!IMPORTANT]
-> All nine RGB runs are complete. D-FINE-N's three protected passes are frozen under the expanded nine-run suite; the ten NIR runs remain outstanding.
+> All nine RGB runs are complete. Six of ten NIR protected passes are also complete and checksum-published for YOLO11n, YOLO26n, and D-FINE-N; RTMDet-Tiny and EfficientDet-D1 remain pending.
 
 | Track | Model | Conditions | Status |
 | --- | --- | --- | --- |
 | RGB | YOLO11n | Seeds 13, 37, 73 | Final |
 | RGB | YOLO26n | Seeds 13, 37, 73 | Final |
 | RGB | D-FINE-N | Seeds 13, 37, 73 | Final three-seed result |
-| NIR | Five models | Ratios 1:2 and 1:6, seed 13, 100 epochs | Ten resumable launchers ready; results pending |
+| NIR | YOLO11n, YOLO26n, D-FINE-N | Ratios 1:2 and 1:6, seed 13, 100 epochs | Six protected results published |
+| NIR | RTMDet-Tiny, EfficientDet-D1 | Ratios 1:2 and 1:6, seed 13, 100 epochs | Four runs pending |
 
 See the [results documentation](./docs/results.md) for authoritative values and the [methodology](./docs/methodology.md) for the frozen protocol.
 

@@ -1,4 +1,6 @@
 # NIR Results
 
-Results will be organized by model and `ratio_1to2` or `ratio_1to6` after all
-ten fixed 100-epoch, validation-first, confirmation-gated test runs finish.
+Six checksum-backed protected results are published by model and
+`ratio_1to2`/`ratio_1to6` for YOLO11n, YOLO26n, and D-FINE-N. RTMDet-Tiny and
+EfficientDet-D1 remain pending. The publication aggregate deliberately supports
+this partial state without imputing the four missing cells.

@@ -1,6 +1,6 @@
 # Publication Tools
 
-`figures.R` uses pinned R and ggplot2 to convert frozen and explicitly pending
+`figures.R` uses pinned R and ggplot2 to convert frozen and explicitly partial
 publication sources into IEEE-sized PDF and SVG figures plus 600-DPI PNG
 previews. `R-runtime.lock.json` and `R-packages.lock.csv` freeze the complete
 local figure environment. `pdf_metadata.py` normalizes only Cairo PDF metadata
@@ -17,3 +17,8 @@ seed metrics from those public predictions. `analyze_rgb_validation.py`
 converts the six frozen validation outputs into a public threshold sweep without
 publishing local paths. None of these utilities loads a model or performs
 inference.
+
+`analyze_nir.py` verifies the identity, hashes, CUDA profile, and paired-ratio
+completeness of every available NIR protected result, then writes the path-safe
+partial or complete source consumed by the NIR figure. It never reads local
+checkpoints, predictions, or protected annotations.

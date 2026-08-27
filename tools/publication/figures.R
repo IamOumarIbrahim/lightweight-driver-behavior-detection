@@ -1823,7 +1823,13 @@ nir_completed_models <- if (length(nir_payload$rows) > 0L) {
 nir_pending_models <- nir_expected_models[
   !nir_expected_models %in% nir_completed_models
 ]
-nir_status <- if (length(nir_pending_models) == 0L) "complete" else "pending"
+nir_status <- if (length(nir_pending_models) == 0L) {
+  "complete"
+} else if (length(nir_completed_models) == 0L) {
+  "pending"
+} else {
+  "partial"
+}
 
 nir_outputs <- export_figure(
   build_nir_training_negative_exposure(nir_source_path),

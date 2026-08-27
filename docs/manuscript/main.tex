@@ -1,4 +1,10 @@
 % Expanded IEEE review draft. Final submission will be compressed after all runs.
+% AUTHOR/LLM EDITING GUARDRAIL: The present prose, structure, citations, and
+% formatting are intentional. Preserve them and make only surgical changes for
+% checksum-verified results or an explicit author request. Do not rewrite,
+% reorder, retitle, restyle, or broadly "improve" untouched sections. Never
+% infer missing results: keep incomplete NIR systems explicitly pending. Before
+% committing, inspect the focused diff and rebuild the at-most-six-page PDF.
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
 
@@ -17,7 +23,6 @@
   {../../results/RGB/summary/figures/}
   {../../results/NIR/summary/figures/}
 }
-\newcommand{\ph}{\textbf{[PLACEHOLDER]}}
 \newcommand{\fd}{\mathrm{FD}_{100}}
 
 \begin{document}
@@ -41,7 +46,7 @@ mishak@sharjah.ac.ae}
 \raggedbottom
 
 \begin{abstract}
-Road traffic injuries remain a leading cause of death worldwide, and driver monitoring systems (DMSs) are increasingly mandated by vehicle-safety assessment programmes. Object detection can spatially localize visible evidence of driver inattention inside a vehicle cabin, yet existing evaluations often lack subject-disjoint splits, retain no negative frames, or select operating points on test data. We present a reproducible benchmark that addresses these gaps. The primary red--green--blue (RGB) experiment retains 15,723 Driver Monitoring Dataset frames from 14 drivers, including 12,722 negatives, and evaluates three nano-scale detection systems --- You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N) --- across three paired seeds under a strict validation-only threshold protocol. No single detector dominates: YOLO11n leads coarse-IoU mean average precision (mAP$_{50}$) at $91.79\pm0.44\%$ and throughput at $68.0\pm1.3$ frames per second (FPS), while D-FINE-N leads micro-$F_1$ at $91.14\pm2.66\%$ but runs slowest at $40.4\pm1.2$ FPS. Between-subject variation exceeds seed variation, and class imbalance materially affects pooled metrics. A secondary near-infrared (NIR) training-negative exposure study remains~\ph. Claims concern visible-cue localization, not temporal fatigue or behavior inference.
+Road traffic injuries remain a leading cause of death worldwide, and driver monitoring systems (DMSs) are increasingly mandated by vehicle-safety assessment programmes. Object detection can spatially localize visible evidence of driver inattention inside a vehicle cabin, yet existing evaluations often lack subject-disjoint splits, retain no negative frames, or select operating points on test data. We present a reproducible benchmark that addresses these gaps. The primary red--green--blue (RGB) experiment retains 15,723 Driver Monitoring Dataset frames from 14 drivers, including 12,722 negatives, and evaluates three nano-scale detection systems --- You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N) --- across three paired seeds under a strict validation-only threshold protocol. No single detector dominates: YOLO11n leads coarse-IoU mean average precision (mAP$_{50}$) at $91.79\pm0.44\%$ and throughput at $68.0\pm1.3$ frames per second (FPS), while D-FINE-N leads micro-$F_1$ at $91.14\pm2.66\%$ but runs slowest at $40.4\pm1.2$ FPS. Between-subject variation exceeds seed variation, and class imbalance materially affects pooled metrics. In the completed three-system subset of the secondary near-infrared (NIR) exposure study, 1:6 negative exposure produces no consistent strict-IoU gain, while D-FINE-N leads strict-IoU AP and micro-$F_1$ at both exposures; two systems remain pending. Claims concern visible-cue localization, not temporal fatigue or behavior inference.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -152,7 +157,7 @@ A fixed $9{:}3{:}3$ subject partition is shared across all ten model--condition 
 
 All runs use physical batch 8, four-step accumulation, a fixed 100-epoch maximum without early stopping, and the best model-native validation checkpoint. Native optimizers and schedules are retained. The D-FINE augmentation transition is placed at epoch 67; RTMDet switches from cached Mosaic/MixUp to its weak stage at epoch 93; and EfficientDet retains momentum optimization, cosine decay, warm-up, and exponential moving average. The 1:2 and 1:6 conditions produce 2,600 and 6,000 optimizer updates, respectively. Thus, 1:6 has three times the unique negatives and approximately 2.31 times the optimization updates. It is consequently a \emph{training-negative exposure study}, not a causal class-ratio ablation under matched training signal.
 
-All NIR jobs use seed 13, and operating metrics follow the RGB protocol. Since one frame represents each snippet, frame- and snippet-level decisions coincide; equivalent snippet metrics are not duplicated in the publication tables.
+All NIR jobs use seed 13, and operating metrics follow the RGB protocol. Since one frame represents each snippet, no temporal aggregation is performed. Micro-$F_1$ and $\fd$ retain the detection-level definitions above; macro-$F_1$ uses the stored class-presence localization metric, in which repeated same-class detections on a frame count once.
 
 \section{Results and Analysis}
 \subsection{Aggregate RGB Results}
@@ -193,15 +198,17 @@ Averaged across seeds, YOLO11n micro-$F_1$ is 94.94\%, 62.41\%, and 94.72\% for 
 \subsection{Qualitative Error Analysis}
 Figure~\ref{fig:qual} shows predeclared seed-13 examples from frozen predictions for all three RGB detectors. Correct detections localize the intended interaction, while the false-negative examples expose glare and small drinking targets. More importantly, nominal negatives can appear visually cue-like. They may reflect difficult ontology boundaries or missed labels, so the structural annotation audit alone cannot establish semantic validity. The examples are retained because they expose the benchmark's principal annotation risk.
 
-\begin{figure*}[t]
+\begin{figure}[t]
 \centering
-\includegraphics[width=0.52\textwidth]{qualitative_examples.pdf}
+\includegraphics[width=\columnwidth]{qualitative_examples.pdf}
 \caption{Representative seed-13 outcomes for YOLO11n, YOLO26n, and D-FINE-N. Green boxes denote ground truth and orange boxes denote predictions at the validation-selected threshold; columns show a correct localization, a false detection on a nominal negative, and a false negative.}
 \label{fig:qual}
-\end{figure*}
+\end{figure}
 
 \subsection{Exploratory NIR Results}
-Table~\ref{tab:nirresults} and Fig.~\ref{fig:nir} reserve the final ten protected-test results. Both artifacts are deliberately marked pending; no value is imputed from RGB or validation. The final analysis will compare each model only between its 1:2 and 1:6 training-negative exposures using the same deterministic midpoint frame for every condition.
+Six of ten protected NIR passes are complete. Table~\ref{tab:nirresults} reports both exposures for YOLO11n, YOLO26n, and D-FINE-N, while Fig.~\ref{fig:nir} plots the same checksum-backed results. RTMDet-Tiny and EfficientDet-D1 remain pending; no value is imputed from RGB or validation.
+
+Within the completed subset, increasing negative exposure from 1:2 to 1:6 changes $\mathrm{mAP}_{50:95}$ by $-5.55$, $+5.52$, and $-0.08$ percentage points for YOLO11n, YOLO26n, and D-FINE-N, respectively, but lowers micro-$F_1$ for all three. The direction is therefore model-dependent rather than a uniform benefit of 1:6 exposure. D-FINE-N has the highest strict-IoU AP and micro-$F_1$ at both ratios, with higher tensor-to-final latency than either completed YOLO system.
 
 \begin{table}[t]
 \caption{Exploratory NIR Test Results at Seed 13}
@@ -213,26 +220,26 @@ Table~\ref{tab:nirresults} and Fig.~\ref{fig:nir} reserve the final ten protecte
 \toprule
 Model & Neg. & $\mathrm{mAP}_{50:95}$ & Micro-$F_1$ & Macro-$F_1$ & $\fd$ & p50 \\
 \midrule
-YOLO11n & 1:2 & \multicolumn{5}{c}{\ph} \\
-YOLO11n & 1:6 & \multicolumn{5}{c}{\ph} \\
-YOLO26n & 1:2 & \multicolumn{5}{c}{\ph} \\
-YOLO26n & 1:6 & \multicolumn{5}{c}{\ph} \\
-RTMDet-Tiny & 1:2 & \multicolumn{5}{c}{\ph} \\
-RTMDet-Tiny & 1:6 & \multicolumn{5}{c}{\ph} \\
-EfficientDet-D1 & 1:2 & \multicolumn{5}{c}{\ph} \\
-EfficientDet-D1 & 1:6 & \multicolumn{5}{c}{\ph} \\
-D-FINE-N & 1:2 & \multicolumn{5}{c}{\ph} \\
-D-FINE-N & 1:6 & \multicolumn{5}{c}{\ph} \\
+YOLO11n & 1:2 & 42.62 & 71.91 & 61.94 & 0.14 & 15.22 \\
+YOLO11n & 1:6 & 37.07 & 69.15 & 70.32 & 0.41 & 13.74 \\
+YOLO26n & 1:2 & 35.75 & 76.54 & 83.62 & 2.17 & 17.11 \\
+YOLO26n & 1:6 & 41.28 & 65.96 & 65.57 & 0.68 & 16.84 \\
+RTMDet-Tiny & 1:2 & \multicolumn{5}{c}{\textit{Pending}} \\
+RTMDet-Tiny & 1:6 & \multicolumn{5}{c}{\textit{Pending}} \\
+EfficientDet-D1 & 1:2 & \multicolumn{5}{c}{\textit{Pending}} \\
+EfficientDet-D1 & 1:6 & \multicolumn{5}{c}{\textit{Pending}} \\
+D-FINE-N & 1:2 & 46.38 & 83.58 & 80.25 & 0.54 & 24.58 \\
+D-FINE-N & 1:6 & 46.30 & 79.23 & 76.45 & 0.81 & 24.10 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{figure*}[t]
+\begin{figure}[t]
 \centering
-\includegraphics[width=0.58\textwidth]{training_negative_exposure.pdf}
-\caption{Pending inventory for ten NIR seed-13 runs at deterministic 1-FPS midpoint sampling. Final panels will show strict-IoU accuracy, macro-$F_1$, and false detections per 100 negative frames.}
+\includegraphics[width=\columnwidth]{training_negative_exposure.pdf}
+\caption{Six completed NIR protected-test results at seed 13 and deterministic 1-FPS midpoint sampling. Lines connect each completed model's 1:2 and 1:6 training exposures; RTMDet-Tiny and EfficientDet-D1 remain pending.}
 \label{fig:nir}
-\end{figure*}
+\end{figure}
 
 \section{Discussion}
 \subsection{Accuracy--Efficiency Trade-offs}
@@ -245,7 +252,7 @@ The phone-use majority is a real benchmark characteristic and a limitation for p
 Subject-disjoint evaluation reduces identity leakage but does not establish population-level generalization from only 14 drivers and three held-out test identities. A single annotator and one pass provide internally consistent data but no independent semantic agreement estimate; the qualitative nominal-negative case makes this concrete. Correlated frames remain within RGB recordings, and single-frame detection neither estimates temporal fatigue nor models alert debouncing. NIR avoids within-snippet duplication through one midpoint frame, but 1-FPS sampling does not characterize motion within the second. NIR additionally differs in dataset, ontology, annotation source, and preprocessing, uses one seed, and changes negative diversity together with training steps. It cannot be interpreted as a controlled RGB-versus-NIR modality effect. Finally, RTX 4060 timing excludes preprocessing and is not an embedded-hardware measurement. These boundaries define what the benchmark supports without removing its value as a transparent, reproducible comparison.
 
 \section{Conclusion and Future Work}
-The RGB comparison establishes a system-level trade-off: YOLO11n leads coarse-IoU accuracy and throughput, YOLO26n leads strict-IoU AP and compactness, and D-FINE-N leads pooled and class-balanced $F_1$ but is slowest. Class, subject, and suite-extension evidence prevent a universal winner or jointly frozen nine-run claim. NIR findings remain \ph.
+The RGB comparison establishes a system-level trade-off: YOLO11n leads coarse-IoU accuracy and throughput, YOLO26n leads strict-IoU AP and compactness, and D-FINE-N leads pooled and class-balanced $F_1$ but is slowest. Class, subject, and suite-extension evidence prevent a universal winner or jointly frozen nine-run claim. The six completed NIR passes show no consistent strict-IoU benefit from 1:6 exposure, and micro-$F_1$ decreases for all three completed systems; D-FINE-N leads this subset at both ratios. RTMDet-Tiny and EfficientDet-D1 remain pending, so this is not a final five-system ranking.
 
 Future work will add independent multi-annotator review, increase rare-cue and held-out-driver coverage, repeat the benchmark across subject partitions and external cabins, and test class-balanced or matched-step training. Temporal alert logic will connect frame localization to user-facing warnings. The NIR study will be strengthened with matched optimization exposure and additional seeds, while embedded-device profiling will include preprocessing and end-to-end input latency. These extensions directly target the uncertainty exposed by the present class, subject, and qualitative analyses.
 

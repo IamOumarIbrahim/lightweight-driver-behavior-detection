@@ -4,9 +4,11 @@
 
 Run `analyze_rgb_validation.bat` to derive a path-safe validation threshold
 sweep from the six frozen YOLO validation outputs; it does not load a model or
-perform inference. Then run `build_figures.bat`. The pinned project-local R and
-ggplot2 runtime creates IEEE-sized PDF and SVG figures plus 600-DPI PNG previews
-for the shared workflow, RGB results, and pending NIR study. Missing R
+perform inference. Run `analyze_nir.bat` to rebuild the partial or complete NIR
+figure source from checksum-backed protected results. Then run
+`build_figures.bat`. The pinned project-local R and ggplot2 runtime creates
+IEEE-sized PDF and SVG figures plus 600-DPI PNG previews for the shared
+workflow, RGB results, and NIR study. Missing R
 dependencies are installed automatically under ignored `third_party`.
 
 ## RGB Predictions and Secondary Analysis

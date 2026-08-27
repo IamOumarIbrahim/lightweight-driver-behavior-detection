@@ -11,31 +11,32 @@
     "png": "0.1.9"
   },
   "source": "results/NIR/summary/training_negative_exposure_source.json",
-  "source_sha256": "829526b36c3141343ca35c2160228fefd338055b4471275f1d3cb4373b8c9e58",
-  "models": [],
-  "pending_models": [
+  "source_sha256": "f9d6444abfcd6331c45a073c54d595d4e614d34122893c551373779aa5dea9f5",
+  "models": [
     "yolo11n",
     "yolo26n",
-    "rtmdet_tiny",
-    "efficientdet_d1",
     "dfine_n"
+  ],
+  "pending_models": [
+    "rtmdet_tiny",
+    "efficientdet_d1"
   ],
   "dispersion": "sample_standard_deviation",
   "outputs": {
     "pdf": {
       "path": "results/NIR/summary/figures/training_negative_exposure.pdf",
-      "sha256": "0f4907ccbe727ad2c71bb06c26dc91fb6269e8463bca75396422df39197a2b57"
+      "sha256": "5bcceec9a511b7aaaa33d66dceb3b116a0ccecb869151fb70dd2405dcd96d0dd"
     },
     "svg": {
       "path": "results/NIR/summary/figures/training_negative_exposure.svg",
-      "sha256": "8c94a78953ee12b571f8bfb8dac0f4e4752cd89903f9f7870bba399e285817fb"
+      "sha256": "a271575a763a36694ed758dc6c08a889ade521fcf81ebd3c52dc468660ae13b7"
     },
     "png": {
       "path": "results/NIR/summary/figures/training_negative_exposure.png",
-      "sha256": "30eedf5eb86eae36c4e98f0d758adb200c9d2346d1c1891ad380cbad3da6811c"
+      "sha256": "e157780ac0eb568f994d084008780fbcb8d2527abe1378ac8d948ad66f29c69c"
     }
   },
-  "status": "pending",
+  "status": "partial",
   "seed": 13,
   "ratios": [
     "1:2",

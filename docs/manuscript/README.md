@@ -9,7 +9,9 @@ Do not keep alternate compiled PDFs in this directory. Run
 auxiliaries are ignored.
 
 > [!IMPORTANT]
-> The exact `[PLACEHOLDER]` markers reserve only tightly bounded results and
-> conclusions that depend on unfinished NIR runs. Replace them
-> only from checksum-frozen aggregate results, then rebuild and verify that the
-> paper remains at most six pages, including references.
+> Preserve the draft's wording, structure, citations, and formatting. The
+> editing guardrail at the top of `main.tex` applies to human and automated
+> updates: make only surgical changes backed by checksum-frozen results or an
+> explicit author request. The table's `Pending` cells belong to unfinished NIR
+> runs and must never be inferred. Rebuild after every applicable update and
+> verify that the paper remains at most six pages, including references.

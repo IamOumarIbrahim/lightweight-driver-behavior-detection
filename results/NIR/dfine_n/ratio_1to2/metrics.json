@@ -1,0 +1,130 @@
+{
+  "checkpoint_bytes_local": 60797270,
+  "checkpoint_sha256": "6d141f6244676c38e611e7f9f9c32616aa2009a7971f54739037be9a5acd9f67",
+  "coco_metrics": {
+    "implementation": "pycocotools",
+    "map_50": 0.8001453646523715,
+    "map_50_95": 0.4638467461828727,
+    "per_class_ap_50_95": {
+      "drinking": 0.4278390192845133,
+      "phone_use": 0.49985447308123215
+    }
+  },
+  "created_at_utc": "2026-08-27T11:34:48.357298+00:00",
+  "flop_estimates": {
+    "interpretation": "Tool-dependent estimates; disagreement indicates operator-coverage uncertainty.",
+    "thop": {
+      "flops": 7434590400,
+      "method": "ultralytics-thop MACs multiplied by 2",
+      "status": "estimated"
+    },
+    "torch_profiler": {
+      "flops": 13492300054,
+      "method": "torch.profiler with_flops operator sum",
+      "status": "estimated"
+    }
+  },
+  "model": "dfine_n",
+  "operating_point": {
+    "far_per_100_negative_frames": 0.5412719891745602,
+    "fn": 27,
+    "fp": 6,
+    "fp_detections_on_negative_frames": 4,
+    "iou_threshold": 0.5,
+    "micro_f1": 0.835820895522388,
+    "negative_frames": 739,
+    "precision": 0.9333333333333333,
+    "recall": 0.7567567567567568,
+    "threshold": 0.71,
+    "tp": 84
+  },
+  "parameters": 3723691,
+  "ratio": "1to2",
+  "runtime_profile": {
+    "batch_size": 1,
+    "environment": {
+      "compute_capability": "8.9",
+      "cuda_available": true,
+      "cuda_runtime": "12.1",
+      "cudnn": 90100,
+      "gpu": "NVIDIA GeForce RTX 4060",
+      "gpu_total_bytes": 8585216000,
+      "platform": "Windows-11-10.0.26200-SP0",
+      "python": "3.12.10",
+      "torch": "2.4.1+cu121"
+    },
+    "input_shape": [
+      1,
+      3,
+      640,
+      640
+    ],
+    "model_and_input_storage": "fp32",
+    "model_forward": {
+      "boundary": "preprocessed_tensor_to_raw_model_output",
+      "p50_ms": 22.33518409729004,
+      "p95_ms": 28.994393825531002,
+      "p99_ms": 44.62215713500974,
+      "sustained_fps": 42.482390423303634,
+      "timed_frames": 850,
+      "timing": "synchronized_cuda_events",
+      "total_ms": 20008.290294647217
+    },
+    "peak_allocated_vram_bytes": 69999616,
+    "precision": "fp16_autocast",
+    "precision_mode": "cuda_amp_fp16",
+    "tensor_to_final_detections": {
+      "boundary": "preprocessed_tensor_to_normalized_detections_including_required_postprocessing",
+      "p50_ms": 24.581499998021172,
+      "p95_ms": 32.14235000086773,
+      "p99_ms": 55.31961700129614,
+      "sustained_fps": 38.13968268415645,
+      "timed_frames": 850,
+      "timing": "synchronized_high_resolution_wall_clock",
+      "total_ms": 22286.498999979813
+    },
+    "warmup_passes": 10
+  },
+  "schema_version": 1,
+  "seed": null,
+  "snippet_operating_point": {
+    "aggregation": "any_frame_same_class_iou_match_repeated_class_counts_once",
+    "false_positive_snippets": 3,
+    "false_positive_snippets_per_100_negative_snippets": 0.4059539918809202,
+    "fn": 27,
+    "fp": 4,
+    "frames_per_snippet": 1,
+    "iou_threshold": 0.5,
+    "macro_f1": 0.8024916013437849,
+    "micro_f1": 0.8442211055276383,
+    "negative_snippets": 739,
+    "per_class": {
+      "drinking": {
+        "f1": 0.7234042553191489,
+        "fn": 11,
+        "fp": 2,
+        "precision": 0.8947368421052632,
+        "recall": 0.6071428571428571,
+        "tp": 17
+      },
+      "phone_use": {
+        "f1": 0.881578947368421,
+        "fn": 16,
+        "fp": 2,
+        "precision": 0.9710144927536232,
+        "recall": 0.8072289156626506,
+        "tp": 67
+      }
+    },
+    "precision": 0.9545454545454546,
+    "recall": 0.7567567567567568,
+    "snippets": 850,
+    "threshold": 0.71,
+    "tp": 84
+  },
+  "test_ground_truth_sha256": "52c1c50ea2c2c02c9ea1ad28156611a2bd28505a673a2c3ac75ceb52b64e3a0f",
+  "test_predictions_sha256": "496db60366251db3f7b2253bc2403623a97600a28141012625a5190da24f6337",
+  "track": "NIR",
+  "training_seed": 13,
+  "validation_manifest_sha256": "8df2a215c3cb156e1ccd419d5f33344adf72d510dc2c3e33eec4e48848850bb7"
+}

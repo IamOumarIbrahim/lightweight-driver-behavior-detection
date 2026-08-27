@@ -93,7 +93,7 @@ def test_validation_sweep_is_complete_and_path_safe() -> None:
     assert {row["model_id"] for row in rows} == {"yolo11n", "yolo26n"}
 
 
-def test_nir_exposure_figure_is_explicitly_pending() -> None:
+def test_nir_exposure_figure_tracks_partial_completion() -> None:
     source_path = (
         REPO_ROOT
         / "results"
@@ -102,7 +102,26 @@ def test_nir_exposure_figure_is_explicitly_pending() -> None:
         / "training_negative_exposure_source.json"
     )
     source = json.loads(source_path.read_text(encoding="utf-8"))
-    assert source["status"] == "pending"
+    assert source["status"] == "partial"
     assert source["seed"] == 13
     assert source["ratios"] == ["1:2", "1:6"]
-    assert source["rows"] == []
+    assert source["completed_models"] == ["yolo11n", "yolo26n", "dfine_n"]
+    assert source["pending_models"] == ["rtmdet_tiny", "efficientdet_d1"]
+    assert len(source["rows"]) == 6
+    for row in source["rows"]:
+        metrics_path = REPO_ROOT / row["metrics_path"]
+        assert metrics_path.is_file()
+        assert sha256(metrics_path) == row["metrics_sha256"]
+        assert 0 < row["map_50_95"] < 1
+        assert 0 < row["micro_f1"] < 1
+        assert 0 < row["macro_f1"] < 1
+        assert row["false_detections_per_100_negative_frames"] >= 0
+        assert row["tensor_to_final_p50_ms"] > 0
+        assert row["tensor_to_final_sustained_fps"] > 0
+    manifest_path = (
+        source_path.parent / "figures" / "training_negative_exposure.manifest.json"
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["status"] == "partial"
+    assert manifest["models"] == source["completed_models"]
+    assert manifest["pending_models"] == source["pending_models"]
