@@ -53,6 +53,12 @@ def test_nir_figure_uses_grouped_columns_and_ratio_divider() -> None:
     assert "geom_col(" in nir_figure
     assert "geom_vline(" in nir_figure
     assert "xintercept = 1.5" in nir_figure
+    assert "ratio_means <- aggregate(" in nir_figure
+    assert "geom_segment(" in nir_figure
+    assert 'colour = "red3"' in nir_figure
+    assert "linewidth = 1.1" in nir_figure
+    assert 'ratio_means$ratio == "1:2", 0.5, 1.5' in nir_figure
+    assert 'ratio_means$ratio == "1:2", 1.5, 2.5' in nir_figure
     assert "geom_line(" not in nir_figure
 
 

@@ -86,4 +86,4 @@ Increasing negative exposure does not have a uniform strict-IoU effect in the co
 | NIR | EfficientDet-D1 | Ratios 1:2, 1:6; seed 13; 100 epochs; deterministic 1-FPS midpoint | Awaiting training, validation, test |
 
 > [!NOTE]
-> The NIR figure shows the six completed cells and omits the four pending cells. It will become the final five-system comparison only after the remaining runs produce checksum-backed files under `results/NIR`.
+> The NIR figure shows the six completed cells and omits the four pending cells. Within each metric panel, a thick red segment spans each ratio section at the arithmetic mean of its three completed models. The figure will become the final five-system comparison only after the remaining runs produce checksum-backed files under `results/NIR`.

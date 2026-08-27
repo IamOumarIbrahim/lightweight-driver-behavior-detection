@@ -1469,6 +1469,13 @@ build_nir_training_negative_exposure <- function(path) {
       nir_expected_models,
       unique(as.character(plot_data$model_id))
     )
+    ratio_means <- aggregate(
+      value ~ ratio + metric,
+      data = plot_data,
+      FUN = mean
+    )
+    ratio_means$x_start <- ifelse(ratio_means$ratio == "1:2", 0.5, 1.5)
+    ratio_means$x_end <- ifelse(ratio_means$ratio == "1:2", 1.5, 2.5)
 
     return(
       ggplot(plot_data, aes(x = ratio, y = value, fill = model_id)) +
@@ -1483,8 +1490,19 @@ build_nir_training_negative_exposure <- function(path) {
           width = 0.68,
           position = position_dodge(width = 0.76)
         ) +
+        geom_segment(
+          data = ratio_means,
+          aes(x = x_start, xend = x_end, y = value, yend = value),
+          inherit.aes = FALSE,
+          colour = "red3",
+          linewidth = 1.1,
+          lineend = "butt"
+        ) +
         facet_wrap(~metric, nrow = 1, scales = "free_y") +
-        scale_x_discrete(name = "Training positive:negative ratio") +
+        scale_x_discrete(
+          name = "Training positive:negative ratio",
+          expand = expansion(add = 0.5)
+        ) +
         scale_y_continuous(
           name = NULL,
           breaks = scales::breaks_pretty(n = 4),
