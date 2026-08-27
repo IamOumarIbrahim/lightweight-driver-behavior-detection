@@ -1,5 +1,5 @@
 # RGB Results
 
-The six YOLO seed directories and summary files are final and authoritative.
-D-FINE-N seed results are added only after validation and protected test
-completion.
+The six YOLO seed directories and the three-seed D-FINE-N result are final and
+authoritative. The historical YOLO aggregate remains under `summary`; the
+checksum-backed D-FINE-N aggregate and per-seed provenance are under `dfine_n`.

@@ -33,13 +33,13 @@ This repository benchmarks released lightweight detector systems for bounding-bo
 ## Current Benchmark Status
 
 > [!IMPORTANT]
-> The six RGB YOLO runs are final and authoritative. RGB D-FINE-N seeds 37 and 73 and the ten NIR runs remain outstanding; no placeholder is reported as a result.
+> All nine RGB runs are complete. D-FINE-N's three protected passes are frozen under the expanded nine-run suite; the ten NIR runs remain outstanding.
 
 | Track | Model | Conditions | Status |
 | --- | --- | --- | --- |
 | RGB | YOLO11n | Seeds 13, 37, 73 | Final |
 | RGB | YOLO26n | Seeds 13, 37, 73 | Final |
-| RGB | D-FINE-N | Seeds 13, 37, 73 | Seed 13 trained; remaining evaluation/runs pending |
+| RGB | D-FINE-N | Seeds 13, 37, 73 | Final three-seed result |
 | NIR | Five models | Ratios 1:2 and 1:6, seed 13, 100 epochs | Ten resumable launchers ready; results pending |
 
 See the [results documentation](./docs/results.md) for authoritative values and the [methodology](./docs/methodology.md) for the frozen protocol.

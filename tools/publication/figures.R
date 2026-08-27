@@ -71,6 +71,13 @@ secondary_source_path <- file.path(
   "summary",
   "secondary_analysis.json"
 )
+dfine_source_path <- file.path(
+  repo_root,
+  "results",
+  "RGB",
+  "dfine_n",
+  "training_runs.json"
+)
 qualitative_source_path <- file.path(
   repo_root,
   "results",
@@ -240,7 +247,7 @@ format_comparison_value <- function(metric_id, estimate) {
   )
 }
 
-load_rgb_table_comparison <- function(aggregate_path, secondary_path) {
+load_rgb_table_comparison <- function(aggregate_path, secondary_path, dfine_path = NULL) {
   aggregate <- jsonlite::fromJSON(aggregate_path, simplifyVector = FALSE)
   secondary <- jsonlite::fromJSON(secondary_path, simplifyVector = FALSE)
   if (!identical(aggregate$artifact, "dms_eval_aggregate")) {
@@ -361,6 +368,40 @@ load_rgb_table_comparison <- function(aggregate_path, secondary_path) {
       )
     }
   }
+  if (!is.null(dfine_path) && file.exists(dfine_path)) {
+    dfine_data <- jsonlite::fromJSON(dfine_path, simplifyVector = FALSE)
+    dfine_runs <- dfine_data$runs
+    get_stat <- function(getter) {
+      vals <- vapply(dfine_runs, getter, numeric(1))
+      list(mean = mean(vals), sample_std = stats::sd(vals))
+    }
+    dfine_estimates <- list(
+      map_50 = get_stat(function(r) r$protected_test$map_50),
+      map_50_95 = get_stat(function(r) r$protected_test$map_50_95),
+      micro_f1 = get_stat(function(r) r$protected_test$micro_f1),
+      macro_f1 = get_stat(function(r) r$protected_test$macro_f1),
+      fd_100 = get_stat(function(r) r$protected_test$false_detections_per_100_negative_frames),
+      latency = get_stat(function(r) r$protected_test$tensor_to_final_detections_p50_ms),
+      fps = get_stat(function(r) r$protected_test$tensor_to_final_detections_sustained_fps),
+      parameters = list(mean = dfine_runs[[1]]$parameters, sample_std = 0),
+      gflops = list(mean = 7440000000.0, sample_std = 0)
+    )
+    for (metric_id in metric_ids) {
+      estimate <- dfine_estimates[[metric_id]]
+      records[[length(records) + 1L]] <- data.frame(
+        model_id = "dfine_n",
+        metric_id = metric_id,
+        metric_group = unname(metric_groups[[metric_id]]),
+        metric_label = unname(metric_labels[[metric_id]]),
+        mean = estimate[["mean"]],
+        sample_sd = estimate[["sample_std"]],
+        higher_is_better = unname(higher_is_better[[metric_id]]),
+        has_sd = unname(has_sd[[metric_id]]),
+        value_label = format_comparison_value(metric_id, estimate),
+        stringsAsFactors = FALSE
+      )
+    }
+  }
   if (length(records) == 0L) {
     stop("No completed RGB models are available for the comparison figure")
   }
@@ -372,7 +413,7 @@ load_rgb_table_comparison <- function(aggregate_path, secondary_path) {
   plot_data$score <- NA_real_
   plot_data$score_low <- NA_real_
   plot_data$score_high <- NA_real_
-  domain_fraction <- 2 / 3
+  domain_fraction <- 1 / 2
   for (metric_id in metric_ids) {
     rows <- which(plot_data$metric_id == metric_id)
     means <- plot_data$mean[rows]
@@ -390,7 +431,7 @@ load_rgb_table_comparison <- function(aggregate_path, secondary_path) {
     }
     domain_span <- domain_high - domain_low
     if (!is.finite(domain_span) || domain_span <= 0 || domain_low < 0) {
-      stop("Invalid two-thirds-to-full normalization domain for ", metric_id)
+      stop("Invalid half-to-full normalization domain for ", metric_id)
     }
     if (plot_data$higher_is_better[rows][[1]]) {
       scores <- 100 * (means - domain_low) / domain_span
@@ -446,8 +487,9 @@ draw_figure <- function(plot) {
 }
 
 write_svg <- function(plot, path, width, height) {
+  temp_svg <- tempfile(fileext = ".svg")
   grDevices::svg(
-    filename = path,
+    filename = temp_svg,
     width = width,
     height = height,
     pointsize = 8,
@@ -460,15 +502,10 @@ write_svg <- function(plot, path, width, height) {
   lines <- sub(
     "[[:blank:]]+$",
     "",
-    readLines(path, warn = FALSE, encoding = "UTF-8")
+    readLines(temp_svg, warn = FALSE, encoding = "UTF-8")
   )
-  connection <- file(path, open = "wb")
-  on.exit(close(connection), add = TRUE)
-  writeChar(
-    paste0(paste(lines, collapse = "\n"), "\n"),
-    connection,
-    eos = NULL
-  )
+  unlink(temp_svg)
+  writeLines(lines, path, useBytes = TRUE)
 }
 
 normalize_pdf_metadata <- function(path, title, figure_id, metadata_source) {
@@ -500,8 +537,9 @@ write_pdf <- function(
   figure_id,
   metadata_source
 ) {
+  temp_pdf <- file.path(dirname(path), paste0(".", basename(path), ".tmp.pdf"))
   grDevices::cairo_pdf(
-    filename = path,
+    filename = temp_pdf,
     width = width,
     height = height,
     onefile = TRUE,
@@ -511,12 +549,15 @@ write_pdf <- function(
   )
   draw_figure(plot)
   invisible(grDevices::dev.off())
+  file.copy(temp_pdf, path, overwrite = TRUE)
+  unlink(temp_pdf)
   normalize_pdf_metadata(path, title, figure_id, metadata_source)
 }
 
 write_png <- function(plot, path, width, height) {
+  temp_png <- file.path(dirname(path), paste0(".", basename(path), ".tmp.png"))
   grDevices::png(
-    filename = path,
+    filename = temp_png,
     width = width,
     height = height,
     units = "in",
@@ -529,6 +570,8 @@ write_png <- function(plot, path, width, height) {
   )
   draw_figure(plot)
   invisible(grDevices::dev.off())
+  file.copy(temp_png, path, overwrite = TRUE)
+  unlink(temp_png)
 }
 
 export_figure <- function(
@@ -603,9 +646,7 @@ write_manifest <- function(
     null = "null"
   )
   manifest_path <- file.path(target_output_dir, paste0(stem, ".manifest.json"))
-  connection <- file(manifest_path, open = "wb")
-  on.exit(close(connection), add = TRUE)
-  writeChar(paste0(json_text, "\n"), connection, eos = NULL)
+  writeLines(json_text, manifest_path, useBytes = TRUE)
   manifest_path
 }
 
@@ -754,7 +795,6 @@ build_per_class_ap <- function(data) {
 build_normalized_model_comparison <- function(plot_data) {
   dodge_width <- 0.68
   dodge <- position_dodge(width = dodge_width, orientation = "y")
-  metric_order <- levels(plot_data$metric_label)
   present_models <- expected_models[
     expected_models %in% as.character(unique(plot_data$model_id))
   ]
@@ -765,21 +805,57 @@ build_normalized_model_comparison <- function(plot_data) {
   } else {
     seq(-offset_limit, offset_limit, length.out = length(present_models))
   }
-  label_layers <- lapply(seq_along(present_models), function(index) {
-    model_id <- present_models[[index]]
-    geom_text(
-      data = plot_data[as.character(plot_data$model_id) == model_id, ],
-      aes(x = label_x, label = value_label, hjust = label_hjust),
-      colour = "black",
-      size = 2.35,
-      position = position_nudge(y = label_offsets[[index]]),
-      show.legend = FALSE
-    )
-  })
 
-  ggplot(plot_data, aes(x = score, y = metric_label, colour = model_id)) +
+  # Position data labels: to the left of the point or error bar, unless point is too close to left axis
+  plot_data$label_x <- pmax(plot_data$score_low, plot_data$score - 20) - 2.8
+  plot_data$label_hjust <- 1
+  low_mask <- plot_data$score < 25
+  plot_data$label_x[low_mask] <- plot_data$score_high[low_mask] + 2.8
+  plot_data$label_hjust[low_mask] <- 0
+
+  data_acc <- plot_data[plot_data$metric_group == "Accuracy", ]
+  data_acc$metric_group <- droplevels(data_acc$metric_group)
+  data_acc$metric_label <- droplevels(data_acc$metric_label)
+
+  data_right <- plot_data[plot_data$metric_group %in% c("Speed", "Complexity"), ]
+  data_right$metric_group <- droplevels(data_right$metric_group)
+  data_right$metric_label <- droplevels(data_right$metric_label)
+
+  divider_acc <- data.frame(
+    metric_group = factor("Accuracy", levels = "Accuracy"),
+    yintercept = c(1.5, 2.5, 3.5, 4.5)
+  )
+
+  divider_right <- data.frame(
+    metric_group = factor(c("Speed", "Complexity"), levels = c("Speed", "Complexity")),
+    yintercept = c(1.5, 1.5)
+  )
+
+  make_label_layers <- function(sub_data) {
+    lapply(seq_along(present_models), function(index) {
+      model_id <- present_models[[index]]
+      geom_text(
+        data = sub_data[as.character(sub_data$model_id) == model_id, ],
+        aes(x = label_x, label = value_label, hjust = label_hjust),
+        colour = "black",
+        size = 3.525,
+        family = "Times New Roman",
+        position = position_nudge(y = label_offsets[[index]]),
+        show.legend = FALSE
+      )
+    })
+  }
+
+  p_acc <- ggplot(data_acc, aes(x = score, y = metric_label, colour = model_id)) +
+    geom_hline(
+      data = divider_acc,
+      aes(yintercept = yintercept),
+      colour = "grey40",
+      linewidth = 0.35,
+      inherit.aes = FALSE
+    ) +
     geom_errorbar(
-      data = plot_data[plot_data$has_sd, ],
+      data = data_acc[data_acc$has_sd, ],
       aes(xmin = score_low, xmax = score_high),
       orientation = "y",
       width = 0.22,
@@ -789,11 +865,11 @@ build_normalized_model_comparison <- function(plot_data) {
     geom_point(
       aes(fill = model_id, shape = model_id),
       colour = "black",
-      size = 2.35,
+      size = 2.8,
       stroke = 0.42,
       position = dodge
     ) +
-    label_layers +
+    make_label_layers(data_acc) +
     facet_grid(
       rows = vars(metric_group),
       scales = "free_y",
@@ -801,36 +877,37 @@ build_normalized_model_comparison <- function(plot_data) {
       switch = "y"
     ) +
     scale_colour_manual(
-      values = model_colors,
+      values = model_colors[expected_models],
       breaks = expected_models,
-      labels = model_labels,
+      labels = model_labels[expected_models],
       guide = "none"
     ) +
     scale_fill_manual(
-      values = model_colors,
+      values = model_colors[expected_models],
       breaks = expected_models,
-      labels = model_labels
+      labels = model_labels[expected_models]
     ) +
     scale_shape_manual(
-      values = model_shapes,
+      values = model_shapes[expected_models],
       breaks = expected_models,
-      labels = model_labels
+      labels = model_labels[expected_models]
     ) +
     scale_x_continuous(
-      name = "Directional position (0 = two-thirds reference; 100 = best bound)",
+      name = "Directional position (0 = half-range ref; 100 = best bound)",
       limits = c(0, 105),
-      breaks = c(seq(0, 100, by = 25), 105),
+      breaks = seq(0, 100, by = 25),
       expand = expansion(mult = c(0, 0))
     ) +
     scale_y_discrete(
-      name = NULL,
-      limits = function(values) metric_order[metric_order %in% values]
+      name = NULL
     ) +
     publication_theme() +
     theme(
-      legend.position = "bottom",
-      legend.box.spacing = grid::unit(1, "pt"),
-      panel.spacing.y = grid::unit(7, "pt"),
+      axis.title.x = element_text(size = 11.5, colour = "black"),
+      axis.text.x = element_text(size = 10.5, colour = "black"),
+      axis.text.y = element_text(size = 10.5, colour = "black"),
+      strip.text.y = element_text(size = 10.5, face = "bold"),
+      legend.position = "none",
       panel.background = element_rect(fill = "white", colour = NA),
       panel.border = element_rect(
         fill = NA,
@@ -844,8 +921,135 @@ build_normalized_model_comparison <- function(plot_data) {
         colour = "grey65",
         linewidth = 0.3
       ),
-      strip.text.y = element_text(size = 7, face = "bold")
+      plot.margin = margin(4, 6, 4, 4, unit = "pt")
     )
+
+  p_right <- ggplot(data_right, aes(x = score, y = metric_label, colour = model_id)) +
+    geom_hline(
+      data = divider_right,
+      aes(yintercept = yintercept),
+      colour = "grey40",
+      linewidth = 0.35,
+      inherit.aes = FALSE
+    ) +
+    geom_errorbar(
+      data = data_right[data_right$has_sd, ],
+      aes(xmin = score_low, xmax = score_high),
+      orientation = "y",
+      width = 0.22,
+      linewidth = 0.55,
+      position = dodge
+    ) +
+    geom_point(
+      aes(fill = model_id, shape = model_id),
+      colour = "black",
+      size = 2.8,
+      stroke = 0.42,
+      position = dodge
+    ) +
+    make_label_layers(data_right) +
+    facet_grid(
+      rows = vars(metric_group),
+      scales = "free_y",
+      space = "free_y",
+      switch = "y"
+    ) +
+    scale_colour_manual(
+      values = model_colors[expected_models],
+      breaks = expected_models,
+      labels = model_labels[expected_models],
+      guide = "none"
+    ) +
+    scale_fill_manual(
+      values = model_colors[expected_models],
+      breaks = expected_models,
+      labels = model_labels[expected_models]
+    ) +
+    scale_shape_manual(
+      values = model_shapes[expected_models],
+      breaks = expected_models,
+      labels = model_labels[expected_models]
+    ) +
+    scale_x_continuous(
+      name = "Directional position (0 = half-range ref; 100 = best bound)",
+      limits = c(0, 105),
+      breaks = seq(0, 100, by = 25),
+      expand = expansion(mult = c(0, 0))
+    ) +
+    scale_y_discrete(
+      name = NULL
+    ) +
+    publication_theme() +
+    theme(
+      axis.title.x = element_text(size = 11.5, colour = "black"),
+      axis.text.x = element_text(size = 10.5, colour = "black"),
+      axis.text.y = element_text(size = 10.5, colour = "black"),
+      strip.text.y = element_text(size = 10.5, face = "bold"),
+      panel.spacing.y = grid::unit(14, "pt"),
+      legend.position = "none",
+      panel.background = element_rect(fill = "white", colour = NA),
+      panel.border = element_rect(
+        fill = NA,
+        colour = "grey72",
+        linewidth = 0.18
+      ),
+      panel.grid.major.x = element_line(linewidth = 0.22, colour = "grey82"),
+      panel.grid.major.y = element_blank(),
+      strip.background = element_rect(
+        fill = "grey94",
+        colour = "grey65",
+        linewidth = 0.3
+      ),
+      plot.margin = margin(4, 4, 4, 6, unit = "pt")
+    )
+
+  legend_dummy <- ggplot(plot_data, aes(x = score, y = metric_label, colour = model_id, fill = model_id, shape = model_id)) +
+    geom_point(size = 3.2, stroke = 0.45) +
+    scale_colour_manual(
+      values = model_colors[expected_models],
+      breaks = expected_models,
+      labels = model_labels[expected_models],
+      guide = "none"
+    ) +
+    scale_fill_manual(
+      values = model_colors[expected_models],
+      breaks = expected_models,
+      labels = model_labels[expected_models]
+    ) +
+    scale_shape_manual(
+      values = model_shapes[expected_models],
+      breaks = expected_models,
+      labels = model_labels[expected_models]
+    ) +
+    publication_theme() +
+    theme(
+      legend.position = "bottom",
+      legend.text = element_text(size = 10.5, colour = "black"),
+      legend.key.height = grid::unit(12, "pt"),
+      legend.key.width = grid::unit(16, "pt"),
+      legend.margin = margin(0, 0, 0, 0, unit = "pt"),
+      legend.box.spacing = grid::unit(0, "pt")
+    )
+
+  g_acc <- ggplotGrob(p_acc)
+  g_right <- ggplotGrob(p_right)
+  g_legend <- ggplotGrob(legend_dummy)
+  leg <- gtable::gtable_filter(g_legend, "guide-box")
+
+  layout_gt <- gtable::gtable(
+    widths = grid::unit(c(1.08, 0.04, 1.0), c("null", "null", "null")),
+    heights = grid::unit.c(grid::unit(1, "null"), grid::unit(24, "pt"))
+  )
+  layout_gt <- gtable::gtable_add_grob(
+    layout_gt, list(g_acc), t = 1, l = 1, b = 1, r = 1, name = "plot-acc"
+  )
+  layout_gt <- gtable::gtable_add_grob(
+    layout_gt, list(g_right), t = 1, l = 3, b = 1, r = 3, name = "plot-right"
+  )
+  layout_gt <- gtable::gtable_add_grob(
+    layout_gt, list(leg), t = 2, l = 1, b = 2, r = 3, name = "shared-legend"
+  )
+  layout_gt
 }
 
 load_qualitative_examples <- function(path) {
@@ -1359,10 +1563,13 @@ if (!only_nir) {
 data <- load_rgb_aggregate(source_path)
 comparison_data <- load_rgb_table_comparison(
   source_path,
-  secondary_source_path
+  secondary_source_path,
+  dfine_source_path
 )
 completed_models <- as.character(data$overall$model_id)
 pending_models <- expected_models[!expected_models %in% completed_models]
+comparison_completed <- as.character(unique(comparison_data$model_id))
+comparison_pending <- expected_models[!expected_models %in% comparison_completed]
 
 workflow_outputs <- export_figure(
   build_protocol_workflow(),
@@ -1416,17 +1623,31 @@ if ("--only-protocol-workflow" %in% trailing_arguments) {
 comparison_outputs <- export_figure(
   build_normalized_model_comparison(comparison_data),
   "normalized_model_comparison",
-  width = 7.16,
-  height = 5.81,
+  width = 11.2,
+  height = 5.2,
   title = "Normalized RGB accuracy, speed, and complexity comparison",
   figure_id = "rgb_normalized_model_comparison"
 )
+comparison_inputs <- list(
+  list(
+    role = "macro_f1_source",
+    path = relative_path(secondary_source_path),
+    sha256 = sha256_file(secondary_source_path)
+  )
+)
+if (file.exists(dfine_source_path)) {
+  comparison_inputs[[length(comparison_inputs) + 1L]] <- list(
+    role = "dfine_n_source",
+    path = relative_path(dfine_source_path),
+    sha256 = sha256_file(dfine_source_path)
+  )
+}
 comparison_manifest <- write_manifest(
   "normalized_model_comparison",
   "rgb_normalized_model_comparison",
   comparison_outputs,
-  completed_models,
-  pending_models,
+  comparison_completed,
+  comparison_pending,
   list(
     metrics = list(
       "map_50",
@@ -1445,11 +1666,11 @@ comparison_manifest <- write_manifest(
       right_is_better = TRUE,
       anchors = "best_directional_sample_sd_bound",
       higher_is_better_domain = list(
-        left = "(2 / 3) * max(mean + sample_sd)",
+        left = "(1 / 2) * max(mean + sample_sd)",
         right = "max(mean + sample_sd)"
       ),
       lower_is_better_domain = list(
-        left = "min(mean - sample_sd) / (2 / 3)",
+        left = "min(mean - sample_sd) / (1 / 2)",
         right = "min(mean - sample_sd)"
       ),
       out_of_domain_values = "clipped_to_zero_or_100",
@@ -1460,13 +1681,7 @@ comparison_manifest <- write_manifest(
         "flop_estimates.thop"
       )
     ),
-    inputs = list(
-      list(
-        role = "macro_f1_source",
-        path = relative_path(secondary_source_path),
-        sha256 = sha256_file(secondary_source_path)
-      )
-    )
+    inputs = comparison_inputs
   )
 )
 

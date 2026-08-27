@@ -10,6 +10,6 @@ auxiliaries are ignored.
 
 > [!IMPORTANT]
 > The exact `[PLACEHOLDER]` markers reserve only tightly bounded results and
-> conclusions that depend on unfinished RGB D-FINE-N or NIR runs. Replace them
+> conclusions that depend on unfinished NIR runs. Replace them
 > only from checksum-frozen aggregate results, then rebuild and verify that the
 > paper remains at most six pages, including references.

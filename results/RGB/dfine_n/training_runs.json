@@ -1,0 +1,407 @@
+{
+  "schema_version": 2,
+  "track": "RGB",
+  "model_id": "dfine_n",
+  "architecture": "D-FINE-N",
+  "status": "protected_test_complete",
+  "training_controls": {
+    "epochs": 220,
+    "physical_batch_size": 8,
+    "gradient_accumulation_steps": 4,
+    "effective_batch_size": 32,
+    "input_size": [640, 640],
+    "amp": true,
+    "early_stopping": false,
+    "augmentation_transition_epoch_index": 148,
+    "optimizer": "AdamW",
+    "base_learning_rate": 0.0008,
+    "backbone_learning_rate": 0.0004
+  },
+  "runs": [
+    {
+      "training_seed": 13,
+      "epochs_completed": 220,
+      "final_epoch_index": 219,
+      "completed_at_utc": "2026-08-24T01:59:05Z",
+      "parameters": 3724463,
+      "training_time_validation_observation": {
+        "best_epoch_index": 18,
+        "best_map_50_95": 0.705532797298401,
+        "best_map_50": 0.966064470989696,
+        "final_epoch_map_50_95": 0.679225479944497,
+        "final_epoch_map_50": 0.958182867738931
+      },
+      "frozen_validation": {
+        "selected_checkpoint": "checkpoint0018.pth",
+        "selected_epoch_index": 18,
+        "map_50_95": 0.7048867093856712,
+        "map_50": 0.9655291903656805,
+        "per_class_ap_50_95": {
+          "yawning": 0.7126171789312155,
+          "hand_over_mouth": 0.6853361855871042,
+          "drinking": 0.7232039799889066,
+          "phone_use": 0.6983894930354593
+        },
+        "threshold": 0.71,
+        "precision": 0.971875,
+        "recall": 0.973395931142410,
+        "micro_f1": 0.9726348709929632,
+        "false_detections_on_negative_frames": 17,
+        "negative_frames": 2784,
+        "false_detections_per_100_negative_frames": 0.610632183908046,
+        "validation_predictions": {
+          "bytes": 236998311,
+          "sha256": "8d5e90fe716d76ed58a6c582623deae3eb54cb9c3f73de90f2166f5ca6166daa"
+        },
+        "calibration": {
+          "bytes": 928,
+          "sha256": "b74c6b7a89ff467bd30ccf70a99889f808e0b494ba71ca46c33f683bbbb63b26"
+        },
+        "manifest": {
+          "id": "26db8365ea062f6400c61e5d110ac03040fa3d6ae85c3278401b81a6fd467ca5",
+          "bytes": 1378,
+          "sha256": "715c04a0de4d50abe080fe40f0a33c0b3f42cb1402ad5c934755b2f0411d838a"
+        }
+      },
+      "protected_test": {
+        "suite_id": "32ad1a99723bec823c351f77aefd6ff995c3356a485005199bff1b49d78ba275",
+        "manifest_id": "26db8365ea062f6400c61e5d110ac03040fa3d6ae85c3278401b81a6fd467ca5",
+        "threshold": 0.71,
+        "map_50_95": 0.561284140330000,
+        "map_50": 0.9092417323810102,
+        "per_class_ap_50_95": {
+          "yawning": 0.6142677225412593,
+          "hand_over_mouth": 0.38285942083812075,
+          "drinking": 0.6576800593037324,
+          "phone_use": 0.5903293586368878
+        },
+        "precision": 0.9605488850771869,
+        "recall": 0.9120521172638436,
+        "micro_f1": 0.9356725146198831,
+        "macro_f1": 0.8790101960714416,
+        "false_detections_on_negative_frames": 19,
+        "negative_frames": 2599,
+        "false_detections_per_100_negative_frames": 0.7310504040015391,
+        "model_forward_p50_ms": 21.647104263305664,
+        "tensor_to_final_detections_p50_ms": 23.700100020505488,
+        "tensor_to_final_detections_sustained_fps": 39.34932384417879,
+        "peak_allocated_vram_bytes": 70177280,
+        "result": {
+          "bytes": 222749274,
+          "sha256": "8d0f2d543d640daa0a58c354bf1b73776bdb2dfb52dbddc5a25592912587010d"
+        },
+        "inference_artifact": {
+          "bytes": 7669124,
+          "sha256": "0d5ad97a276b2656d9b4575a2135d7653ec01532f92466af469da7248a5f9299"
+        },
+        "qualitative_analysis_sha256": "f08853953ae131a312167b8962a288826c9afa12c85d065b1952dd570adeac5e"
+      },
+      "local_artifact_fingerprints": {
+        "checkpoint0018.pth": {
+          "bytes": 60830910,
+          "sha256": "1d7084a544371816ff8f7c6e481bfb13979821a4ab683f1c80ce3b15e148357a"
+        },
+        "best_stg1.pth": {
+          "bytes": 60817750,
+          "sha256": "e15d0b47e99e476b37c7d2a6a917c660909bd74375065f9cd891b24669b01468"
+        },
+        "best_stg2.pth": {
+          "bytes": 60817750,
+          "sha256": "f2742cf9aecb8f088db9ffb51306ff6f896ca6aa18a473d008e2b9a8b9ce38e7"
+        },
+        "last.pth": {
+          "bytes": 60721518,
+          "sha256": "0027fd3059605b10f5839ee8ad7a118be911beabba4f997019fd57cc3ab36768"
+        },
+        "log.txt": {
+          "bytes": 441159,
+          "sha256": "7adccb54c126325d0edb14ef0df8aa9b85583a5499f6f397b5f0dedf7ccddd90"
+        }
+      }
+    },
+    {
+      "training_seed": 37,
+      "epochs_completed": 220,
+      "final_epoch_index": 219,
+      "completed_at_utc": "2026-08-25T11:49:35Z",
+      "parameters": 3724463,
+      "training_time_validation_observation": {
+        "best_epoch_index": 17,
+        "best_map_50_95": 0.707721014289656,
+        "best_map_50": 0.973079593716231,
+        "final_epoch_map_50_95": 0.666095625373621,
+        "final_epoch_map_50": 0.950479628562391
+      },
+      "frozen_validation": {
+        "selected_checkpoint": "checkpoint0017.pth",
+        "selected_epoch_index": 17,
+        "map_50_95": 0.707926758863259,
+        "map_50": 0.9729293526508408,
+        "per_class_ap_50_95": {
+          "yawning": 0.705727800693050,
+          "hand_over_mouth": 0.7051778549050469,
+          "drinking": 0.7144067113560257,
+          "phone_use": 0.7063946684989127
+        },
+        "threshold": 0.51,
+        "precision": 0.9751552795031055,
+        "recall": 0.9827856025039123,
+        "micro_f1": 0.9789555728760716,
+        "false_detections_on_negative_frames": 14,
+        "negative_frames": 2784,
+        "false_detections_per_100_negative_frames": 0.5028735632183908,
+        "validation_predictions": {
+          "bytes": 235911002,
+          "sha256": "60e68295e3164bf760e163f9f1d5274f0eb3ced378647f89b17319a346d58c48"
+        },
+        "calibration": {
+          "bytes": 941,
+          "sha256": "977ab6024f80241b72309dcf127ca668122024ff65ba26272b381d3ba806aedc"
+        },
+        "manifest": {
+          "id": "bc50c7b38545defd9e91cf5d96b975a434ab0422c3abc452dbc06e454ecfa5ba",
+          "bytes": 1378,
+          "sha256": "9f16050d51fb18de7fc3aa01201ffbb0095663e8050b3d26981b400f9e8e0e19"
+        }
+      },
+      "protected_test": {
+        "suite_id": "32ad1a99723bec823c351f77aefd6ff995c3356a485005199bff1b49d78ba275",
+        "manifest_id": "bc50c7b38545defd9e91cf5d96b975a434ab0422c3abc452dbc06e454ecfa5ba",
+        "threshold": 0.51,
+        "map_50_95": 0.5440168897031415,
+        "map_50": 0.8766172286162245,
+        "per_class_ap_50_95": {
+          "yawning": 0.6206222337761631,
+          "hand_over_mouth": 0.3549854286364778,
+          "drinking": 0.6445673750569169,
+          "phone_use": 0.5558925213430087
+        },
+        "precision": 0.8933333333333333,
+        "recall": 0.8729641693811075,
+        "micro_f1": 0.8830313014827017,
+        "macro_f1": 0.7927084097634945,
+        "false_detections_on_negative_frames": 29,
+        "negative_frames": 2599,
+        "false_detections_per_100_negative_frames": 1.115813774528665,
+        "model_forward_p50_ms": 21.429407119750977,
+        "tensor_to_final_detections_p50_ms": 23.432899964973330,
+        "tensor_to_final_detections_sustained_fps": 40.21181108901616,
+        "peak_allocated_vram_bytes": 70177280,
+        "result": {
+          "bytes": 221702944,
+          "sha256": "a5d841996f8aa53435a30100dc4bf6c3dd054ec9b65d3ac70a66cc52586af1d2"
+        },
+        "inference_artifact": {
+          "bytes": 7669124,
+          "sha256": "5c08f70b0a1edde28419223a84bec88e1800626011638d49de9408dc42fb2a0e"
+        },
+        "qualitative_analysis_sha256": "3d373c83a3df1822360e45a39b03e3f53709cb86bf05eb4c028b83f388424f38"
+      },
+      "local_artifact_fingerprints": {
+        "checkpoint0017.pth": {
+          "bytes": 60830910,
+          "sha256": "445d30f817758326a09ace01161431c0b5dfee15a014338728c28d1b3966519f"
+        },
+        "best_stg1.pth": {
+          "bytes": 60817750,
+          "sha256": "ba3a312e2d4b1bd3a0b2cee909726922f64474f70cd10fb164f51b9b891af4e0"
+        },
+        "last.pth": {
+          "bytes": 60721518,
+          "sha256": "d5666c3964e1cbb12741551eef35a39644eb3ccfbca81a1b786ef758778a9852"
+        },
+        "log.txt": {
+          "bytes": 441175,
+          "sha256": "390330f5319a88921b9cadfe3b670a20595fb0afc3b4ce9d62165241583f83d0"
+        }
+      }
+    },
+    {
+      "training_seed": 73,
+      "epochs_completed": 220,
+      "final_epoch_index": 219,
+      "completed_at_utc": "2026-08-26T13:00:38Z",
+      "parameters": 3724463,
+      "training_time_validation_observation": {
+        "best_epoch_index": 89,
+        "best_map_50_95": 0.685353779453904,
+        "best_map_50": 0.970515836485094,
+        "final_epoch_map_50_95": 0.654896103866173,
+        "final_epoch_map_50": 0.959203828152390
+      },
+      "frozen_validation": {
+        "selected_checkpoint": "checkpoint0089.pth",
+        "selected_epoch_index": 89,
+        "map_50_95": 0.6851773341065179,
+        "map_50": 0.9704432965317249,
+        "per_class_ap_50_95": {
+          "yawning": 0.7468638652893244,
+          "hand_over_mouth": 0.6278929985601136,
+          "drinking": 0.6861111420478663,
+          "phone_use": 0.6798413305287675
+        },
+        "threshold": 0.57,
+        "precision": 0.978125,
+        "recall": 0.9796557120500783,
+        "micro_f1": 0.9788897576231431,
+        "false_detections_on_negative_frames": 11,
+        "negative_frames": 2784,
+        "false_detections_per_100_negative_frames": 0.39511494252873564,
+        "validation_predictions": {
+          "bytes": 237384191,
+          "sha256": "d228ff207d7057639529459e8ef9c3a766836ede945eb5f97a20fd0dbe732c59"
+        },
+        "calibration": {
+          "bytes": 932,
+          "sha256": "a10f61c1da4a6b81e8c59d0e3580407b75e3fb083bee3bf22184cbda75d1867a"
+        },
+        "manifest": {
+          "id": "2ef78b646dc1df3f3c42b8308eb0774a508a98fe85f4977e29a39fe9d467b356",
+          "bytes": 1378,
+          "sha256": "1377534a773eeb74833fef1a0642dfd2214cd35bd573f54614a14d2b60ddd5d2"
+        }
+      },
+      "protected_test": {
+        "suite_id": "32ad1a99723bec823c351f77aefd6ff995c3356a485005199bff1b49d78ba275",
+        "manifest_id": "2ef78b646dc1df3f3c42b8308eb0774a508a98fe85f4977e29a39fe9d467b356",
+        "threshold": 0.57,
+        "map_50_95": 0.5561543861273804,
+        "map_50": 0.9207553583090111,
+        "per_class_ap_50_95": {
+          "yawning": 0.6102422727643417,
+          "hand_over_mouth": 0.3823376076606744,
+          "drinking": 0.6514386769996549,
+          "phone_use": 0.5805989870848507
+        },
+        "precision": 0.9324324324324325,
+        "recall": 0.8990228013029316,
+        "micro_f1": 0.9154228855721392,
+        "macro_f1": 0.8583265550984792,
+        "false_detections_on_negative_frames": 20,
+        "negative_frames": 2599,
+        "false_detections_per_100_negative_frames": 0.7695267410542517,
+        "model_forward_p50_ms": 20.790527343750000,
+        "tensor_to_final_detections_p50_ms": 22.800900042057037,
+        "tensor_to_final_detections_sustained_fps": 41.649527825523435,
+        "peak_allocated_vram_bytes": 70177280,
+        "result": {
+          "bytes": 223063944,
+          "sha256": "fcc0bd4da5ed2a320d508901028ea9fcdee928e10d7e56f2bcf0bbb09690ad02"
+        },
+        "inference_artifact": {
+          "bytes": 7669124,
+          "sha256": "a2662d9da9f2f519011a4271ae9b86b68890ab54b2fffc8f735b16b588912dba"
+        },
+        "qualitative_analysis_sha256": "74ea7679c1aebc74f62230a8377caec04a2d923bba49716c25616a74b3971263"
+      },
+      "local_artifact_fingerprints": {
+        "checkpoint0089.pth": {
+          "bytes": 60830910,
+          "sha256": "9c0cc1f57229c2eb7a195fc3f219b0f0a57b6ad1539678c5d0824f255f185698"
+        },
+        "best_stg1.pth": {
+          "bytes": 60817750,
+          "sha256": "8ac0da51abb2aabe4a00f4d27156b587b3e576b8a57c80c4e8e42020094027ff"
+        },
+        "last.pth": {
+          "bytes": 60721518,
+          "sha256": "483df99a55e8ded02ffce0460cb81f0f7bdb780f368836ca1f4d08c229dad3b2"
+        },
+        "log.txt": {
+          "bytes": 441108,
+          "sha256": "6a44ed7786fa0a5152a4ad7dbe63f8ac1863635abf5228da3ed4746e3bf5a96c"
+        }
+      }
+    }
+  ],
+  "validation_suite": {
+    "manifests": 9,
+    "suite_id": "32ad1a99723bec823c351f77aefd6ff995c3356a485005199bff1b49d78ba275",
+    "bytes": 3412,
+    "sha256": "6457ebde2bdd18253b5070c9e1988cf96ccf7fbcacea3d0ef713bb4a8b9c73f5"
+  },
+  "protected_test_aggregate": {
+    "runs": 3,
+    "training_seeds": [13, 37, 73],
+    "dispersion": "sample_standard_deviation",
+    "suite_id": "32ad1a99723bec823c351f77aefd6ff995c3356a485005199bff1b49d78ba275",
+    "map_50_95": {
+      "mean": 0.5538184720535073,
+      "sample_std": 0.008867460570708755
+    },
+    "map_50": {
+      "mean": 0.9022047731020819,
+      "sample_std": 0.02289503701928181
+    },
+    "precision": {
+      "mean": 0.9287715502809842,
+      "sample_std": 0.03375698657541518
+    },
+    "recall": {
+      "mean": 0.8946796959826275,
+      "sample_std": 0.019902608881458537
+    },
+    "micro_f1": {
+      "mean": 0.9113755672249080,
+      "sample_std": 0.02655296442003069
+    },
+    "macro_f1": {
+      "mean": 0.8433483869778051,
+      "sample_std": 0.045058392338986335
+    },
+    "false_detections_per_100_negative_frames": {
+      "mean": 0.8721303065281519,
+      "sample_std": 0.21191114071897277
+    },
+    "model_forward_p50_ms": {
+      "mean": 21.289012908935547,
+      "sample_std": 0.4452122028895133
+    },
+    "tensor_to_final_detections_p50_ms": {
+      "mean": 23.311300009178620,
+      "sample_std": 0.4617684075891078
+    },
+    "tensor_to_final_detections_sustained_fps": {
+      "mean": 40.403554252906126,
+      "sample_std": 1.1620278265266888
+    },
+    "per_class_ap_50_95": {
+      "yawning": {
+        "mean": 0.6150440763605880,
+        "sample_std": 0.00523334898428556
+      },
+      "hand_over_mouth": {
+        "mean": 0.3733941523784243,
+        "sample_std": 0.015944557209390225
+      },
+      "drinking": {
+        "mean": 0.6512287037867680,
+        "sample_std": 0.006558863362029179
+      },
+      "phone_use": {
+        "mean": 0.5756069556882490,
+        "sample_std": 0.017752865227894016
+      }
+    },
+    "parameters": 3724463,
+    "thop_flops": 7435768000,
+    "torch_profiler_flops": 13493478254,
+    "artifact": {
+      "bytes": 9652,
+      "sha256": "c9e176bdc72c0dac1ced63ea01d02c3a46b44ea3ff11c9a25a7acdc7215c8fc5"
+    }
+  },
+  "publication_state": {
+    "checkpoint_selection": "frozen",
+    "confidence_threshold_calibration": "frozen",
+    "protected_test": "completed_once_per_seed",
+    "eligible_for_dfine_aggregate": true,
+    "eligible_for_mixed_suite_nine_run_aggregate": false
+  },
+  "notes": [
+    "Training-time validation observations are provenance, not protected-test results.",
+    "Checkpoint binaries, raw training logs, dense predictions, and inference artifacts remain local and are represented only by size and SHA-256.",
+    "The historical YOLO protected results were generated under an earlier six-run suite ID, so the guarded aggregator correctly forbids silently mixing them with these D-FINE-N results.",
+    "Macro-F1 was derived after the protected pass from the frozen prediction artifact and authoritative test annotations; no checkpoint, image, or inference path was accessed again."
+  ]
+}

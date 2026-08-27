@@ -104,6 +104,11 @@ class DFineAdapter(DetectorAdapter):
                         f"Adapter emitted class {category_id} outside frozen ontology"
                     )
                 x1, y1, x2, y2 = map(float, box.tolist())
+                # Dense low-confidence top-k candidates can collapse to zero
+                # width or height after FP16 coordinate quantization. They have
+                # no valid COCO geometry and are excluded before evaluation.
+                if x2 <= x1 or y2 <= y1:
+                    continue
                 predictions.append(
                     {
                         "image_id": int(image_id),

@@ -40,7 +40,7 @@ mishak@sharjah.ac.ae}
 \raggedbottom
 
 \begin{abstract}
-Object detection can localize visible evidence inside a vehicle cabin, but detection accuracy alone does not establish a temporal driver state. We benchmark single-frame localization of four discrete, momentary driver cues under a fixed subject-disjoint protocol. The primary red--green--blue (RGB) experiment retains all 15,723 sampled Driver Monitoring Dataset (DMD) frames from 14 drivers, including 12,722 negatives, and evaluates You Only Look Once (YOLO) 11n, YOLO26n, and the nano Fine-grained Distribution Refinement (D-FINE-N) detector across three predeclared seeds. Confidence selection uses validation data only. Protected testing reports Common Objects in Context (COCO) mean average precision (mAP), micro- and macro-$F_1$, false detections on negative frames, and synchronized batch-1 latency. For the completed YOLO runs, YOLO11n reaches $91.79\pm0.44\%$ $\mathrm{mAP}_{50}$, $83.42\pm1.36\%$ macro-$F_1$, and $68.0\pm1.3$ frames per second (FPS). YOLO26n instead reaches the higher $\mathrm{mAP}_{50:95}$ of $56.98\pm0.81\%$. These directions hold for every paired seed, while subject-level $F_1$ reveals substantially larger variation than seed-level standard deviations. D-FINE-N results and a separate exploratory near-infrared (NIR) training-negative exposure study are \ph. The benchmark therefore supports a bounded comparison of complete detector systems for visible cue localization, not temporal fatigue or behavior inference.
+Object detection can localize visible evidence inside a vehicle cabin, but detection accuracy alone does not establish a temporal driver state. We benchmark four discrete driver cues under a subject-disjoint protocol. The red--green--blue (RGB) experiment retains 15,723 Driver Monitoring Dataset frames from 14 drivers, including 12,722 negatives, and evaluates You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N) across three seeds. Confidence selection uses validation only; protected testing reports Common Objects in Context mean average precision (mAP), $F_1$, false detections, and synchronized batch-1 latency. YOLO11n leads $\mathrm{mAP}_{50}$ at $91.79\pm0.44\%$ and throughput at $68.0\pm1.3$ frames per second (FPS); YOLO26n leads $\mathrm{mAP}_{50:95}$ at $56.98\pm0.81\%$; and D-FINE-N leads micro-$F_1$ at $91.14\pm2.66\%$ and macro-$F_1$ at $84.33\pm4.51\%$, but runs slowest at $40.4\pm1.2$ FPS. Subject effects exceed seed variation. The exploratory near-infrared (NIR) study remains \ph. Claims concern visible-cue localization, not temporal fatigue or behavior inference.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -118,6 +118,8 @@ where $\mathrm{FP}_{\mathrm{neg}}$ is the number of above-threshold false-positi
 
 RGB results are the sample mean and sample standard deviation (SD) over three seeds. Because the subject split is fixed, SD measures optimization variability, not generalization uncertainty across held-out drivers. Each test subject is therefore reported separately, and paired per-seed differences are checked for sign consistency. No significance test is claimed for $n=3$.
 
+The six YOLO passes predate the D-FINE-N extension. D-FINE-N selection remained validation-only and its three manifests were frozen before testing; differing suite identifiers preclude a single mixed-suite aggregate artifact.
+
 Batch-1 16-bit floating-point (FP16) profiling uses an NVIDIA GeForce RTX 4060 8-GB graphics processing unit (GPU). CUDA synchronization brackets model-forward and tensor-to-final-detection intervals. Disk input/output, decoding, preprocessing, and metric computation are excluded. We report p50 tensor-to-final latency and sustained FPS; these measurements do not represent central-processing-unit or embedded-device deployment.
 
 \subsection{Exploratory NIR Protocol}
@@ -131,10 +133,10 @@ All NIR jobs use seed 13, and operating metrics follow the RGB protocol. Since o
 
 \section{Results and Analysis}
 \subsection{Aggregate RGB Results}
-Table~\ref{tab:rgbresults} summarizes the six completed RGB YOLO runs. YOLO11n has higher $\mathrm{mAP}_{50}$, micro-$F_1$, macro-$F_1$, and throughput at every paired seed; its p50 latency is 4.67--5.17 ms lower. YOLO26n has higher $\mathrm{mAP}_{50:95}$ at every seed, with paired differences of 0.94--2.43 percentage points, despite lower $\mathrm{mAP}_{50}$. The evidence supports a system-level trade-off between coarse-IoU operating accuracy and stricter box localization, not universal superiority.
+Table~\ref{tab:rgbresults} summarizes all nine RGB runs. YOLO11n leads $\mathrm{mAP}_{50}$ and throughput, YOLO26n leads $\mathrm{mAP}_{50:95}$, and D-FINE-N leads micro- and macro-$F_1$. The D-FINE advantage is concentrated at the calibrated operating point rather than strict-IoU AP and costs 8.0--26.4 FPS relative to the YOLO systems. The evidence supports an accuracy--efficiency trade-off, not universal superiority.
 
 \begin{table*}[t]
-\caption{RGB Subject-Disjoint Test Results (Mean $\pm$ Sample SD over Seeds 13, 37, and 73). Latency Is p50 Tensor-to-Final Detection; Bold Marks the Numerical Best per Column, Not Statistical Significance.}
+\caption{Mean and sample standard deviation across three seeds for the RGB track on the protected test split. Bold indicates the best result per column.}
 \label{tab:rgbresults}
 \centering
 \setlength{\tabcolsep}{2.7pt}
@@ -143,37 +145,27 @@ Table~\ref{tab:rgbresults} summarizes the six completed RGB YOLO runs. YOLO11n h
 \toprule
 Model & $\mathrm{mAP}_{50}$ & $\mathrm{mAP}_{50:95}$ & Micro-$F_1$ & Macro-$F_1$ & $\fd$ & p50 (ms) & FPS & Params (M) & GFLOPs \\
 \midrule
-YOLO11n & \textbf{91.79$\pm$0.44} & 55.38$\pm$0.41 & \textbf{86.60$\pm$0.49} & \textbf{83.42$\pm$1.36} & \textbf{0.63$\pm$0.04} & \textbf{14.30$\pm$0.20} & \textbf{68.0$\pm$1.3} & 2.59 & 6.44 \\
+YOLO11n & \textbf{91.79$\pm$0.44} & 55.38$\pm$0.41 & 86.60$\pm$0.49 & 83.42$\pm$1.36 & \textbf{0.63$\pm$0.04} & \textbf{14.30$\pm$0.20} & \textbf{68.0$\pm$1.3} & 2.59 & 6.44 \\
 YOLO26n & 89.28$\pm$0.99 & \textbf{56.98$\pm$0.81} & 84.44$\pm$1.14 & 79.39$\pm$1.49 & 0.67$\pm$0.06 & 19.21$\pm$0.09 & 51.7$\pm$0.2 & \textbf{2.51} & \textbf{5.78} \\
-D-FINE-N & \multicolumn{9}{c}{\ph} \\
+D-FINE-N & 90.22$\pm$2.29 & 55.38$\pm$0.89 & \textbf{91.14$\pm$2.66} & \textbf{84.33$\pm$4.51} & 0.87$\pm$0.21 & 23.31$\pm$0.46 & 40.4$\pm$1.2 & 3.72 & 7.44 \\
 \bottomrule
 \end{tabular}
 \end{table*}
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.686\textwidth]{normalized_model_comparison.pdf}
-\caption{Directional dot-and-whisker plot of the aggregate RGB results in Table~\ref{tab:rgbresults}. Rows are grouped into accuracy, speed, and complexity; right always indicates better performance. For higher-is-better metrics, 0 marks two-thirds of the best observed mean-plus-SD bound and 100 marks that bound. For lower-is-better metrics, 0 marks one-and-a-half times the best observed mean-minus-SD bound and 100 marks that bound. The white panels use vertical guides every 25 points. Whiskers show sample SD across seeds 13, 37, and 73; units appear in the row labels, and each value label is placed at a fixed distance left of its whisker. D-FINE-N is added automatically when its aggregate is frozen.}
+\includegraphics[width=0.96\textwidth]{normalized_model_comparison.pdf}
+\caption{Directional dot-and-whisker plot for YOLO11n, YOLO26n, and D-FINE-N. Rows are grouped into accuracy (left), speed, and complexity (right); right indicates better performance, and whiskers show sample SD across seeds.}
 \label{fig:rgbplots}
 \end{figure*}
 
 \subsection{Class Imbalance and Paired-Seed Evidence}
 Phone use accounts for 497 of 614 positive test instances, whereas hand over mouth, yawning, and drinking have only 28, 33, and 56 instances. This imbalance can influence learned representations, validation-selected thresholds, and the pooled micro-$F_1$. It does not directly dominate COCO mAP, because AP is first computed by category and then averaged equally across the four categories.
 
-The class-wise mean differences, YOLO26n minus YOLO11n, are $+6.21$ points for hand over mouth, $-3.85$ for yawning, $+1.02$ for drinking, and $+3.02$ for phone use. The aggregate $\mathrm{mAP}_{50:95}$ advantage is $+1.60$ points. Across paired seeds, YOLO11n is consistently higher for yawning, while YOLO26n is consistently higher for hand over mouth and phone use. The drinking direction changes with seed, so no consistent difference is claimed for that class. Reporting macro-$F_1$ and per-class AP beside micro-$F_1$ prevents the majority phone-use class from silently defining the conclusion, although the wide SD for low-support cues still warrants caution.
+The class-wise mean differences, YOLO26n minus YOLO11n, are $+6.21$ points for hand over mouth, $-3.85$ for yawning, $+1.02$ for drinking, and $+3.02$ for phone use. D-FINE-N obtains the highest mean AP for yawning, drinking, and phone use, but the lowest for hand over mouth. Reporting macro-$F_1$ and per-class AP beside micro-$F_1$ prevents the majority phone-use class from silently defining the conclusion, although the wide SD for low-support cues still warrants caution.
 
 \subsection{Held-Out Subject Sensitivity}
-Averaged across seeds, YOLO11n micro-$F_1$ is 94.94\%, 62.41\%, and 94.72\% for Subjects 05, 10, and 12; YOLO26n obtains 96.11\%, 54.11\%, and 92.29\%. The between-subject change is far larger than the pooled seed SD. Reporting only the pooled test set would therefore hide the difficult driver.
-
-\subsection{Validation Operating Point}
-Figure~\ref{fig:calibration} makes the validation-only operating-point decision explicit. Lines and ribbons show the seed mean and sample SD across the full confidence sweep. Each model has one filled marker at its mean validation-selected operating point. YOLO11n selects lower thresholds and gives higher validation micro- and macro-$F_1$, whereas YOLO26n maintains high $F_1$ farther into the threshold range. The false-detection panel shows the corresponding reduction on negative validation frames. None of these curves uses the protected test set.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.735\textwidth]{validation_operating_point.pdf}
-\caption{RGB validation confidence sweep. Lines show the seed mean and translucent ribbons show sample SD. Dark-edged markers identify the mean micro-$F_1$-selected operating points.}
-\label{fig:calibration}
-\end{figure*}
+Averaged across seeds, YOLO11n micro-$F_1$ is 94.94\%, 62.41\%, and 94.72\% for Subjects 05, 10, and 12; YOLO26n obtains 96.11\%, 54.11\%, and 92.29\%; and D-FINE-N obtains 98.20\%, 78.79\%, and 94.30\%. The between-subject change is far larger than the pooled seed SD. Reporting only the pooled test set would therefore hide the difficult driver.
 
 \subsection{Qualitative Error Analysis}
 Figure~\ref{fig:qual} shows predeclared seed-13 examples from frozen predictions. Correct detections localize the intended interaction; a shared miss occurs under glare with a small drinking target. More importantly, one nominal negative appears visually cue-like. It may reflect a difficult ontology boundary or a missed label, so the structural annotation audit alone cannot establish semantic validity. The example is retained because it exposes the benchmark's principal annotation risk.
@@ -181,7 +173,7 @@ Figure~\ref{fig:qual} shows predeclared seed-13 examples from frozen predictions
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.62\textwidth]{qualitative_examples.pdf}
-\caption{Representative seed-13 RGB outcomes. Green boxes denote ground truth and orange boxes denote predictions at the validation-selected threshold. Rows are completed detector systems; columns show a true positive, a false detection on a nominal negative, and a false negative.}
+\caption{Representative seed-13 outcomes from the original YOLO suite. Green boxes denote ground truth and orange boxes denote predictions at the validation-selected threshold; columns show a true positive, a false detection on a nominal negative, and a false negative.}
 \label{fig:qual}
 \end{figure*}
 
@@ -214,14 +206,14 @@ D-FINE-N & 1:6 & \multicolumn{5}{c}{\ph} \\
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.735\textwidth]{training_negative_exposure.pdf}
+\includegraphics[width=0.700\textwidth]{training_negative_exposure.pdf}
 \caption{Pending inventory for ten NIR seed-13 runs at deterministic 1-FPS midpoint sampling. Final panels will show strict-IoU accuracy, macro-$F_1$, and false detections per 100 negative frames.}
 \label{fig:nir}
 \end{figure*}
 
 \section{Discussion}
 \subsection{Accuracy--Efficiency Trade-offs}
-The completed evidence does not identify one universally best YOLO system. YOLO11n is the better operating-point choice when coarse-IoU accuracy, macro-$F_1$, lower latency, and throughput are prioritized. YOLO26n gives the higher strict-IoU mAP with slightly fewer parameters and fewer giga floating-point operations (GFLOPs), but its native end-to-end inference path is slower in the measured tensor-to-final boundary. The comparison is useful precisely as a shipped-system benchmark: training and postprocessing remain native, so differences cannot be attributed to architecture alone.
+No detector is universally best: YOLO11n leads coarse-IoU mAP and throughput, YOLO26n leads strict-IoU mAP and compactness, and D-FINE-N leads micro- and macro-$F_1$ but runs slowest. Native training and postprocessing make this a shipped-system comparison, not an isolation of architecture.
 
 \subsection{Class and Subject Effects}
 The phone-use majority is a real benchmark characteristic and a limitation for pooled operating metrics, but it does not invalidate YOLO26n's strict-IoU advantage. Equal-weight class AP, macro-$F_1$, per-class supports, and paired-seed directions separate that result from majority-class dominance. The narrow aggregate margin, low support for three categories, and drinking sign reversal mean the accurate conclusion is a trade-off rather than a definitive rank. The difficult Subject 10 further shows that seed variation on a single split understates deployment variation across people.
@@ -230,13 +222,14 @@ The phone-use majority is a real benchmark characteristic and a limitation for p
 Subject-disjoint evaluation reduces identity leakage but does not establish population-level generalization from only 14 drivers and three held-out test identities. A single annotator and one pass provide internally consistent data but no independent semantic agreement estimate; the qualitative nominal-negative case makes this concrete. Correlated frames remain within RGB recordings, and single-frame detection neither estimates temporal fatigue nor models alert debouncing. NIR avoids within-snippet duplication through one midpoint frame, but 1-FPS sampling does not characterize motion within the second. NIR additionally differs in dataset, ontology, annotation source, and preprocessing, uses one seed, and changes negative diversity together with training steps. It cannot be interpreted as a controlled RGB-versus-NIR modality effect. Finally, RTX 4060 timing excludes preprocessing and is not an embedded-hardware measurement. These boundaries define what the benchmark supports without removing its value as a transparent, reproducible comparison.
 
 \section{Conclusion and Future Work}
-The completed RGB YOLO comparison establishes a reproducible system-level trade-off: YOLO11n provides the stronger validation-calibrated operating point and throughput, while YOLO26n provides higher strict-IoU AP. Paired seeds support those aggregate directions, but class and subject analyses prevent an overgeneralized winner claim. The final three-model RGB conclusion after D-FINE-N and the separate NIR exposure findings are \ph.
+The RGB comparison establishes a system-level trade-off: YOLO11n leads coarse-IoU accuracy and throughput, YOLO26n leads strict-IoU AP and compactness, and D-FINE-N leads pooled and class-balanced $F_1$ but is slowest. Class, subject, and suite-extension evidence prevent a universal winner or jointly frozen nine-run claim. NIR findings remain \ph.
 
 Future work will add independent multi-annotator review, increase rare-cue and held-out-driver coverage, repeat the benchmark across subject partitions and external cabins, and test class-balanced or matched-step training. Temporal alert logic will connect frame localization to user-facing warnings. The NIR study will be strengthened with matched optimization exposure and additional seeds, while embedded-device profiling will include preprocessing and end-to-end input latency. These extensions directly target the uncertainty exposed by the present class, subject, and qualitative analyses.
 
 \noindent\textbf{Data and code:} Authored annotations, frozen partitions and checksums, sanitized predictions, evaluation tools, and publication artifacts are available at \url{https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection}; licensed DMD and Drive\&Act media and trained checkpoints remain local under their original access terms.
 
 \FloatBarrier
+\IEEEtriggeratref{9}
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 
