@@ -8,4 +8,8 @@ is intentional. Run `validate_all_ten.bat` before the confirmation-gated
 
 RTMDet-Tiny and EfficientDet-D1 use the pinned Docker image built by
 `scripts/setup/02_setup_backends.bat`; the three existing backends remain in the
-main virtual environment.
+main virtual environment. Each added-model launch repeats a lightweight CUDA
+and mounted-data preflight before creating training state. It verifies the exact
+train/validation COCO counts, category IDs, and every referenced midpoint image,
+then prints a machine-readable preflight report. Missing GPU access or data now
+fails before either upstream trainer starts.

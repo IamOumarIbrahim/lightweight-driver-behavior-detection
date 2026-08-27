@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib.metadata
 import json
 import math
 import os
@@ -16,6 +17,8 @@ import yaml
 
 REPO_ROOT = Path("/workspace")
 IMAGE_ROOT = REPO_ROOT / "data" / "processed" / "NIR" / "images"
+EXPECTED_TRAIN_IMAGES = {"1to2": 810, "1to6": 1890}
+EXPECTED_VALIDATION_IMAGES = 881
 
 
 def load_yaml(path: Path) -> dict[str, Any]:
@@ -23,6 +26,201 @@ def load_yaml(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise RuntimeError(f"Expected a YAML mapping: {path}")
     return value
+
+
+def require_cuda_runtime() -> dict[str, Any]:
+    """Fail before training state is created unless CUDA and AMP really work."""
+
+    import torch
+
+    if not torch.cuda.is_available() or torch.cuda.device_count() < 1:
+        raise RuntimeError(
+            "CUDA is unavailable inside the additional-model image. Verify the NVIDIA "
+            "Windows driver, WSL GPU support, Docker Desktop, and --gpus device=0."
+        )
+    torch.cuda.set_device(0)
+    properties = torch.cuda.get_device_properties(0)
+    free_bytes, total_bytes = torch.cuda.mem_get_info(0)
+    with torch.inference_mode(), torch.cuda.amp.autocast(dtype=torch.float16):
+        sample = torch.ones((64, 64), device="cuda")
+        result = sample @ sample
+    torch.cuda.synchronize()
+    if not torch.isfinite(result).all().item():
+        raise RuntimeError("CUDA AMP smoke calculation returned non-finite values")
+    return {
+        "torch": torch.__version__,
+        "torch_cuda": torch.version.cuda,
+        "device": properties.name,
+        "compute_capability": f"{properties.major}.{properties.minor}",
+        "total_vram_bytes": int(total_bytes),
+        "free_vram_bytes": int(free_bytes),
+    }
+
+
+def _git_head(path: Path) -> str:
+    return subprocess.check_output(
+        ["git", "-C", str(path), "rev-parse", "HEAD"], text=True
+    ).strip()
+
+
+def verify_backend_installation() -> dict[str, Any]:
+    """Verify pinned imports, commits, patches, configs, weights, and CUDA model builds."""
+
+    import torch
+    from effdet import create_model
+    from mmdet.registry import MODELS
+    from mmengine.config import Config
+    from mmyolo.utils import register_all_modules
+
+    spec = load_yaml(REPO_ROOT / "configs" / "backends.yaml")["additional_models"]
+    commits = {
+        "mmyolo": _git_head(Path("/opt/mmyolo")),
+        "efficientdet": _git_head(Path("/opt/efficientdet")),
+    }
+    expected_commits = {
+        "mmyolo": str(spec["mmyolo"]["commit"]),
+        "efficientdet": str(spec["efficientdet"]["commit"]),
+    }
+    if commits != expected_commits:
+        raise RuntimeError(
+            f"Additional-model image commit mismatch: expected {expected_commits}, got {commits}"
+        )
+    efficientdet_train = Path("/opt/efficientdet/train.py").read_text(encoding="utf-8")
+    for marker in ("--grad-accum-steps", "update_grad=should_step", "window_samples"):
+        if marker not in efficientdet_train:
+            raise RuntimeError(f"EfficientDet accumulation patch marker is missing: {marker}")
+
+    for model, weight in spec["models"].items():
+        path = REPO_ROOT / weight["file"]
+        if not path.is_file() or path.stat().st_size != int(weight["size_bytes"]):
+            raise RuntimeError(f"Pinned {model} weight is missing or has the wrong size: {path}")
+
+    for ratio in ("1to2", "1to6"):
+        config = Config.fromfile(
+            str(REPO_ROOT / "configs" / "NIR" / "rtmdet" / f"ratio_{ratio}.py")
+        )
+        if (
+            int(config.train_dataloader.batch_size) != 8
+            or int(config.optim_wrapper.accumulative_counts) != 4
+            or int(config.train_cfg.max_epochs) != 100
+            or config.optim_wrapper.type != "AmpOptimWrapper"
+        ):
+            raise RuntimeError(f"RTMDet ratio {ratio} config is not the frozen CUDA recipe")
+    efficientdet_config = load_yaml(
+        REPO_ROOT / "configs" / "NIR" / "efficientdet" / "base.yaml"
+    )
+    if (
+        int(efficientdet_config.get("batch_size", -1)) != 8
+        or int(efficientdet_config.get("grad_accum_steps", -1)) != 4
+        or int(efficientdet_config.get("epochs", -1)) != 100
+        or efficientdet_config.get("native_amp") is not True
+    ):
+        raise RuntimeError("EfficientDet config is not the frozen CUDA recipe")
+
+    register_all_modules()
+    rtmdet_config = Config.fromfile(
+        str(REPO_ROOT / "configs" / "NIR" / "rtmdet" / "ratio_1to2.py")
+    )
+    rtmdet = MODELS.build(rtmdet_config.model).cuda().eval()
+    with torch.inference_mode(), torch.cuda.amp.autocast(dtype=torch.float16):
+        rtmdet_features = rtmdet.extract_feat(torch.zeros((1, 3, 640, 640), device="cuda"))
+        rtmdet.bbox_head(rtmdet_features)
+    torch.cuda.synchronize()
+    rtmdet_parameters = sum(parameter.numel() for parameter in rtmdet.parameters())
+    del rtmdet, rtmdet_features
+    torch.cuda.empty_cache()
+
+    efficientdet = create_model(
+        "tf_efficientdet_d1", bench_task="", num_classes=2, pretrained=False
+    ).cuda().eval()
+    with torch.inference_mode(), torch.cuda.amp.autocast(dtype=torch.float16):
+        efficientdet(torch.zeros((1, 3, 640, 640), device="cuda"))
+    torch.cuda.synchronize()
+    efficientdet_parameters = sum(
+        parameter.numel() for parameter in efficientdet.parameters()
+    )
+    del efficientdet
+    torch.cuda.empty_cache()
+
+    packages = {
+        name: importlib.metadata.version(name)
+        for name in ("torch", "mmengine", "mmcv", "mmdet", "mmyolo", "effdet", "timm")
+    }
+    return {
+        "commits": commits,
+        "packages": packages,
+        "model_parameters": {
+            "rtmdet_tiny": rtmdet_parameters,
+            "efficientdet_d1": efficientdet_parameters,
+        },
+    }
+
+
+def _validate_coco_inventory(
+    path: Path, *, expected_images: int, expected_category_ids: list[int]
+) -> dict[str, Any]:
+    if not path.is_file():
+        raise RuntimeError(f"Prepared COCO annotations are missing: {path}")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    images = payload.get("images", [])
+    category_ids = sorted(int(item["id"]) for item in payload.get("categories", []))
+    if len(images) != expected_images or category_ids != expected_category_ids:
+        raise RuntimeError(
+            f"Prepared COCO inventory mismatch for {path}: "
+            f"images={len(images)}, categories={category_ids}"
+        )
+    names = [str(item["file_name"]) for item in images]
+    if len(names) != len(set(names)):
+        raise RuntimeError(f"Prepared COCO inventory has duplicate image names: {path}")
+    missing = [name for name in names if not (IMAGE_ROOT / name).is_file()]
+    if missing:
+        raise RuntimeError(
+            f"Prepared NIR images are missing for {path}: {len(missing)} absent; "
+            f"first={missing[0]}"
+        )
+    return {"path": str(path), "images": len(images), "categories": category_ids}
+
+
+def validate_training_inputs(model: str, ratio: str) -> dict[str, Any]:
+    """Validate the exact mounted training and validation inputs for one run."""
+
+    training = _validate_coco_inventory(
+        REPO_ROOT
+        / "data"
+        / "processed"
+        / "NIR"
+        / "coco"
+        / "dfine"
+        / f"ratio_{ratio}"
+        / "instances_train.json",
+        expected_images=EXPECTED_TRAIN_IMAGES[ratio],
+        expected_category_ids=[0, 1],
+    )
+    validation_root = (
+        REPO_ROOT / "data" / "processed" / "NIR" / "coco"
+    )
+    if model == "rtmdet_tiny":
+        validation_path = validation_root / "dfine" / "evaluation" / "instances_val.json"
+        category_ids = [0, 1]
+    else:
+        validation_path = validation_root / "evaluation" / "instances_val.json"
+        category_ids = [1, 2]
+    validation = _validate_coco_inventory(
+        validation_path,
+        expected_images=EXPECTED_VALIDATION_IMAGES,
+        expected_category_ids=category_ids,
+    )
+    return {"training": training, "validation": validation}
+
+
+def doctor(_args: argparse.Namespace) -> int:
+    report = {
+        "status": "ok",
+        "cuda": require_cuda_runtime(),
+        "backends": verify_backend_installation(),
+    }
+    print(json.dumps(report, sort_keys=True))
+    return 0
 
 
 def latest_checkpoint(training_dir: Path, model: str) -> Path | None:
@@ -77,6 +275,11 @@ def prepare_effdet_dataset(ratio_config: Path) -> Path:
 
 
 def train(args: argparse.Namespace) -> int:
+    preflight = {
+        "cuda": require_cuda_runtime(),
+        "inputs": validate_training_inputs(args.model, args.ratio),
+    }
+    print(json.dumps({"training_preflight": preflight}, sort_keys=True))
     run_root = REPO_ROOT / "runs" / "NIR" / args.model / f"ratio_{args.ratio}"
     training_dir = run_root / "training"
     training_dir.mkdir(parents=True, exist_ok=True)
@@ -107,7 +310,9 @@ def train(args: argparse.Namespace) -> int:
         cached_weight = cache / "tf_efficientdet_d1_40-a30f94af.pth"
         source_weight = REPO_ROOT / "third_party" / "weights" / cached_weight.name
         if not cached_weight.exists():
-            cached_weight.symlink_to(source_weight)
+            if not source_weight.is_file():
+                raise RuntimeError(f"Pinned EfficientDet weight is missing: {source_weight}")
+            shutil.copy2(source_weight, cached_weight)
         command = [
             sys.executable,
             "/opt/efficientdet/train.py",
@@ -219,6 +424,8 @@ def infer(args: argparse.Namespace) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
+    doctor_parser = subparsers.add_parser("doctor")
+    doctor_parser.set_defaults(function=doctor)
     train_parser = subparsers.add_parser("train")
     train_parser.add_argument("--model", required=True, choices=["rtmdet_tiny", "efficientdet_d1"])
     train_parser.add_argument("--ratio", required=True, choices=["1to2", "1to6"])

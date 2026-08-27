@@ -33,7 +33,7 @@ dfine:
     file: configs/dfine/dfine_hgnetv2_n_coco.yml
     sha256: d15c3cc0ad0f8e5b0977fd88c56948350b4898a51abd2709bc3d5535a689080d
 additional_models:
-  image: dms-eval-additional-models:2026-08-26
+  image: dms-eval-additional-models:2026-08-27
   dockerfile: configs/docker/additional-models.Dockerfile
   base_image: pytorch/pytorch:2.0.1-cuda11.8-cudnn8-devel
   mmyolo:

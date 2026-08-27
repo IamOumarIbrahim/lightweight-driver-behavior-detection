@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
-import shutil
 import subprocess
 import sys
 import urllib.request
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
@@ -19,6 +19,11 @@ from tools.benchmark.protocol import (
     load_backends,
     resolve_repo_path,
     sha256_file,
+)
+from tools.backends.docker_backend import (
+    command as docker_command,
+    ensure_engine,
+    verify_gpu_runtime,
 )
 
 
@@ -160,12 +165,9 @@ def ensure_weight(spec: dict, install: bool) -> dict[str, str | int]:
     return {"file": str(path), "size_bytes": path.stat().st_size, "sha256": actual_hash}
 
 
-def ensure_additional_image(install: bool) -> dict[str, str]:
+def ensure_additional_image(install: bool) -> dict[str, Any]:
     spec = load_backends()["additional_models"]
-    if shutil.which("docker") is None:
-        raise ProtocolError(
-            "Docker Desktop is required for RTMDet-Tiny and EfficientDet-D1"
-        )
+    ensure_engine()
     inspect = subprocess.run(
         ["docker", "image", "inspect", spec["image"]],
         cwd=REPO_ROOT,
@@ -194,7 +196,7 @@ def ensure_additional_image(install: bool) -> dict[str, str]:
         ]
         run(command)
     smoke = subprocess.run(
-        ["docker", "run", "--rm", spec["image"], "--help"],
+        docker_command("--help", gpu=False),
         cwd=REPO_ROOT,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -203,10 +205,12 @@ def ensure_additional_image(install: bool) -> dict[str, str]:
     )
     if smoke.returncode != 0:
         raise ProtocolError(f"Additional-model image smoke test failed: {smoke.stdout}")
+    gpu_report = verify_gpu_runtime()
     return {
         "image": spec["image"],
         "mmyolo_commit": spec["mmyolo"]["commit"],
         "efficientdet_commit": spec["efficientdet"]["commit"],
+        "cuda": gpu_report,
     }
 
 

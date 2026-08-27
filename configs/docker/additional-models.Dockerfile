@@ -6,7 +6,11 @@ ARG EFFDET_COMMIT=c6dff775a36cea0bf9b76c58e59f936411c5ce01
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
     TORCH_CUDA_ARCH_LIST="8.9"
+
+LABEL org.opencontainers.image.title="DMS Eval additional NIR models" \
+      org.opencontainers.image.description="Pinned CUDA runtime for RTMDet-Tiny and EfficientDet-D1"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends git ninja-build libglib2.0-0 libsm6 libxext6 libxrender1 \
