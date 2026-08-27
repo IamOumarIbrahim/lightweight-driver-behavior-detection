@@ -178,12 +178,15 @@ def train(config: dict[str, Any], pretrained: Path, resume: Path | None) -> None
         weight_decay=float(optimizer_spec["weight_decay"]),
     )
     scheduler_spec = config["scheduler"]
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(
+    if scheduler_spec["type"] != "CosineAnnealingLR":
+        raise ProtocolError(f"Unsupported SSDLite scheduler: {scheduler_spec['type']}")
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer,
-        milestones=[int(value) for value in scheduler_spec["milestones"]],
-        gamma=float(scheduler_spec["gamma"]),
+        T_max=int(scheduler_spec["T_max"]),
+        eta_min=float(scheduler_spec["eta_min"]),
     )
-    scaler = torch.cuda.amp.GradScaler(enabled=bool(config["amp"]))
+    amp_enabled = bool(config["amp"])
+    scaler = torch.amp.GradScaler("cuda", enabled=amp_enabled)
     start_epoch = 0
     best_map = -math.inf
     if resume:
@@ -257,20 +260,49 @@ def train(config: dict[str, Any], pretrained: Path, resume: Path | None) -> None
                 batch_loss_reduction="mean",
             )
             with torch.autocast(
-                device_type="cuda", dtype=torch.float16, enabled=bool(config["amp"])
+                device_type="cuda", dtype=torch.float16, enabled=amp_enabled
             ):
                 loss_dict = model(images, targets)
                 loss = sum(loss_dict.values())
+            if not torch.isfinite(loss).item():
+                values = {
+                    key: float(value.detach().item())
+                    for key, value in loss_dict.items()
+                }
+                raise ProtocolError(
+                    f"Non-finite SSDLite loss at epoch {epoch}, batch {batch_index}: "
+                    f"{values}"
+                )
             scaler.scale(loss * scale).backward()
             should_step = (
                 (batch_index + 1) % accumulation == 0
                 or (batch_index + 1) == len(train_loader)
             )
             if should_step:
+                scaler.unscale_(optimizer)
+                if any(
+                    parameter.grad is not None
+                    and not torch.isfinite(parameter.grad).all().item()
+                    for parameter in model.parameters()
+                ):
+                    raise ProtocolError(
+                        f"Non-finite SSDLite gradient at epoch {epoch}, "
+                        f"batch {batch_index}"
+                    )
                 scaler.step(optimizer)
                 scaler.update()
                 optimizer.zero_grad(set_to_none=True)
             loss_total += float(loss.detach().item()) * len(images)
+        nonfinite_state = [
+            key
+            for key, value in model.state_dict().items()
+            if value.is_floating_point() and not torch.isfinite(value).all().item()
+        ]
+        if nonfinite_state:
+            raise ProtocolError(
+                f"Non-finite SSDLite model state after epoch {epoch}: "
+                f"{nonfinite_state[:10]}"
+            )
         scheduler.step()
         predictions = _predictions(model, val_loader, device)
         metrics = coco_metrics(val_dataset.coco, predictions)
@@ -280,6 +312,7 @@ def train(config: dict[str, Any], pretrained: Path, resume: Path | None) -> None
             "train_loss": loss_total / len(train_dataset),
             "validation": metrics,
             "lr": optimizer.param_groups[0]["lr"],
+            "training_precision": "amp_fp16" if amp_enabled else "fp32",
         }
         output_dir.mkdir(parents=True, exist_ok=True)
         with log_path.open("a", encoding="utf-8", newline="\n") as handle:

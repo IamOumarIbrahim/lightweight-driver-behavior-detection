@@ -38,6 +38,10 @@ def test_nir_protocol_and_fingerprints():
     assert ssdlite["input_size"] == [640, 640]
     assert ssdlite["gradient_accumulation_steps"] == 4
     assert ssdlite["physical_batch_size"] == 8
+    assert ssdlite["amp"] is False
+    assert ssdlite["optimizer"]["lr"] == 0.025
+    assert ssdlite["optimizer"]["reference_global_batch_size"] == 192
+    assert ssdlite["scheduler"]["type"] == "CosineAnnealingLR"
 
     rtdetrv2 = load_yaml("configs/NIR/rtdetrv2/base.yml")
     assert rtdetrv2["PResNet"]["depth"] == 18

@@ -13,8 +13,14 @@ physical_batch_size: 8
 gradient_accumulation_steps: 4
 num_workers: 4
 seed: 13
-amp: true
+amp: false
 augmentation: {horizontal_flip_probability: 0.5}
-optimizer: {type: SGD, lr: 0.15, momentum: 0.9, weight_decay: 0.00004}
-scheduler: {type: MultiStepLR, milestones: [67, 89], gamma: 0.1}
+optimizer:
+  type: SGD
+  lr: 0.025
+  momentum: 0.9
+  weight_decay: 0.00004
+  reference_lr: 0.15
+  reference_global_batch_size: 192
+scheduler: {type: CosineAnnealingLR, T_max: 100, eta_min: 0.0}
 checkpoint_retention: {best: true, last: true, periodic_every_epochs: 100}

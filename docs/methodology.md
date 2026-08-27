@@ -14,7 +14,7 @@
 | **Physical Batch Size** | 8 | Per iteration |
 | **Gradient Accumulation** | 4 steps | Effective batch size 32 |
 | **Training Budget** | RGB: 220 epochs; NIR: 100 epochs | Early stopping disabled; best model-native validation checkpoint retained |
-| **Optimization** | Pinned model-native recipe | Ultralytics auto optimizer; D-FINE/RT-DETRv2 AdamW; YOLOX/SSDLite SGD |
+| **Optimization** | Pinned model-native recipe | Ultralytics auto optimizer; D-FINE/RT-DETRv2 AdamW; YOLOX/SSDLite SGD; SSDLite uses FP32 for numerical stability |
 | **Evaluation** | COCO mAP and validation-calibrated operating point | Test is never used for tuning |
 | **Profiling** | Batch 1, 640 × 640, CUDA AMP FP16 | RTX 4060 values are hardware-specific |
 

@@ -61,7 +61,7 @@ training:
       optimizer: AdamW
       scheduler: MultiStepLR
       augmentation_stop_epoch: 67
-    torchvision_ssdlite: {optimizer: SGD, scheduler: MultiStepLR, input_adaptation: 640x640}
+    torchvision_ssdlite: {optimizer: SGD, scheduler: CosineAnnealingLR, precision: fp32, input_adaptation: 640x640}
     rtdetrv2: {optimizer: AdamW, scheduler: MultiStepLR, augmentation_stop_epoch: 97}
     yolox: {optimizer: SGD, scheduler: yoloxwarmcos, input_adaptation: 640x640}
 
