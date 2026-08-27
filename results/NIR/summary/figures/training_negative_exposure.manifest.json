@@ -24,11 +24,11 @@
   "outputs": {
     "pdf": {
       "path": "results/NIR/summary/figures/training_negative_exposure.pdf",
-      "sha256": "751f140b56588e9c210fba0cda65057263029ec7f6156c37db4c1262f55d5d3a"
+      "sha256": "0f4907ccbe727ad2c71bb06c26dc91fb6269e8463bca75396422df39197a2b57"
     },
     "svg": {
       "path": "results/NIR/summary/figures/training_negative_exposure.svg",
-      "sha256": "8c94a78953ee12b571f8bfb8dac0f4e4752cd89903f9f7870bba399e285817fb"
+      "sha256": "5697ed5d71621c0ab50398bbdbcb1ed1a6a207cbea5dee979ace0934f1aaa08b"
     },
     "png": {
       "path": "results/NIR/summary/figures/training_negative_exposure.png",

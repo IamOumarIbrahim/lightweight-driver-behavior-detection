@@ -27,7 +27,7 @@
     },
     "svg": {
       "path": "results/RGB/summary/figures/per_class_ap.svg",
-      "sha256": "4c718b998f8ee552c338353036f79168c5fc45feefd052aed3f2655eb5ec9dfd"
+      "sha256": "52539f7e445b73d27fe6775720ca069ab3ce88a0137c63cc2fefc72098a2d6c4"
     },
     "png": {
       "path": "results/RGB/summary/figures/per_class_ap.png",
