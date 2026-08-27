@@ -1057,13 +1057,16 @@ load_qualitative_examples <- function(path) {
   if (!identical(payload$artifact, "rgb_qualitative_figure_source")) {
     stop("Unexpected qualitative source type in ", path)
   }
-  if (length(payload$examples) != 6L) {
-    stop("The qualitative grid requires exactly six examples")
+  if (length(payload$examples) != 9L) {
+    stop("The qualitative grid requires exactly nine examples")
   }
   payload$examples
 }
 
 build_qualitative_grid <- function(examples) {
+  row_count <- length(examples) %/% 3L
+  row_stride <- 1.06
+  plot_ymax <- row_count * row_stride - 0.06
   plot <- ggplot()
   for (index in seq_along(examples)) {
     example <- examples[[index]]
@@ -1073,9 +1076,10 @@ build_qualitative_grid <- function(examples) {
     }
     column <- (index - 1L) %% 3L
     row <- (index - 1L) %/% 3L
-    image_ymin <- if (row == 0L) 1.08 else 0.02
-    image_ymax <- if (row == 0L) 1.93 else 0.87
-    title_y <- if (row == 0L) 2.01 else 0.95
+    row_base <- (row_count - row - 1L) * row_stride
+    image_ymin <- row_base + 0.02
+    image_ymax <- row_base + 0.87
+    title_y <- row_base + 0.95
     label <- paste(
       unname(model_labels[as.character(example$model_id)]),
       as.character(example$case),
@@ -1103,7 +1107,7 @@ build_qualitative_grid <- function(examples) {
     coord_fixed(
       ratio = 1,
       xlim = c(0, 3),
-      ylim = c(0, 2.06),
+      ylim = c(0, plot_ymax),
       expand = FALSE,
       clip = "off"
     ) +
@@ -1725,7 +1729,7 @@ qualitative_outputs <- export_figure(
   qualitative_plot,
   "qualitative_examples",
   width = 7.16,
-  height = 4.78,
+  height = 7.35,
   title = "RGB qualitative successes and errors",
   figure_id = "rgb_qualitative_examples",
   metadata_source = qualitative_source_path
@@ -1740,12 +1744,19 @@ qualitative_inputs <- lapply(qualitative_examples, function(example) {
     sha256 = sha256_file(image_path)
   )
 })
+qualitative_model_ids <- unique(vapply(
+  qualitative_examples,
+  function(example) as.character(example$model_id),
+  character(1)
+))
+qualitative_completed <- expected_models[expected_models %in% qualitative_model_ids]
+qualitative_pending <- expected_models[!expected_models %in% qualitative_model_ids]
 qualitative_manifest <- write_manifest(
   "qualitative_examples",
   "rgb_qualitative_examples",
   qualitative_outputs,
-  completed_models,
-  pending_models,
+  qualitative_completed,
+  qualitative_pending,
   list(inputs = qualitative_inputs, training_seed = 13L),
   manifest_source = qualitative_source_path
 )

@@ -38,6 +38,24 @@
       "case": "False negative",
       "image_id": 4597,
       "path": "results/RGB/yolo26n/seed_13/images/false_negative-01-image-4597.png"
+    },
+    {
+      "model_id": "dfine_n",
+      "case": "Correct localization",
+      "image_id": 4868,
+      "path": "results/RGB/dfine_n/seed_13/images/correct_detection-01-image-4868.png"
+    },
+    {
+      "model_id": "dfine_n",
+      "case": "False positive",
+      "image_id": 12324,
+      "path": "results/RGB/dfine_n/seed_13/images/false_positive_negative_frame-01-image-12324.png"
+    },
+    {
+      "model_id": "dfine_n",
+      "case": "False negative",
+      "image_id": 4723,
+      "path": "results/RGB/dfine_n/seed_13/images/false_negative-01-image-4723.png"
     }
   ]
 }

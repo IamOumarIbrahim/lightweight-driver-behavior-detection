@@ -11,27 +11,26 @@
     "png": "0.1.9"
   },
   "source": "results/RGB/summary/qualitative_examples.json",
-  "source_sha256": "fe0c092b0a804ddcdf5cd6579e623d0515d0031444168689aa02ae4c2fdd3ee7",
+  "source_sha256": "2d986c1dbaf75d5425fd3969c1e82d9bbff4466fce88c5100e58607c1f8b4700",
   "models": [
     "yolo11n",
-    "yolo26n"
-  ],
-  "pending_models": [
+    "yolo26n",
     "dfine_n"
   ],
+  "pending_models": [],
   "dispersion": "sample_standard_deviation",
   "outputs": {
     "pdf": {
       "path": "results/RGB/summary/figures/qualitative_examples.pdf",
-      "sha256": "5652c04d5d56ae5c5cdd9e3a5833ed397f75f3a69f8fe6416bcddc2eab00d128"
+      "sha256": "32fa2438b2ca142838f9424e81fc5a0ee30db290b8ce7bff6310f98c23b68d8f"
     },
     "svg": {
       "path": "results/RGB/summary/figures/qualitative_examples.svg",
-      "sha256": "60986b0558d142156ec77ca04798b2367b26fc13c9f904c6c958803628ce9d9a"
+      "sha256": "f5847758b37e99bac59cdbf2fcf3e13691a2179c1bf79e01765a1b742892b721"
     },
     "png": {
       "path": "results/RGB/summary/figures/qualitative_examples.png",
-      "sha256": "88d0c0e6e15eb0c237e337fa77119466d0f64d3e8bb0ac1dfd64b1d2f0741c9a"
+      "sha256": "312853eeae79191a49a023eee7ff08c82f347d00f813e46fdf112fe13c3dfc3e"
     }
   },
   "inputs": [
@@ -76,6 +75,27 @@
       "image_id": 4597,
       "path": "results/RGB/yolo26n/seed_13/images/false_negative-01-image-4597.png",
       "sha256": "dbe4da0392e0b23586aaa92b697829cb332c53aa01d6c76143a9ad48ec01eb3e"
+    },
+    {
+      "model_id": "dfine_n",
+      "case": "Correct localization",
+      "image_id": 4868,
+      "path": "results/RGB/dfine_n/seed_13/images/correct_detection-01-image-4868.png",
+      "sha256": "1fa585bbe99c68623f4182cb3ffd21060cc643c55d2c3384c73306d07a87bef6"
+    },
+    {
+      "model_id": "dfine_n",
+      "case": "False positive",
+      "image_id": 12324,
+      "path": "results/RGB/dfine_n/seed_13/images/false_positive_negative_frame-01-image-12324.png",
+      "sha256": "2f63a4319a91d833a3e75fb9bad367407c82d3204237c735a15642870af3e323"
+    },
+    {
+      "model_id": "dfine_n",
+      "case": "False negative",
+      "image_id": 4723,
+      "path": "results/RGB/dfine_n/seed_13/images/false_negative-01-image-4723.png",
+      "sha256": "5ad2a50494348ccc1c58edc30f690412ae45d7eff699b5be44bff7e5bcb4448e"
     }
   ],
   "training_seed": 13

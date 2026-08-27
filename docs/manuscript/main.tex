@@ -168,12 +168,12 @@ The class-wise mean differences, YOLO26n minus YOLO11n, are $+6.21$ points for h
 Averaged across seeds, YOLO11n micro-$F_1$ is 94.94\%, 62.41\%, and 94.72\% for Subjects 05, 10, and 12; YOLO26n obtains 96.11\%, 54.11\%, and 92.29\%; and D-FINE-N obtains 98.20\%, 78.79\%, and 94.30\%. The between-subject change is far larger than the pooled seed SD. Reporting only the pooled test set would therefore hide the difficult driver.
 
 \subsection{Qualitative Error Analysis}
-Figure~\ref{fig:qual} shows predeclared seed-13 examples from frozen predictions. Correct detections localize the intended interaction; a shared miss occurs under glare with a small drinking target. More importantly, one nominal negative appears visually cue-like. It may reflect a difficult ontology boundary or a missed label, so the structural annotation audit alone cannot establish semantic validity. The example is retained because it exposes the benchmark's principal annotation risk.
+Figure~\ref{fig:qual} shows predeclared seed-13 examples from frozen predictions for all three RGB detectors. Correct detections localize the intended interaction, while the false-negative examples expose glare and small drinking targets. More importantly, nominal negatives can appear visually cue-like. They may reflect difficult ontology boundaries or missed labels, so the structural annotation audit alone cannot establish semantic validity. The examples are retained because they expose the benchmark's principal annotation risk.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.62\textwidth]{qualitative_examples.pdf}
-\caption{Representative seed-13 outcomes from the original YOLO suite. Green boxes denote ground truth and orange boxes denote predictions at the validation-selected threshold; columns show a true positive, a false detection on a nominal negative, and a false negative.}
+\caption{Representative seed-13 outcomes for YOLO11n, YOLO26n, and D-FINE-N. Green boxes denote ground truth and orange boxes denote predictions at the validation-selected threshold; columns show a correct localization, a false detection on a nominal negative, and a false negative.}
 \label{fig:qual}
 \end{figure*}
 
