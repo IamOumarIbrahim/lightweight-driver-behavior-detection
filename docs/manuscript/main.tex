@@ -16,6 +16,7 @@
 \usepackage{xcolor}
 \usepackage{url}
 \usepackage{placeins}
+\usepackage{float}
 \usepackage[protrusion=true,expansion=true]{microtype}
 
 \graphicspath{
@@ -198,7 +199,7 @@ Averaged across seeds, YOLO11n micro-$F_1$ is 94.94\%, 62.41\%, and 94.72\% for 
 \subsection{Qualitative Error Analysis}
 Figure~\ref{fig:qual} shows predeclared seed-13 examples from frozen predictions for all three RGB detectors. Correct detections localize the intended interaction, while the false-negative examples expose glare and small drinking targets. More importantly, nominal negatives can appear visually cue-like. They may reflect difficult ontology boundaries or missed labels, so the structural annotation audit alone cannot establish semantic validity. The examples are retained because they expose the benchmark's principal annotation risk.
 
-\begin{figure}[t]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\columnwidth]{qualitative_examples.pdf}
 \caption{Representative seed-13 outcomes for YOLO11n, YOLO26n, and D-FINE-N. Green boxes denote ground truth and orange boxes denote predictions at the validation-selected threshold; columns show a correct localization, a false detection on a nominal negative, and a false negative.}
@@ -234,7 +235,7 @@ D-FINE-N & 1:6 & 46.30 & 79.23 & 76.45 & 0.81 & 24.10 \\
 \end{tabular}
 \end{table}
 
-\begin{figure}[t]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\columnwidth]{training_negative_exposure.pdf}
 \caption{Six completed NIR protected-test results at seed 13 and deterministic 1-FPS midpoint sampling. Grouped columns compare each completed model at 1:2 and 1:6 training exposures; the dark-grey rule separates the ratio sections. RTMDet-Tiny and EfficientDet-D1 remain pending.}

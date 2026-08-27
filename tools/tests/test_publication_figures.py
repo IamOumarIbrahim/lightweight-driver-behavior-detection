@@ -56,6 +56,15 @@ def test_nir_figure_uses_grouped_columns_and_ratio_divider() -> None:
     assert "geom_line(" not in nir_figure
 
 
+def test_late_manuscript_figures_are_anchored_to_avoid_column_gap() -> None:
+    manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
+        encoding="utf-8"
+    )
+
+    assert r"\usepackage{float}" in manuscript
+    assert manuscript.count(r"\begin{figure}[H]") == 2
+
+
 def test_r_package_lock_and_figure_hashes() -> None:
     with (REPO_ROOT / "tools" / "publication" / "R-packages.lock.csv").open(
         encoding="utf-8", newline=""
