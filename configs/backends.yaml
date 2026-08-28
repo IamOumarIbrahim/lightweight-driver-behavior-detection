@@ -81,3 +81,4 @@ yolox:
     file: exps/default/yolox_nano.py
     sha256: 3ebfb63b1e5af67a3c0bdfb23d28b71090a6337e1fa05933b5563a3be275eec1
   trainer_patch: configs/patches/yolox-gradient-accumulation.patch
+  windows_patch: configs/patches/yolox-windows-runtime.patch

@@ -165,18 +165,25 @@ def ensure_patched_checkout(backend: str, install: bool) -> dict[str, str]:
     recipe = checkout / spec["recipe"]["file"]
     if sha256_file(recipe) != spec["recipe"]["sha256"]:
         raise ProtocolError(f"Pinned {backend} official recipe fingerprint mismatch")
-    patch = resolve_repo_path(spec["trainer_patch"])
-    reverse = _run_git_patch(checkout, patch, reverse=True, check_only=True)
-    if reverse.returncode != 0:
-        if not install:
-            raise ProtocolError(f"{backend} accumulation patch is not applied")
-        applied = _run_git_patch(checkout, patch)
-        if applied.returncode != 0:
-            details = applied.stderr.decode("utf-8", errors="replace").strip()
-            raise ProtocolError(f"{backend} accumulation patch failed: {details}")
-        verified = _run_git_patch(checkout, patch, reverse=True, check_only=True)
-        if verified.returncode != 0:
-            raise ProtocolError(f"{backend} accumulation patch verification failed")
+    patch_paths = [resolve_repo_path(spec["trainer_patch"])]
+    if spec.get("windows_patch"):
+        patch_paths.append(resolve_repo_path(spec["windows_patch"]))
+    for patch in patch_paths:
+        reverse = _run_git_patch(checkout, patch, reverse=True, check_only=True)
+        if reverse.returncode != 0:
+            if not install:
+                raise ProtocolError(f"{backend} patch is not applied: {patch.name}")
+            applied = _run_git_patch(checkout, patch)
+            if applied.returncode != 0:
+                details = applied.stderr.decode("utf-8", errors="replace").strip()
+                raise ProtocolError(
+                    f"{backend} patch failed ({patch.name}): {details}"
+                )
+            verified = _run_git_patch(checkout, patch, reverse=True, check_only=True)
+            if verified.returncode != 0:
+                raise ProtocolError(
+                    f"{backend} patch verification failed: {patch.name}"
+                )
     return {"commit": head, "patch": "applied"}
 
 

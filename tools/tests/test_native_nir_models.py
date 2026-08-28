@@ -1,5 +1,8 @@
 import json
+import os
 from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 import yaml
@@ -13,9 +16,10 @@ from tools.benchmark.adapters import (
     YOLOXAdapter,
     create_adapter,
 )
+from tools.benchmark.paths import REPO_ROOT
 from tools.benchmark.protocol import ProtocolError, load_backends, model_spec
 from tools.workflow.evaluate import checkpoint_for
-from tools.workflow.train import build_plan
+from tools.workflow.train import _subprocess_environment, build_plan
 from tools.workflow.train_new_nir import jobs
 
 
@@ -94,6 +98,29 @@ def test_pending_launcher_selects_only_the_ten_new_runs() -> None:
     assert not {"yolo11n", "yolo26n", "dfine_n"} & {
         model for model, _ in selected
     }
+
+
+def test_yolox_subprocess_imports_repository_tools_before_upstream_tools() -> None:
+    checkout = REPO_ROOT / "third_party" / "YOLOX"
+    environment = _subprocess_environment(checkout)
+    entries = environment["PYTHONPATH"].split(os.pathsep)
+    assert Path(entries[0]).resolve() == REPO_ROOT
+    assert Path(entries[1]).resolve() == checkout
+    subprocess.run(
+        [sys.executable, "-c", "import tools.benchmark.training; import yolox"],
+        cwd=REPO_ROOT,
+        env=environment,
+        check=True,
+    )
+
+
+def test_yolox_windows_runtime_patch_is_configured() -> None:
+    backend = load_backends()["yolox"]
+    patch = REPO_ROOT / backend["windows_patch"]
+    source = patch.read_text(encoding="utf-8")
+    assert '@logger.catch(reraise=True)' in source
+    assert 'sys.platform == "win32"' in source
+    assert "from pycocotools.cocoeval import COCOeval" in source
 
 
 def test_ssdlite_class_ids_and_validation_annotations_are_one_based(

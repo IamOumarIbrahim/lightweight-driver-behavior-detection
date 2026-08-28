@@ -278,17 +278,24 @@ def run_dfine(plan: dict[str, Any]) -> None:
             raise subprocess.CalledProcessError(process.returncode, command)
 
 
-def _stream_command(
-    command: list[str], training_dir: Path, *, extra_pythonpath: Path | None = None
-) -> None:
+def _subprocess_environment(extra_pythonpath: Path | None = None) -> dict[str, str]:
+    """Build an environment where benchmark modules cannot be shadowed upstream."""
+
     environment = os.environ.copy()
     python_paths = [str(REPO_ROOT)]
     if extra_pythonpath is not None:
-        python_paths.insert(0, str(extra_pythonpath))
+        python_paths.append(str(extra_pythonpath))
     if environment.get("PYTHONPATH"):
         python_paths.append(environment["PYTHONPATH"])
     environment["PYTHONPATH"] = os.pathsep.join(python_paths)
     environment["PYTHONUNBUFFERED"] = "1"
+    return environment
+
+
+def _stream_command(
+    command: list[str], training_dir: Path, *, extra_pythonpath: Path | None = None
+) -> None:
+    environment = _subprocess_environment(extra_pythonpath)
     training_dir.mkdir(parents=True, exist_ok=True)
     with (training_dir / "launcher.log").open(
         "a", encoding="utf-8", newline="\n"

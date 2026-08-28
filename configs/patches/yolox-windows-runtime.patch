@@ -1,0 +1,45 @@
+diff --git a/tools/train.py b/tools/train.py
+--- a/tools/train.py
++++ b/tools/train.py
+@@ -97,7 +97,7 @@ def make_parser():
+     return parser
+ 
+ 
+-@logger.catch
++@logger.catch(reraise=True)
+ def main(exp: Exp, args):
+     if exp.seed is not None:
+         random.seed(exp.seed)
+diff --git a/yolox/evaluators/coco_evaluator.py b/yolox/evaluators/coco_evaluator.py
+--- a/yolox/evaluators/coco_evaluator.py
++++ b/yolox/evaluators/coco_evaluator.py
+@@ -7,6 +7,7 @@ import itertools
+ import json
+ import tempfile
+ import time
++import sys
+ from collections import ChainMap, defaultdict
+ from loguru import logger
+ from tabulate import tabulate
+@@ -290,12 +291,17 @@ class COCOEvaluator:
+                 _, tmp = tempfile.mkstemp()
+                 json.dump(data_dict, open(tmp, "w"))
+                 cocoDt = cocoGt.loadRes(tmp)
+-            try:
+-                from yolox.layers import COCOeval_opt as COCOeval
+-            except ImportError:
++            if sys.platform == "win32":
+                 from pycocotools.cocoeval import COCOeval
+ 
+-                logger.warning("Use standard COCOeval.")
++                logger.info("Use standard COCOeval on Windows.")
++            else:
++                try:
++                    from yolox.layers import COCOeval_opt as COCOeval
++                except ImportError:
++                    from pycocotools.cocoeval import COCOeval
++
++                    logger.warning("Use standard COCOeval.")
+ 
+             cocoEval = COCOeval(cocoGt, cocoDt, annType[1])
+             cocoEval.evaluate()
