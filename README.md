@@ -109,11 +109,11 @@ Only these six semantic folders are published. Local `runs`, `third_party`, and 
   [k.ammar@ajman.ac.ae](mailto:k.ammar@ajman.ac.ae) · [ORCID 0000-0003-0039-9018](https://orcid.org/0000-0003-0039-9018)
 
 ```bibtex
-@misc{ibrahim2026lightweight,
+@unpublished{ibrahim2026lightweight,
   title     = {Subject-Disjoint Benchmarking of Lightweight Detectors for Visible Driver-Cue Localization},
   author    = {Ibrahim, Oumar Mamoun and Bin Ishak, Mohamad Khairi and Ammar, Khalid},
   year      = {2026},
-  note      = {Manuscript under review}
+  note      = {Conference paper to be submitted to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026)}
 }
 ```
 
