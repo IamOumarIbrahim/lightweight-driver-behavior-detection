@@ -105,8 +105,8 @@ Only these six semantic folders are published. Local `runs`, `third_party`, and 
   [U22200741@sharjah.ac.ae](mailto:U22200741@sharjah.ac.ae) · [ORCID 0009-0008-0312-1605](https://orcid.org/0009-0008-0312-1605)
 - **Dr. Mohamad Khairi bin Ishak** — Department of Computer Engineering, University of Sharjah<br>
   [mishak@sharjah.ac.ae](mailto:mishak@sharjah.ac.ae) · [ORCID 0000-0002-3554-0061](https://orcid.org/0000-0002-3554-0061)
-- **Khalid Ammar** — Department of Electrical and Computer Engineering, College of Engineering and Information Technology, Ajman University<br>
-  [k.ammar@ajman.ac.ae](mailto:k.ammar@ajman.ac.ae)
+- **Khalid Ammar** — Department of Electrical and Computer Engineering, Ajman University<br>
+  [k.ammar@ajman.ac.ae](mailto:k.ammar@ajman.ac.ae) · [ORCID 0000-0003-0039-9018](https://orcid.org/0000-0003-0039-9018)
 
 ```bibtex
 @misc{ibrahim2026lightweight,
