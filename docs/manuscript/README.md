@@ -12,6 +12,6 @@ auxiliaries are ignored.
 > Preserve the draft's wording, structure, citations, and formatting. The
 > editing guardrail at the top of `main.tex` applies to human and automated
 > updates: make only surgical changes backed by checksum-frozen results or an
-> explicit author request. The table's `Pending` cells belong to unfinished NIR
-> runs and must never be inferred. Rebuild after every applicable update and
+> explicit author request. Rows for unfinished NIR runs must remain absent and
+> must never be inferred. Rebuild after every applicable update and
 > verify that the paper remains at most six pages, including references.

@@ -134,15 +134,19 @@ def test_nir_exposure_figure_tracks_pending_extension_models() -> None:
     assert source["status"] == "partial"
     assert source["seed"] == 13
     assert source["ratios"] == ["1:2", "1:6"]
-    assert source["completed_models"] == ["yolo11n", "yolo26n", "dfine_n"]
-    assert source["pending_models"] == [
+    assert source["completed_models"] == [
+        "yolo11n",
+        "yolo26n",
+        "dfine_n",
         "ssdlite_mobilenet_v3_large",
         "rtdetrv2_s",
+    ]
+    assert source["pending_models"] == [
         "yolox_nano",
         "yolov10n",
         "yolov8n",
     ]
-    assert len(source["rows"]) == 6
+    assert len(source["rows"]) == 10
     for row in source["rows"]:
         metrics_path = REPO_ROOT / row["metrics_path"]
         assert metrics_path.is_file()

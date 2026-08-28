@@ -9,7 +9,7 @@
 
 | Parameter / Shared Element | Frozen Specification | Notes |
 | :---: | :---: | :---: |
-| **Models** | RGB: YOLO11n, YOLO26n, D-FINE-N; NIR adds SSDLite-MobileNetV3-Large, RT-DETRv2-S, YOLOX-Nano, YOLOv10n, YOLOv8n | Eight complete detector systems in NIR |
+| **Models** | RGB: YOLO11n, YOLO26n, D-FINE-N; NIR adds SSDLite-MobileNetV3-Large, RT-DETRv2-S, YOLOX-Nano, YOLOv10n, YOLOv8n | Eight configured detector systems; five currently have protected NIR results |
 | **Input Resolution** | 640 × 640 px | All models and tracks |
 | **Physical Batch Size** | 8 | Per iteration |
 | **Gradient Accumulation** | 4 steps | Effective batch size 32 |
@@ -115,7 +115,7 @@ Only the training negatives change. The 1:2 negatives are a subject-stratified, 
 
 The eight NIR systems span one-stage convolutional, SSD, and transformer-based detector families. SSDLite-MobileNetV3-Large loads the compatible tensors from its official 320-pixel COCO checkpoint before fine-tuning at the shared 640 input. YOLOX-Nano retains its official depthwise Nano architecture but replaces its native 416 input with the shared 640 input. The smallest official RT-DETRv2 release is RT-DETRv2-S (R18VD); no upstream model named RT-DETRv2-Tiny is used. Native training and postprocessing remain part of each complete-system comparison.
 
-All sixteen NIR runs use a fixed 100-epoch maximum with no early stopping and retain the best model-native validation checkpoint. The 1:2 condition produces 26 optimizer updates per epoch, or 2,600 total, while 1:6 produces 60 per epoch, or 6,000 total. Thus, 1:6 contains three times the unique training negatives and approximately 2.31 times the optimization updates. This is a training-negative exposure study, not a causal ratio ablation under matched training signal. At one frame per snippet, frame- and snippet-level operating decisions are identical; the publication therefore reports COCO AP, micro/macro-F1, and false detections per 100 negative frames without duplicating equivalent snippet metrics.
+All sixteen configured NIR runs use a fixed 100-epoch maximum with no early stopping and retain the best model-native validation checkpoint. The 1:2 condition produces 26 optimizer updates per epoch, or 2,600 total, while 1:6 produces 60 per epoch, or 6,000 total. Thus, 1:6 contains three times the unique training negatives and approximately 2.31 times the optimization updates. This is a training-negative exposure study, not a causal ratio ablation under matched training signal. At one frame per snippet, frame- and snippet-level operating decisions are identical; the publication therefore reports COCO AP, micro/macro-F1, and false detections per 100 negative frames without duplicating equivalent snippet metrics.
 
 ## Reproducibility and Data Availability
 

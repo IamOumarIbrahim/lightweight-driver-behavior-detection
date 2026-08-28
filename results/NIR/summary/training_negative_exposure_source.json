@@ -19,11 +19,11 @@
   "completed_models": [
     "yolo11n",
     "yolo26n",
-    "dfine_n"
+    "dfine_n",
+    "ssdlite_mobilenet_v3_large",
+    "rtdetrv2_s"
   ],
   "pending_models": [
-    "ssdlite_mobilenet_v3_large",
-    "rtdetrv2_s",
     "yolox_nano",
     "yolov10n",
     "yolov8n"
@@ -110,6 +110,54 @@
       "tensor_to_final_sustained_fps": 40.20939349142654,
       "metrics_path": "results/NIR/dfine_n/ratio_1to6/metrics.json",
       "metrics_sha256": "2a0bf3d4022c0dec042292651781973e4f214c1fe2dfe9e5da4a5596543fa193"
+    },
+    {
+      "model_id": "ssdlite_mobilenet_v3_large",
+      "ratio": "1:2",
+      "map_50_95": 0.28432241214275517,
+      "micro_f1": 0.7339449541284405,
+      "macro_f1": 0.6996847083552287,
+      "false_detections_per_100_negative_frames": 3.1123139377537212,
+      "tensor_to_final_p50_ms": 14.761450001969934,
+      "tensor_to_final_sustained_fps": 64.88813381206789,
+      "metrics_path": "results/NIR/ssdlite_mobilenet_v3_large/ratio_1to2/metrics.json",
+      "metrics_sha256": "6bed12db102f59755cdc99116dc912a5262285ef5c1d6852d61cd5fd6e0d7176"
+    },
+    {
+      "model_id": "ssdlite_mobilenet_v3_large",
+      "ratio": "1:6",
+      "map_50_95": 0.30755791487557743,
+      "micro_f1": 0.7873303167420813,
+      "macro_f1": 0.7338438333913446,
+      "false_detections_per_100_negative_frames": 1.3531799729364005,
+      "tensor_to_final_p50_ms": 15.93174999288749,
+      "tensor_to_final_sustained_fps": 60.733977839240275,
+      "metrics_path": "results/NIR/ssdlite_mobilenet_v3_large/ratio_1to6/metrics.json",
+      "metrics_sha256": "a18a174f1da6c581be37e26ab0729639763eae1c9f5be182711ed1ab346ed46b"
+    },
+    {
+      "model_id": "rtdetrv2_s",
+      "ratio": "1:2",
+      "map_50_95": 0.4813801482491957,
+      "micro_f1": 0.8442211055276383,
+      "macro_f1": 0.7813852813852814,
+      "false_detections_per_100_negative_frames": 0.2706359945872801,
+      "tensor_to_final_p50_ms": 25.614450001739897,
+      "tensor_to_final_sustained_fps": 37.54303138064165,
+      "metrics_path": "results/NIR/rtdetrv2_s/ratio_1to2/metrics.json",
+      "metrics_sha256": "3c600bf41d04ffca9683afb6ea6b67667f3a5feacbae56459f09329e9ee43ce3"
+    },
+    {
+      "model_id": "rtdetrv2_s",
+      "ratio": "1:6",
+      "map_50_95": 0.485118893615218,
+      "micro_f1": 0.7979274611398963,
+      "macro_f1": 0.7679597701149425,
+      "false_detections_per_100_negative_frames": 0.2706359945872801,
+      "tensor_to_final_p50_ms": 24.656000001414213,
+      "tensor_to_final_sustained_fps": 38.56016227084645,
+      "metrics_path": "results/NIR/rtdetrv2_s/ratio_1to6/metrics.json",
+      "metrics_sha256": "783d8243282a627df0a73425740a3cc41fd874bef3a1526fddba8553c10d6d83"
     }
   ]
 }

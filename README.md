@@ -33,15 +33,15 @@ This repository benchmarks released lightweight detector systems for bounding-bo
 ## Current Benchmark Status
 
 > [!IMPORTANT]
-> All nine RGB runs and the original six NIR runs are complete. Ten native-Windows NIR extension runs are configured and pending training.
+> All nine RGB runs and ten NIR runs are complete. Six native-Windows NIR extension runs remain pending for YOLOX-Nano, YOLOv10n, and YOLOv8n.
 
 | Track | Model | Conditions | Status |
 | --- | --- | --- | --- |
 | RGB | YOLO11n | Seeds 13, 37, 73 | Final |
 | RGB | YOLO26n | Seeds 13, 37, 73 | Final |
 | RGB | D-FINE-N | Seeds 13, 37, 73 | Final three-seed result |
-| NIR | YOLO11n, YOLO26n, D-FINE-N | Ratios 1:2 and 1:6, seed 13, 100 epochs | Six protected results published |
-| NIR extension | SSDLite-MobileNetV3-Large, RT-DETRv2-S, YOLOX-Nano, YOLOv10n, YOLOv8n | Ratios 1:2 and 1:6, seed 13, 100 epochs | Ready for sequential training |
+| NIR | YOLO11n, YOLO26n, D-FINE-N, SSDLite-MobileNetV3-Large, RT-DETRv2-S | Ratios 1:2 and 1:6, seed 13, 100 epochs | Ten protected results published |
+| NIR extension pending | YOLOX-Nano, YOLOv10n, YOLOv8n | Ratios 1:2 and 1:6, seed 13, 100 epochs | Six runs pending training |
 
 See the [results documentation](./docs/results.md) for authoritative values and the [methodology](./docs/methodology.md) for the frozen protocol.
 
@@ -69,7 +69,7 @@ scripts\data\06_check_rgb_dataset.bat
 scripts\data\07_check_nir_dataset.bat
 ```
 
-Published annotations are already under `data/annotations`; dataset frames and trained checkpoints remain local. The following PowerShell command verifies the pinned native backends and starts or resumes only the ten pending extension jobs (five new models at two ratios) sequentially. It does not select the six completed YOLO11n, YOLO26n, or D-FINE-N jobs:
+Published annotations are already under `data/annotations`; dataset frames and trained checkpoints remain local. The following PowerShell command verifies the pinned native backends and starts or resumes the ten configured extension jobs (five new models at two ratios) sequentially. It automatically skips completed pairs, including the four published SSDLite-MobileNetV3-Large and RT-DETRv2-S runs, and never selects the six original YOLO11n, YOLO26n, or D-FINE-N jobs:
 
 ```powershell
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\NIR\train_new_ten.ps1 -Yes
