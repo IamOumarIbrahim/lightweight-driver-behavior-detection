@@ -68,94 +68,6 @@ model_linetypes <- c(
   yolox_nano = "1234", yolov10n = "73", yolov8n = "2262"
 )
 
-make_hatch_pattern <- function(kind) {
-  ink <- grid::gpar(
-    col = "black", fill = NA, lwd = 1.05,
-    lty = "solid", lineend = "butt"
-  )
-  diagonal_starts <- seq(-1, 1, by = 1)
-  forward <- grid::segmentsGrob(
-    x0 = grid::unit(diagonal_starts, "npc"),
-    y0 = grid::unit(0, "npc"),
-    x1 = grid::unit(diagonal_starts + 1, "npc"),
-    y1 = grid::unit(1, "npc"),
-    gp = ink
-  )
-  backward <- grid::segmentsGrob(
-    x0 = grid::unit(diagonal_starts, "npc"),
-    y0 = grid::unit(1, "npc"),
-    x1 = grid::unit(diagonal_starts + 1, "npc"),
-    y1 = grid::unit(0, "npc"),
-    gp = ink
-  )
-  horizontal <- grid::segmentsGrob(
-    x0 = grid::unit(0, "npc"), y0 = grid::unit(0.5, "npc"),
-    x1 = grid::unit(1, "npc"), y1 = grid::unit(0.5, "npc"),
-    gp = ink
-  )
-  vertical <- grid::segmentsGrob(
-    x0 = grid::unit(0.5, "npc"), y0 = grid::unit(0, "npc"),
-    x1 = grid::unit(0.5, "npc"), y1 = grid::unit(1, "npc"),
-    gp = ink
-  )
-  double_horizontal <- grid::segmentsGrob(
-    x0 = grid::unit(0, "npc"),
-    y0 = grid::unit(c(0.25, 0.75), "npc"),
-    x1 = grid::unit(1, "npc"),
-    y1 = grid::unit(c(0.25, 0.75), "npc"),
-    gp = ink
-  )
-  checker <- grid::rectGrob(
-    x = grid::unit(c(0.25, 0.75), "npc"),
-    y = grid::unit(c(0.25, 0.75), "npc"),
-    width = grid::unit(0.5, "npc"),
-    height = grid::unit(0.5, "npc"),
-    gp = grid::gpar(col = NA, fill = "black")
-  )
-  marks <- switch(
-    kind,
-    forward = forward,
-    backward = backward,
-    horizontal = horizontal,
-    vertical = vertical,
-    diagonal_cross = grid::grobTree(forward, backward),
-    grid = grid::grobTree(horizontal, vertical),
-    double_horizontal = double_horizontal,
-    checker = checker,
-    stop("Unsupported hatch pattern: ", kind)
-  )
-  grid::pattern(
-    grid::grobTree(
-      grid::rectGrob(gp = grid::gpar(fill = "white", col = NA)),
-      marks
-    ),
-    width = grid::unit(1.8, "mm"),
-    height = grid::unit(1.8, "mm"),
-    extend = "repeat",
-    group = FALSE
-  )
-}
-
-nir_model_pattern_labels <- c(
-  yolo11n = "forward_diagonal",
-  yolo26n = "backward_diagonal",
-  dfine_n = "horizontal",
-  ssdlite_mobilenet_v3_large = "vertical",
-  rtdetrv2_s = "diagonal_crosshatch",
-  yolox_nano = "orthogonal_grid",
-  yolov10n = "double_horizontal",
-  yolov8n = "checker"
-)
-nir_model_patterns <- list(
-  yolo11n = make_hatch_pattern("forward"),
-  yolo26n = make_hatch_pattern("backward"),
-  dfine_n = make_hatch_pattern("horizontal"),
-  ssdlite_mobilenet_v3_large = make_hatch_pattern("vertical"),
-  rtdetrv2_s = make_hatch_pattern("diagonal_cross"),
-  yolox_nano = make_hatch_pattern("grid"),
-  yolov10n = make_hatch_pattern("double_horizontal"),
-  yolov8n = make_hatch_pattern("checker")
-)
 source_path <- file.path(
   repo_root,
   "results",
@@ -1200,7 +1112,7 @@ build_qualitative_grid <- function(examples) {
         label = label,
         family = "Times New Roman",
         fontface = "bold",
-        size = 2.45
+        size = 4.2
       )
   }
   plot +
@@ -1247,11 +1159,11 @@ build_protocol_workflow <- function() {
     stringsAsFactors = FALSE
   )
   lane_text <- data.frame(
-    x = c(2.04, 5.44),
+    x = c(2.85, 6.40),
     title = c("Primary RGB | DMD", "Exploratory NIR | Drive&Act"),
     detail = c(
-      "1 FPS | 4 cues | 15,723 frames\nSeeds 13, 37, 73",
-      "1 FPS midpoint | 2 cues | seed 13\n100 epochs | negatives: 1:2 vs. 1:6"
+      "The RGB study samples 15,723\nframes at 1 FPS, labels four cues,\nand evaluates seeds 13, 37, and 73.",
+      "The NIR study samples two cues\nat 1 FPS midpoints, trains seed 13\nfor 100 epochs, and compares 1:2\nwith 1:6 negative ratios."
     ),
     stringsAsFactors = FALSE
   )
@@ -1293,16 +1205,16 @@ build_protocol_workflow <- function() {
       aes(x = x, y = 0.66, label = title),
       family = "Times New Roman",
       fontface = "bold",
-      hjust = 0,
-      size = 2.35
+      hjust = 0.5,
+      size = 3.2
     ) +
     geom_text(
       data = lane_text,
-      aes(x = x, y = 0.43, label = detail),
+      aes(x = x, y = 0.39, label = detail),
       family = "Times New Roman",
-      hjust = 0,
-      size = 2.05,
-      lineheight = 1.05
+      hjust = 0.5,
+      size = 2.65,
+      lineheight = 1.0
     ) +
     geom_segment(
       data = arrows,
@@ -1604,7 +1516,7 @@ build_nir_training_negative_exposure <- function(path) {
           limits = c(0, NA),
           expand = expansion(mult = c(0, 0.10))
         ) +
-        scale_fill_manual(values = nir_model_patterns, labels = model_labels) +
+        scale_fill_manual(values = model_colors, labels = model_labels) +
         publication_theme() +
         theme(
           legend.position = "bottom",
@@ -1946,8 +1858,8 @@ nir_manifest <- write_manifest(
     seed = 13L,
     ratios = list("1:2", "1:6"),
     encoding = list(
-      type = "black_and_white_hatch",
-      model_patterns = as.list(nir_model_pattern_labels),
+      type = "model_color",
+      model_colors = as.list(model_colors[nir_expected_models]),
       ratio_mean = "solid_black_segment"
     ),
     sampling = list(

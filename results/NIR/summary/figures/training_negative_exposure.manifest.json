@@ -27,15 +27,15 @@
   "outputs": {
     "pdf": {
       "path": "results/NIR/summary/figures/training_negative_exposure.pdf",
-      "sha256": "240779b7d9b19fae5364a5a56fe85c5d561386fc30cf5efd256d4a25f1910ae1"
+      "sha256": "3adb604fbcd32add5ba917dc9684f8ccf5b5ca2bb891cf5faff28d00490dd522"
     },
     "svg": {
       "path": "results/NIR/summary/figures/training_negative_exposure.svg",
-      "sha256": "9521ea8d58d8b1a5075afbabb0d95ea352680e92012bda0e7fa49bb4c3351f10"
+      "sha256": "cf467f7d828a12c94ab3ea74f7fbe7808a879936a1b4d6460d3aa6581af62b14"
     },
     "png": {
       "path": "results/NIR/summary/figures/training_negative_exposure.png",
-      "sha256": "846dc7b5e0c9443f46ddb72f1d2da67deed524c98252160ef861cc4c7f66fcfb"
+      "sha256": "4c986c39d153f9716f674a5b9205281313a2bc5cba4dab16a9f2216db3228063"
     }
   },
   "status": "complete",
@@ -45,16 +45,16 @@
     "1:6"
   ],
   "encoding": {
-    "type": "black_and_white_hatch",
-    "model_patterns": {
-      "yolo11n": "forward_diagonal",
-      "yolo26n": "backward_diagonal",
-      "dfine_n": "horizontal",
-      "ssdlite_mobilenet_v3_large": "vertical",
-      "rtdetrv2_s": "diagonal_crosshatch",
-      "yolox_nano": "orthogonal_grid",
-      "yolov10n": "double_horizontal",
-      "yolov8n": "checker"
+    "type": "model_color",
+    "model_colors": {
+      "yolo11n": "#0072B2",
+      "yolo26n": "#D55E00",
+      "dfine_n": "#009E73",
+      "ssdlite_mobilenet_v3_large": "#CC79A7",
+      "rtdetrv2_s": "#E69F00",
+      "yolox_nano": "#56B4E9",
+      "yolov10n": "#F0E442",
+      "yolov8n": "#6A3D9A"
     },
     "ratio_mean": "solid_black_segment"
   },

@@ -24,6 +24,8 @@
 \setlength{\@fpsep}{8pt}
 \setlength{\@fpbot}{0pt plus 1fil}
 \makeatother
+\setlength{\dblfloatsep}{6pt}
+\setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
 
 \graphicspath{
   {../../results/summary/figures/}
@@ -59,7 +61,7 @@ ORCID: 0000-0003-0039-9018}
 \raggedbottom
 
 \begin{abstract}
-Road traffic injuries remain a major global public health challenge, increasing the need for reliable and computationally efficient driver monitoring systems. Although object detection enables spatial localization of visible driver cues, existing evaluations can be affected by identity leakage, exclusion of natural negative frames, and test-set-dependent operating-point selection, limiting reliable assessment of generalization. This study investigates the generalization, detection reliability, and deployment trade-offs of lightweight object detectors under a rigorous subject-disjoint evaluation framework. The primary red--green--blue (RGB) benchmark comprises 15,723 frames from 14 drivers in the Driver Monitoring Dataset, including 12,722 negative frames, and evaluates three nano-scale detectors---YOLO11n, YOLO26n, and D-FINE-N---across three paired seeds using validation-only operating-point selection and protected testing. The results reveal no universally superior detector. YOLO11n achieves the highest $\mathrm{mAP}_{50}$ of $91.79\pm0.44\%$ and throughput of $68.0\pm1.3$ frames per second, whereas D-FINE-N achieves the highest micro-$F_1$ of $91.14\pm2.66\%$. YOLO26n provides the strongest strict-IoU localization performance. Importantly, performance variation across held-out drivers substantially exceeds variation across random seeds, highlighting generalization to unseen drivers as a critical source of performance uncertainty. A complementary eight-system near-infrared study further demonstrates that increased negative training exposure does not consistently improve performance across detector architectures. Overall, the findings demonstrate that lightweight detector selection for driver monitoring should consider application-specific trade-offs among localization quality, detection reliability, false-positive behavior, and computational efficiency rather than relying on a single aggregate performance metric.
+Road traffic injuries remain a major global public health challenge, increasing the need for reliable and computationally efficient driver monitoring systems. Although object detection enables spatial localization of visible driver cues, existing evaluations can be affected by identity leakage, exclusion of natural negative frames, and test-set-dependent operating-point selection, limiting reliable assessment of generalization. This study investigates the generalization, detection reliability, and deployment trade-offs of lightweight object detectors under a rigorous subject-disjoint evaluation framework. The primary red--green--blue (RGB) benchmark comprises 15,723 frames from 14 drivers in the Driver Monitoring Dataset, including 12,722 negative frames, and evaluates three nano-scale detectors---You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N)---across three paired seeds using validation-only operating-point selection and protected testing. The results reveal no universally superior detector. YOLO11n achieves the highest $\mathrm{mAP}_{50}$ of $91.79\pm0.44\%$ and throughput of $68.0\pm1.3$ frames per second, whereas D-FINE-N achieves the highest micro-$F_1$ of $91.14\pm2.66\%$. YOLO26n provides the strongest strict-IoU localization performance. Importantly, performance variation across held-out drivers substantially exceeds variation across random seeds, highlighting generalization to unseen drivers as a critical source of performance uncertainty. A complementary eight-system near-infrared study further demonstrates that increased negative training exposure does not consistently improve performance across detector architectures. Overall, the findings demonstrate that lightweight detector selection for driver monitoring should consider application-specific trade-offs among localization quality, detection reliability, false-positive behavior, and computational efficiency rather than relying on a single aggregate performance metric.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -99,7 +101,7 @@ The task is bounding-box localization of four visible RGB cues: yawning, hand ov
 \end{figure*}
 
 \subsection{RGB Dataset and Annotation Protocol}
-The RGB dataset contains 15,723 face crops sampled at 1 FPS from 81 DMD recordings of 14 drivers. One primary annotator labeled the data in a single smooth pass; no independent second-person review was established. Every sampled frame was preserved to avoid post-sampling curation, yielding 3,001 positive and 12,722 negative frames. Table~\ref{tab:ontology} freezes the spatial ontology. Box semantics intentionally differ because the visible evidence differs by cue.
+The RGB set comprises 15,723 face crops sampled at 1 FPS from 81 DMD recordings of 14 drivers. A single annotator completed the RGB annotations in one annotation pass. No independent second annotator was available for semantic agreement assessment. All frames were retained without post-sampling curation: 3,001 positive and 12,722 negative. Table~\ref{tab:ontology} fixes the spatial ontology and cue-specific box semantics.
 
 \begin{table}[t]
 \caption{Frozen RGB Box Semantics and Test Support}
@@ -195,7 +197,7 @@ D-FINE-N & 90.22$\pm$2.29 & 55.38$\pm$0.89 & \textbf{\underline{91.14$\pm$2.66}}
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.96\textwidth]{normalized_model_comparison.pdf}
+\includegraphics[width=0.90\textwidth]{normalized_model_comparison.pdf}
 \caption{Directional dot-and-whisker plot for YOLO11n, YOLO26n, and D-FINE-N. Rows are grouped into accuracy (left), speed, and complexity (right); right indicates better performance, and whiskers show sample SD across seeds.}
 \label{fig:rgbplots}
 \end{figure*}

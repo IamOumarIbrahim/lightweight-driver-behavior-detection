@@ -22,15 +22,15 @@
   "outputs": {
     "pdf": {
       "path": "results/RGB/summary/figures/qualitative_examples.pdf",
-      "sha256": "32fa2438b2ca142838f9424e81fc5a0ee30db290b8ce7bff6310f98c23b68d8f"
+      "sha256": "4a76cca7a4667e9d3a4e53df26454c929bce2d4ba59895d8c2618f9e9de65da7"
     },
     "svg": {
       "path": "results/RGB/summary/figures/qualitative_examples.svg",
-      "sha256": "9567ffa37b42d1ec1b51f306fe2bfb000fac96ba57df9b1d267b1f5895220f98"
+      "sha256": "437164f268a24e039ba3f8c6f0494057e3a4917e725405132d173848b9615d26"
     },
     "png": {
       "path": "results/RGB/summary/figures/qualitative_examples.png",
-      "sha256": "312853eeae79191a49a023eee7ff08c82f347d00f813e46fdf112fe13c3dfc3e"
+      "sha256": "cea0ac4b5595ce22f44d306a881bd1bb30aaa9e5c525f3990ea6335dbc50b4fc"
     }
   },
   "inputs": [

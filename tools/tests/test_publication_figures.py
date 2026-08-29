@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import re
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -42,7 +43,7 @@ def test_publication_pipeline_is_ggplot2_only() -> None:
     assert not (REPO_ROOT / "tools" / "publication" / "figures.py").exists()
 
 
-def test_nir_figure_uses_hatched_columns_ratio_divider_and_black_mean() -> None:
+def test_nir_figure_uses_colored_columns_ratio_divider_and_black_mean() -> None:
     script = (REPO_ROOT / "tools" / "publication" / "figures.R").read_text(
         encoding="utf-8"
     )
@@ -57,7 +58,8 @@ def test_nir_figure_uses_hatched_columns_ratio_divider_and_black_mean() -> None:
     assert "geom_segment(" in nir_figure
     assert 'colour = "black"' in nir_figure
     assert "linewidth = 1.1" in nir_figure
-    assert "scale_fill_manual(values = nir_model_patterns" in nir_figure
+    assert "scale_fill_manual(values = model_colors" in nir_figure
+    assert "nir_model_patterns" not in script
     assert 'ratio_means$ratio == "1:2", 0.5, 1.5' in nir_figure
     assert 'ratio_means$ratio == "1:2", 1.5, 2.5' in nir_figure
     assert "geom_line(" not in nir_figure
@@ -75,17 +77,70 @@ def test_late_manuscript_figures_allow_text_to_flow_between_floats() -> None:
         r"\patchcmd{\thebibliography}{\footnotesize}{\scriptsize}{}{}"
         in manuscript
     )
+    assert r"\setlength{\@fpsep}{8pt}" in manuscript
 
 
-def test_manuscript_centers_third_author_and_marks_nir_table_optima() -> None:
+def test_manuscript_uses_pi_approved_annotation_wording() -> None:
+    manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
+        encoding="utf-8"
+    )
+
+    assert (
+        "A single annotator completed the RGB annotations in one annotation pass. "
+        "No independent second annotator was available for semantic agreement "
+        "assessment."
+        in manuscript
+    )
+    assert "single smooth pass" not in manuscript
+
+
+def test_manuscript_centers_third_author_and_marks_nir_ratio_winners() -> None:
     manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
         encoding="utf-8"
     )
 
     assert r"\and[\hfill\mbox{}\par\mbox{}\hfill]" in manuscript
-    for value in ("0.14", "48.51", "84.51", "83.71", "10.24"):
-        assert rf"\textbf{{\underline{{{value}}}}}" in manuscript
-    assert manuscript.count(r"\textbf{\underline{") == 5
+    start = manuscript.index(r"\label{tab:nirresults}")
+    end = manuscript.index(r"\end{table}", start)
+    nir_table = manuscript[start:end]
+    assert nir_table.count(r"\midrule") == 1
+    assert nir_table.count(r"\specialrule{0.3pt}{1.2pt}{1.2pt}") == 7
+    assert nir_table.count(r"\textbf{\underline{") == 38
+    assert "displayed ties are unmarked" in manuscript
+
+    rows = []
+    for line in nir_table.splitlines():
+        if " & 1:" not in line:
+            continue
+        cells = [cell.strip() for cell in line.removesuffix(r" \\").split("&")]
+        rows.append(cells)
+    assert len(rows) == 16
+
+    directions = (1, 1, 1, -1, -1)
+    for first, second in zip(rows[0::2], rows[1::2]):
+        assert first[0] == second[0]
+        assert (first[1], second[1]) == ("1:2", "1:6")
+        for column, direction in zip(range(2, 7), directions):
+            pair = (first[column], second[column])
+            values = [float(re.search(r"\d+(?:\.\d+)?", cell).group()) for cell in pair]
+            marked = [cell.startswith(r"\textbf{\underline{") for cell in pair]
+            if values[0] == values[1]:
+                assert marked == [False, False]
+            else:
+                winner = 0 if direction * (values[0] - values[1]) > 0 else 1
+                assert marked == [winner == 0, winner == 1]
+
+
+def test_rgb_table_underlines_column_winners() -> None:
+    manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
+        encoding="utf-8"
+    )
+
+    start = manuscript.index(r"\label{tab:rgbresults}")
+    end = manuscript.index(r"\end{table*}", start)
+    rgb_table = manuscript[start:end]
+    assert rgb_table.count(r"\textbf{\underline{") == 9
+    assert "Bold underlined values indicate the best result per column" in manuscript
 
 
 def test_r_package_lock_and_figure_hashes() -> None:
@@ -180,6 +235,6 @@ def test_nir_exposure_figure_tracks_complete_model_suite() -> None:
     assert manifest["status"] == "complete"
     assert manifest["models"] == source["completed_models"]
     assert manifest["pending_models"] == source["pending_models"]
-    assert manifest["encoding"]["type"] == "black_and_white_hatch"
-    assert list(manifest["encoding"]["model_patterns"]) == source["completed_models"]
+    assert manifest["encoding"]["type"] == "model_color"
+    assert list(manifest["encoding"]["model_colors"]) == source["completed_models"]
     assert manifest["encoding"]["ratio_mean"] == "solid_black_segment"
