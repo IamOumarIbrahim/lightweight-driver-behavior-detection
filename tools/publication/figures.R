@@ -1456,7 +1456,7 @@ build_nir_training_negative_exposure <- function(path) {
     map_50_95 = "mAP@0.5:0.95 (%)",
     macro_f1 = "Macro-F1 (%)",
     false_detections_per_100_negative_frames =
-      "False detections / 100 negative frames"
+      "False detections /\n100 negative frames"
   )
   if (length(payload$rows) > 0L) {
     plot_data <- do.call(rbind, lapply(payload$rows, function(row) {
@@ -1520,7 +1520,9 @@ build_nir_training_negative_exposure <- function(path) {
         publication_theme() +
         theme(
           legend.position = "bottom",
-          strip.text = element_text(size = 7, face = "bold"),
+          axis.title.x = element_text(size = 9.5, colour = "black"),
+          axis.text = element_text(size = 8.5, colour = "black"),
+          strip.text = element_text(size = 10, face = "bold"),
           panel.spacing = grid::unit(7, "pt")
         )
     )
@@ -1565,7 +1567,9 @@ build_nir_training_negative_exposure <- function(path) {
     publication_theme() +
     theme(
       legend.position = "bottom",
-      strip.text = element_text(size = 7, face = "bold"),
+      axis.title.x = element_text(size = 9.5, colour = "black"),
+      axis.text = element_text(size = 8.5, colour = "black"),
+      strip.text = element_text(size = 10, face = "bold"),
       panel.spacing = grid::unit(7, "pt")
     )
 }
