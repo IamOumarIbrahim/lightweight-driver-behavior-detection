@@ -7,9 +7,12 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+.coverage.*
 .RData
 .Rhistory
 .Rproj.user/
+Rplots.pdf
 
 # Local model backends, downloads, checkpoints, and training state
 third_party/
@@ -54,6 +57,9 @@ docs/manuscript/*.fdb_latexmk
 docs/manuscript/*.fls
 docs/manuscript/*.out
 docs/manuscript/*.synctex*
+docs/manuscript/*.toc
+docs/manuscript/*.lof
+docs/manuscript/*.lot
 docs/manuscript/official_template/
 docs/internal/
 
