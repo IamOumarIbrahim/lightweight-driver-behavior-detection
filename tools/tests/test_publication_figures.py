@@ -122,7 +122,7 @@ def test_rgb_comparison_figure_precedes_results_section() -> None:
     assert "{tab:rgbresults}" in grouped_float
     assert "nearest human-labeled tracklet keyframes" in manuscript
     assert "Performance and Deployment Trade-offs" in manuscript
-    assert "Overall, this study evaluated lightweight object detectors" in manuscript
+    assert "This study presented a subject-disjoint RGB benchmark" in manuscript
 
 
 def test_manuscript_formats_four_authors_and_marks_nir_ratio_winners() -> None:
@@ -133,8 +133,14 @@ def test_manuscript_formats_four_authors_and_marks_nir_ratio_winners() -> None:
     assert r"\and[\hfill\mbox{}\par\mbox{}\hfill]" in manuscript
     assert manuscript.count(r"\IEEEauthorblockN{") == 4
     assert r"\IEEEauthorblockN{Nada Masood Mirza}" in manuscript
-    assert r"\textit{College of Engineering}" in manuscript
-    assert r"\textit{United Arab Emirates University}" in manuscript
+    assert (
+        r"\textit{College of Engineering, Engineering Requirements Unit}"
+        in manuscript
+    )
+    assert (
+        r"\textit{United Arab Emirates University}, Al Ain, United Arab Emirates"
+        in manuscript
+    )
     assert "nada.mirza@uaeu.ac.ae" in manuscript
     assert "ORCID" not in manuscript
     start = manuscript.index(r"\label{tab:nirresults}")

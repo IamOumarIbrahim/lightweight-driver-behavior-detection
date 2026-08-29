@@ -1213,7 +1213,7 @@ build_protocol_workflow <- function() {
       aes(x = x, y = 0.39, label = detail),
       family = "Times New Roman",
       hjust = 0.5,
-      size = 2.65,
+      size = 2.12,
       lineheight = 1.0
     ) +
     geom_segment(

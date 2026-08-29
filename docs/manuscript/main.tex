@@ -45,7 +45,7 @@
 \begin{document}
 \bstctlcite{IEEEexample:BSTcontrol}
 
-\title{Subject-Disjoint Benchmarking of Lightweight Detectors for Visible Driver-Cue Localization}
+\title{Lightweight Object Detection for Driver Monitoring: A Subject-Disjoint Benchmark}
 
 \author{
 \IEEEauthorblockN{Oumar Mamoun Ibrahim}
@@ -64,8 +64,8 @@ mishak@sharjah.ac.ae}
 k.ammar@ajman.ac.ae}
 \and
 \IEEEauthorblockN{Nada Masood Mirza}
-\IEEEauthorblockA{\textit{College of Engineering} \\
-\textit{United Arab Emirates University} \\
+\IEEEauthorblockA{\textit{College of Engineering, Engineering Requirements Unit} \\
+\textit{United Arab Emirates University}, Al Ain, United Arab Emirates \\
 nada.mirza@uaeu.ac.ae}
 }
 
@@ -73,7 +73,7 @@ nada.mirza@uaeu.ac.ae}
 \raggedbottom
 
 \begin{abstract}
-Road traffic injuries remain a major global public health challenge, increasing the need for reliable and computationally efficient driver monitoring systems. Although object detection enables spatial localization of visible driver cues, existing evaluations can be affected by identity leakage, exclusion of natural negative frames, and test-set-dependent operating-point selection, limiting reliable assessment of generalization. This study investigates the generalization, detection reliability, and deployment trade-offs of lightweight object detectors under a rigorous subject-disjoint evaluation framework. The primary red--green--blue (RGB) benchmark comprises 15,723 frames from 14 drivers in the Driver Monitoring Dataset, including 12,722 negative frames, and evaluates three nano-scale detectors---You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N)---across three paired seeds using validation-only operating-point selection and protected testing. The results reveal no universally superior detector. YOLO11n achieves the highest $\mathrm{mAP}_{50}$ of $91.79\pm0.44\%$ and throughput of $68.0\pm1.3$ frames per second, whereas D-FINE-N achieves the highest micro-$F_1$ of $91.14\pm2.66\%$. YOLO26n provides the strongest strict-IoU localization performance. Importantly, performance variation across held-out drivers substantially exceeds variation across random seeds, highlighting generalization to unseen drivers as a critical source of performance uncertainty. A complementary eight-system near-infrared study further demonstrates that increased negative training exposure does not consistently improve performance across detector architectures. Overall, the findings demonstrate that lightweight detector selection for driver monitoring should consider application-specific trade-offs among localization quality, detection reliability, false-positive behavior, and computational efficiency rather than relying on a single aggregate performance metric.
+Reliable driver monitoring requires detectors that generalize to unseen drivers while remaining efficient. This study benchmarks three lightweight object detectors --- You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N) --- for visible driver-cue localization under a subject-disjoint protocol. A red--green--blue (RGB) benchmark of 15,723 Driver Monitoring Dataset frames from 14 drivers, including 12,722 negatives, is evaluated across three paired seeds with validation-only operating-point selection and a protected test set. YOLO11n achieves the highest coarse-IoU accuracy and throughput, D-FINE-N the highest calibrated-threshold detection performance, and YOLO26n the strongest strict-IoU localization. Variation across held-out drivers exceeds seed variation, underscoring the importance of subject-level reporting. A complementary eight-system near-infrared study confirms that greater negative training exposure does not consistently improve performance. Detector selection should therefore reflect deployment-specific trade-offs.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -83,7 +83,9 @@ driver monitoring, object detection, subject-disjoint evaluation, visible driver
 \section{Introduction}
 Road traffic injuries claim approximately 1.19 million lives annually and impose a substantial economic burden worldwide \cite{who2023roadsafety}. In response, Euro NCAP now awards safety-assist credit for camera-based driver monitoring \cite{euroncap2025dms}, accelerating the deployment of in-cabin driver monitoring systems (DMSs). These systems must operate robustly under changes in driver identity, illumination, viewpoint, and occlusion. Whole-frame recognition can describe an activity, but it may also exploit identity or cabin context without showing the visual evidence used for a decision. Object detection provides a complementary formulation: it localizes cue-specific evidence, makes false positives and misses spatially interpretable, and measures detections on frames containing no target cue. A single-frame detector also avoids the latency and architectural complexity of a temporal model when real-time throughput is the experimental focus. This formulation does \emph{not} infer fatigue, intent, duration, or another temporal driver state.
 
-DMD provides multimodal attention and alertness recordings \cite{ortega2020dmd}, while Drive\&Act contains synchronized color, NIR, depth, and pose streams for fine-grained activities \cite{martin2019driveact}. Both contain temporally correlated video and repeated observations of each driver. Evaluation can therefore be optimistic if neighboring frames or identities cross partitions, natural negative frames are removed, the test set determines the confidence threshold, or latency boundaries differ. Existing driver-detection studies on DMD \cite{jain2024dmd} and posture-classification benchmarks such as the State Farm challenge \cite{abouelnaga2018sfdd} further illustrate the diversity of evaluation choices and the difficulty of cross-paper comparison.
+DMD provides multimodal attention and alertness recordings \cite{ortega2020dmd}, while Drive\&Act contains synchronized color, NIR, depth, and pose streams for fine-grained activities \cite{martin2019driveact}. Both contain temporally correlated video and repeated observations of each driver.
+
+Evaluation can therefore be optimistic if neighboring frames or identities cross partitions, natural negative frames are removed, the test set determines the confidence threshold, or latency boundaries differ. Existing driver-detection studies on DMD \cite{jain2024dmd} and posture-classification benchmarks such as the State Farm challenge \cite{abouelnaga2018sfdd} further illustrate the diversity of evaluation choices and the difficulty of cross-paper comparison.
 
 Recent work proposes specialized lightweight networks for in-cabin recognition and detection \cite{baheti2020mobilevgg,wang2024mfyolo,li2024yolosgc,jin2025yolo11cr}. The objective of this study is to investigate how lightweight object detectors generalize to unseen drivers and how their localization performance, detection reliability, false-positive behavior, and computational requirements differ under a controlled subject-disjoint evaluation. The study considers complete, publicly released detector systems without task-specific architectural modification. A separate exploratory NIR experiment examines whether increased exposure to negative training examples produces consistent changes in detector performance across different model families. The contributions are:
 \begin{itemize}
@@ -96,10 +98,12 @@ Recent work proposes specialized lightweight networks for in-cabin recognition a
 \subsection{Driver Recognition and Cue Localization}
 MobileVGG and convolution--transformer hybrids demonstrate efficient distracted-driver classification \cite{baheti2020mobilevgg,li2024covit}. PO-GUISE+ uses pose and object guidance for efficient driver-action recognition in Drive\&Act NIR imagery \cite{pizarro2024poguise}. Such whole-frame or temporal recognition tasks are not interchangeable with the present bounding-box task. Here, a correct prediction must identify both a cue class and its spatial evidence in one frame; no temporal state is estimated.
 
-Detection-specific work modifies YOLO backbones, attention, or multiscale aggregation for dangerous-driving or fatigue cues \cite{wang2024mfyolo,li2024yolosgc,jin2025yolo11cr}. Comparative studies assess convolutional neural networks (CNNs) against transformers \cite{koay2021cnnvit} or several YOLO generations \cite{herath2025yolocomparison}. The YOLO family originates with single-shot grid regression \cite{redmon2016yolo} and has evolved through multiple architectural revisions \cite{bochkovskiy2020yolov4,ultralytics2024yolo11,ultralytics2026}. However, differences in driver separation, retained negatives, operating-point calibration, and runtime protocol limit direct cross-paper ranking.
+Detection-specific work modifies YOLO backbones, attention, or multiscale aggregation for dangerous-driving or fatigue cues \cite{wang2024mfyolo,li2024yolosgc,jin2025yolo11cr}. Comparative studies assess convolutional neural networks against transformers \cite{koay2021cnnvit} or several YOLO generations \cite{herath2025yolocomparison}. The YOLO family originates with single-shot grid regression \cite{redmon2016yolo} and has evolved through multiple architectural revisions \cite{bochkovskiy2020yolov4,ultralytics2024yolo11,ultralytics2026}. However, differences in driver separation, retained negatives, operating-point calibration, and runtime protocol limit direct cross-paper ranking.
 
 \subsection{Released Detector Systems}
 The Detection Transformer (DETR) casts object detection as bipartite set prediction \cite{carion2020detr}; the Real-Time Detection Transformer (RT-DETR) makes this formulation practical for real-time use \cite{zhao2024rtdetr}; RT-DETRv2 extends it with a bag-of-freebies baseline \cite{lv2024rtdetrv2}; and D-FINE refines box-edge distributions for improved localization \cite{peng2025dfine}. The RGB and NIR comparisons use D-FINE-N, YOLO11n \cite{ultralytics2024yolo11}, and YOLO26n \cite{ultralytics2026} as shipped systems. The NIR study additionally evaluates YOLOv8n \cite{jocher2023yolov8}, YOLOX-Nano \cite{ge2021yolox}, YOLOv10n \cite{wang2024yolov10}, SSDLite-MobileNetV3-Large \cite{howard2019mobilenetv3}, and RT-DETRv2-S \cite{lv2024rtdetrv2}. Native training and inference recipes remain part of each system: the pinned YOLO26 and D-FINE paths are end-to-end, whereas YOLO11n retains non-maximum suppression (NMS) \cite{bodla2017softnms}. Recent edge-deployment work demonstrates that such lightweight systems can approach real-time performance on low-cost hardware \cite{ahsani2025edge}. This is therefore a system-level benchmark, not an isolation of architecture alone.
+
+Across these lines of work, no prior study combines subject-disjoint splitting, validation-only threshold selection with a protected test set, retention of all negative frames, and synchronized latency profiling in a single controlled comparison of shipped lightweight detectors. The present benchmark addresses this gap.
 
 \section{Methodology}
 \subsection{Task Definition and Workflow}
@@ -119,9 +123,9 @@ The RGB set comprises 15,723 face crops sampled at 1 FPS from 81 DMD recordings 
 \caption{Frozen RGB Box Semantics and Test Support}
 \label{tab:ontology}
 \centering
-\setlength{\tabcolsep}{3.2pt}
 \scriptsize
-\begin{tabular}{lp{3.25cm}rr}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llrr}
 \toprule
 Cue & Bounding-box target & Test $n$ & Median area \\
 \midrule
@@ -131,6 +135,7 @@ Drinking & Visible hand/container--mouth interaction & 56 & 16.09\% \\
 Phone use & Visible hand--phone interaction & 497 & 8.37\% \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 Each frame contains zero or one box. Yawning and hand-over-mouth are mutually exclusive; when a hand covers a yawn, hand-over-mouth takes precedence. Boxes enclose only the visible target. Occluded, truncated, or out-of-frame anatomy is never estimated, although a partially occluded cue remains valid when visually identifiable. No arbitrary minimum-pixel cutoff is applied at $640\times640$.
@@ -171,15 +176,17 @@ The best model-native validation checkpoint is retained. Its confidence threshol
 \begin{equation}
 \fd=100\frac{\mathrm{FP}_{\mathrm{neg}}}{N_{\mathrm{neg}}},
 \end{equation}
-where $\mathrm{FP}_{\mathrm{neg}}$ is the number of above-threshold false-positive detections on negative frames. We define $\fd$ (false-detection rate per 100 negative frames) as a simple diagnostic ratio: it measures how often the detector fires on frames where no target cue is present. It is a static per-frame count, not a modeled nuisance-alert rate; no temporal confirmation or debouncing is applied.
+where $\mathrm{FP}_{\mathrm{neg}}$ is the number of above-threshold false-positive detections on negative frames. We define $\fd$ (false-detection rate per 100 negative frames) as a simple diagnostic ratio --- distinct from the false discovery rate $\mathrm{FP}/(\mathrm{FP}+\mathrm{TP})$ used in hypothesis testing --- that measures how often the detector fires on frames where no target cue is present. It is a static per-frame count, not a modeled nuisance-alert rate; no temporal confirmation or debouncing is applied.
 
 RGB results are the sample mean and sample standard deviation (SD) over three seeds. Because the subject split is fixed, SD measures optimization variability, not generalization uncertainty across held-out drivers. Each test subject is therefore reported separately, and paired per-seed differences are checked for sign consistency. No significance test is claimed for $n=3$.
 
 For all evaluated systems, model selection and operating-point determination were performed exclusively on the validation set, while the held-out test partition remained fixed and was used only for final evaluation.
 
-Batch-1 16-bit floating-point (FP16) profiling uses an NVIDIA GeForce RTX 4060 8-GB graphics processing unit (GPU). CUDA synchronization brackets model-forward and tensor-to-final-detection intervals. Disk input/output, decoding, preprocessing, and metric computation are excluded. We report p50 tensor-to-final latency and sustained FPS; these measurements do not represent central-processing-unit or embedded-device deployment.
+Batch-1 16-bit floating-point (FP16) profiling uses an NVIDIA GeForce RTX 4060 8-GB GPU. CUDA synchronization brackets model-forward and tensor-to-final-detection intervals. Disk input/output, decoding, preprocessing, and metric computation are excluded. We report p50 tensor-to-final latency and sustained FPS; these measurements do not represent CPU or embedded-device deployment.
 
 \subsection{Exploratory NIR Protocol}
+A practical question for DMS deployment is whether exposing a detector to more negative examples during training consistently reduces false detections. Because this question cannot be answered from the single-condition RGB benchmark above, a separate NIR experiment is introduced using a different dataset and a broader set of detector families. The results are not comparable to the RGB track; they address a complementary training-design question.
+
 The secondary NIR source pool contains 3,786 one-second front-top active-NIR ($850$ nm) Drive\&Act snippets from 15 drivers. Twenty-three unilluminated task snippets are excluded before splitting, leaving 3,763. Drinking and phone-use tracklets provide two positive classes. Each snippet contributes one deterministic frame at 1 FPS: the temporal midpoint at $t=0.5$ s, or zero-based source-frame offset 14. At that instant, the normalized box coordinates ($x$, $y$, width, and height) are linearly interpolated between the nearest human-labeled tracklet keyframes that bracket the midpoint; when no bracketing pair exists, the nearest endpoint box is used. The driver crop is then resized to $640\times640$. Unlike RGB, NIR therefore applies dataset-specific frame exclusion and derives midpoint annotations from human tracklets.
 
 A fixed $9{:}3{:}3$ subject partition is shared across all sixteen configured model--condition runs. The eight systems span one-stage convolutional, SSD, and transformer-based detector families. Validation and test contain identical ordered examples. Training always contains 270 positive snippets and either 540 or 1,620 negative snippets, corresponding to nominal positive:negative ratios of 1:2 and 1:6. The 1:2 negatives are a subject-stratified seed-13 subset of the 1:6 pool.
@@ -293,12 +300,18 @@ The results reveal clear trade-offs among localization performance, detection re
 The phone-use majority is a real benchmark characteristic and a limitation for pooled operating metrics, but it does not invalidate YOLO26n's strict-IoU advantage. Equal-weight class AP, macro-$F_1$, per-class supports, and paired-seed directions separate that result from majority-class dominance. The narrow aggregate margin, low support for three categories, and drinking sign reversal mean the accurate conclusion is a trade-off rather than a definitive rank. The difficult Subject 10 further shows that seed variation on a single split understates deployment variation across people.
 
 \subsection{Interpretation Scope}
-Subject-disjoint evaluation reduces identity leakage but does not establish population-level generalization from only 14 drivers and three held-out test identities. A single annotator and one pass provide internally consistent data but no independent semantic agreement estimate; the qualitative nominal-negative case makes this concrete. Future annotation rounds should compute inter-annotator agreement (e.g., Cohen's $\kappa$ on a stratified subset of each cue class) to quantify this risk. Correlated frames remain within RGB recordings, and single-frame detection neither estimates temporal fatigue nor models alert debouncing. NIR avoids within-snippet duplication through one midpoint frame, but 1-FPS sampling does not characterize motion within the second. NIR additionally differs in dataset, ontology, annotation source, and preprocessing, uses one seed, and changes negative diversity together with training steps. It cannot be interpreted as a controlled RGB-versus-NIR modality effect. Finally, RTX 4060 timing excludes preprocessing and is not an embedded-hardware measurement. These boundaries define what the benchmark supports without removing its value as a transparent, reproducible comparison.
+Subject-disjoint evaluation reduces identity leakage but does not establish population-level generalization from only 14 drivers and three held-out test identities. A single annotator and one pass provide internally consistent data but no independent semantic agreement estimate; the qualitative nominal-negative case makes this concrete. Future annotation rounds should compute inter-annotator agreement (e.g., Cohen's $\kappa$ on a stratified subset of each cue class) to quantify this risk. Correlated frames remain within RGB recordings, and single-frame detection neither estimates temporal fatigue nor models alert debouncing.
+
+NIR avoids within-snippet duplication through one midpoint frame, but 1-FPS sampling does not characterize motion within the second. NIR additionally differs in dataset, ontology, annotation source, and preprocessing, uses one seed, and changes negative diversity together with training steps. It cannot be interpreted as a controlled RGB-versus-NIR modality effect.
+
+Finally, RTX 4060 timing excludes preprocessing and is not an embedded-hardware measurement. These boundaries define what the benchmark supports without removing its value as a transparent, reproducible comparison.
 
 \section{Conclusion and Future Work}
-Overall, this study evaluated lightweight object detectors for visible driver-cue localization using a subject-disjoint RGB benchmark and a complementary NIR negative-exposure experiment. The RGB results reveal distinct trade-offs among the evaluated systems. YOLO11n provides the highest $\mathrm{mAP}_{50}$ and throughput, YOLO26n provides the highest strict-IoU localization performance, and D-FINE-N achieves the strongest $F_1$-based detection performance. Variation across held-out drivers exceeds seed variation in the present evaluation, emphasizing the importance of subject-level reporting when assessing generalization. The NIR results further show that increasing negative training exposure does not consistently improve performance across detector systems.
+This study presented a subject-disjoint RGB benchmark and a complementary NIR negative-exposure experiment for lightweight driver-cue detection. The central finding is that no single detector dominates all evaluation axes: coarse-IoU accuracy and throughput, strict-IoU localization, and calibrated-threshold detection reliability each favor a different system.
 
-These findings indicate that lightweight detector selection should be guided by the intended deployment requirement rather than a single aggregate metric. Future work should increase the number and diversity of held-out drivers, incorporate independent annotation review, repeat the analysis across multiple subject partitions, and evaluate complete inference pipelines on embedded hardware.
+For practitioners, the results suggest concrete selection criteria. When false alarms are costlier than missed cues --- for example, nuisance alerts that erode driver trust --- YOLO11n's lower $\fd$ and highest throughput make it a natural starting point. When precise spatial localization matters, such as feeding downstream gaze or posture models, YOLO26n's strict-IoU advantage is more relevant. When the deployment can absorb additional latency in exchange for stronger $F_1$ at the calibrated threshold, D-FINE-N offers the highest detection reliability. The large performance gap on the difficult held-out Subject~10 further underscores that aggregate metrics can mask deployment-critical failure modes; subject-level reporting should be standard practice.
+
+Future work should expand the number and demographic diversity of held-out drivers, incorporate independent annotation review to quantify semantic agreement, repeat the analysis across multiple subject partitions to separate split-specific effects, and evaluate complete inference pipelines on embedded hardware.
 
 \noindent\textbf{Data and code:} Authored annotations, frozen partitions and checksums, sanitized predictions, evaluation tools, and publication artifacts are available at \url{https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection}; licensed DMD and Drive\&Act media and trained checkpoints remain local under their original access terms.
 
