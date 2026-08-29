@@ -73,12 +73,26 @@ def test_late_manuscript_figures_allow_text_to_flow_between_floats() -> None:
     assert r"\usepackage{float}" not in manuscript
     assert r"\begin{figure}[H]" not in manuscript
     assert manuscript.count(r"\begin{figure}[!htbp]") == 3
-    assert (
-        r"\patchcmd{\thebibliography}{\footnotesize}"
-        r"{\scriptsize\setlength{\baselineskip}{7.4pt}}{}{}"
-        in manuscript
+    assert r"\patchcmd{\thebibliography}" not in manuscript
+    assert r"\enlargethispage" not in manuscript
+    assert r"\setlength{\@fpsep}" not in manuscript
+
+
+def test_manuscript_uses_official_ieee_conference_template() -> None:
+    manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
+        encoding="utf-8"
     )
-    assert r"\setlength{\@fpsep}{8pt}" in manuscript
+    ieee_class = REPO_ROOT / "docs" / "manuscript" / "IEEEtran.cls"
+
+    assert manuscript.startswith(r"\documentclass[conference]{IEEEtran}")
+    assert r"\IEEEoverridecommandlockouts" in manuscript
+    assert "% Template version as of 6/27/2024." in manuscript
+    assert r"\usepackage{amsmath,amssymb,amsfonts}" in manuscript
+    assert r"\usepackage{algorithmic}" in manuscript
+    assert r"\def\BibTeX" in manuscript
+    assert sha256(ieee_class) == (
+        "c972aca108fda004c3514d63658e02816da2e54d9a1451e870b9bd970e003f55"
+    )
 
 
 def test_manuscript_uses_pi_approved_annotation_wording() -> None:
@@ -87,21 +101,17 @@ def test_manuscript_uses_pi_approved_annotation_wording() -> None:
     )
 
     assert (
-        "A single annotator completed the RGB annotations in one annotation pass. "
-        "No independent second annotator was available for semantic agreement "
-        "assessment."
+        "One annotator completed one pass, without an independent "
+        "semantic-agreement review."
         in manuscript
     )
     assert "single smooth pass" not in manuscript
-    assert (
-        "These checks verify structural consistency of the annotation files but "
-        "do not assess semantic agreement or labeling accuracy."
-        in manuscript
-    )
+    assert "This verifies structure, not semantic agreement or label accuracy." in manuscript
     assert "The six YOLO passes were completed before D-FINE-N was added" not in manuscript
     assert (
-        "For all evaluated systems, model selection and operating-point "
-        "determination were performed exclusively on the validation set"
+        "All model selection and operating-point determination use validation "
+        "data exclusively; the fixed test partition is used only for final "
+        "evaluation."
         in manuscript
     )
 
@@ -120,9 +130,13 @@ def test_rgb_comparison_figure_precedes_results_section() -> None:
     grouped_float = manuscript[grouped_start:grouped_end]
     assert r"\label{fig:rgbplots}" in grouped_float
     assert "{tab:rgbresults}" in grouped_float
-    assert "nearest human-labeled tracklet keyframes" in manuscript
+    assert "nearest bracketing human-labeled keyframes" in manuscript
     assert "Performance and Deployment Trade-offs" in manuscript
-    assert "This study presented a subject-disjoint RGB benchmark" in manuscript
+    assert (
+        "This subject-disjoint RGB benchmark and complementary NIR "
+        "negative-exposure experiment show that no detector dominates"
+        in manuscript
+    )
 
 
 def test_manuscript_formats_four_authors_and_marks_nir_ratio_winners() -> None:
@@ -130,17 +144,16 @@ def test_manuscript_formats_four_authors_and_marks_nir_ratio_winners() -> None:
         encoding="utf-8"
     )
 
-    assert r"\and[\hfill\mbox{}\par\mbox{}\hfill]" in manuscript
+    assert r"\and[\hfill\mbox{}\par\mbox{}\hfill]" not in manuscript
+    assert manuscript.count("\n\\and\n") == 3
     assert manuscript.count(r"\IEEEauthorblockN{") == 4
     assert r"\IEEEauthorblockN{Nada Masood Mirza}" in manuscript
     assert (
         r"\textit{College of Engineering, Engineering Requirements Unit}"
         in manuscript
     )
-    assert (
-        r"\textit{United Arab Emirates University}, Al Ain, United Arab Emirates"
-        in manuscript
-    )
+    assert r"\textit{United Arab Emirates University}" in manuscript
+    assert "Al Ain, United Arab Emirates" in manuscript
     assert "nada.mirza@uaeu.ac.ae" in manuscript
     assert "ORCID" not in manuscript
     start = manuscript.index(r"\label{tab:nirresults}")
