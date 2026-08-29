@@ -74,7 +74,8 @@ def test_late_manuscript_figures_allow_text_to_flow_between_floats() -> None:
     assert r"\begin{figure}[H]" not in manuscript
     assert manuscript.count(r"\begin{figure}[!htbp]") == 3
     assert (
-        r"\patchcmd{\thebibliography}{\footnotesize}{\scriptsize}{}{}"
+        r"\patchcmd{\thebibliography}{\footnotesize}"
+        r"{\scriptsize\setlength{\baselineskip}{7.4pt}}{}{}"
         in manuscript
     )
     assert r"\setlength{\@fpsep}{8pt}" in manuscript
@@ -92,14 +93,50 @@ def test_manuscript_uses_pi_approved_annotation_wording() -> None:
         in manuscript
     )
     assert "single smooth pass" not in manuscript
+    assert (
+        "These checks verify structural consistency of the annotation files but "
+        "do not assess semantic agreement or labeling accuracy."
+        in manuscript
+    )
+    assert "The six YOLO passes were completed before D-FINE-N was added" not in manuscript
+    assert (
+        "For all evaluated systems, model selection and operating-point "
+        "determination were performed exclusively on the validation set"
+        in manuscript
+    )
 
 
-def test_manuscript_centers_third_author_and_marks_nir_ratio_winners() -> None:
+def test_rgb_comparison_figure_precedes_results_section() -> None:
+    manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
+        encoding="utf-8"
+    )
+
+    assert manuscript.index(r"\label{fig:rgbplots}") < manuscript.index(
+        r"\section{Results and Analysis}"
+    )
+    assert r"\usepackage{stfloats}" in manuscript
+    grouped_start = manuscript.index(r"\begin{figure*}[!b]")
+    grouped_end = manuscript.index(r"\end{figure*}", grouped_start)
+    grouped_float = manuscript[grouped_start:grouped_end]
+    assert r"\label{fig:rgbplots}" in grouped_float
+    assert "{tab:rgbresults}" in grouped_float
+    assert "nearest human-labeled tracklet keyframes" in manuscript
+    assert "Performance and Deployment Trade-offs" in manuscript
+    assert "Overall, this study evaluated lightweight object detectors" in manuscript
+
+
+def test_manuscript_formats_four_authors_and_marks_nir_ratio_winners() -> None:
     manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
         encoding="utf-8"
     )
 
     assert r"\and[\hfill\mbox{}\par\mbox{}\hfill]" in manuscript
+    assert manuscript.count(r"\IEEEauthorblockN{") == 4
+    assert r"\IEEEauthorblockN{Nada Masood Mirza}" in manuscript
+    assert r"\textit{College of Engineering}" in manuscript
+    assert r"\textit{United Arab Emirates University}" in manuscript
+    assert "nada.mirza@uaeu.ac.ae" in manuscript
+    assert "ORCID" not in manuscript
     start = manuscript.index(r"\label{tab:nirresults}")
     end = manuscript.index(r"\end{table}", start)
     nir_table = manuscript[start:end]
@@ -136,8 +173,8 @@ def test_rgb_table_underlines_column_winners() -> None:
         encoding="utf-8"
     )
 
-    start = manuscript.index(r"\label{tab:rgbresults}")
-    end = manuscript.index(r"\end{table*}", start)
+    start = manuscript.index("{tab:rgbresults}")
+    end = manuscript.index(r"\end{figure*}", start)
     rgb_table = manuscript[start:end]
     assert rgb_table.count(r"\textbf{\underline{") == 9
     assert "Bold underlined values indicate the best result per column" in manuscript
