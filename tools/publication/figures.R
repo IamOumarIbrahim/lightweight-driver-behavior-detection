@@ -67,6 +67,63 @@ model_linetypes <- c(
   ssdlite_mobilenet_v3_large = "44", rtdetrv2_s = "13",
   yolox_nano = "1234", yolov10n = "73", yolov8n = "2262"
 )
+
+make_hatch_pattern <- function(direction, density, linetype = "solid") {
+  spacing <- if (identical(density, "dense")) 0.5 else 1.0
+  starts <- seq(-1, 1, by = spacing)
+  ink <- grid::gpar(
+    col = "black", fill = NA, lwd = 0.55,
+    lty = linetype, lineend = "butt"
+  )
+  forward <- grid::segmentsGrob(
+    x0 = grid::unit(starts, "npc"), y0 = grid::unit(0, "npc"),
+    x1 = grid::unit(starts + 1, "npc"), y1 = grid::unit(1, "npc"),
+    gp = ink
+  )
+  backward <- grid::segmentsGrob(
+    x0 = grid::unit(starts, "npc"), y0 = grid::unit(1, "npc"),
+    x1 = grid::unit(starts + 1, "npc"), y1 = grid::unit(0, "npc"),
+    gp = ink
+  )
+  marks <- switch(
+    direction,
+    forward = forward,
+    backward = backward,
+    cross = grid::grobTree(forward, backward),
+    stop("Unsupported hatch direction: ", direction)
+  )
+  grid::pattern(
+    grid::grobTree(
+      grid::rectGrob(gp = grid::gpar(fill = "white", col = NA)),
+      marks
+    ),
+    width = grid::unit(2.4, "mm"),
+    height = grid::unit(2.4, "mm"),
+    extend = "repeat",
+    group = FALSE
+  )
+}
+
+nir_model_pattern_labels <- c(
+  yolo11n = "forward_sparse",
+  yolo26n = "forward_dense",
+  dfine_n = "backward_sparse",
+  ssdlite_mobilenet_v3_large = "backward_dense",
+  rtdetrv2_s = "cross_sparse",
+  yolox_nano = "cross_dense",
+  yolov10n = "forward_dense_dotted",
+  yolov8n = "backward_dense_dotted"
+)
+nir_model_patterns <- list(
+  yolo11n = make_hatch_pattern("forward", "sparse"),
+  yolo26n = make_hatch_pattern("forward", "dense"),
+  dfine_n = make_hatch_pattern("backward", "sparse"),
+  ssdlite_mobilenet_v3_large = make_hatch_pattern("backward", "dense"),
+  rtdetrv2_s = make_hatch_pattern("cross", "sparse"),
+  yolox_nano = make_hatch_pattern("cross", "dense"),
+  yolov10n = make_hatch_pattern("forward", "dense", "dotted"),
+  yolov8n = make_hatch_pattern("backward", "dense", "dotted")
+)
 source_path <- file.path(
   repo_root,
   "results",
@@ -1475,10 +1532,6 @@ build_nir_training_negative_exposure <- function(path) {
     )
     plot_data$metric <- factor(plot_data$metric, levels = unname(metric_labels))
     plot_data$ratio <- factor(plot_data$ratio, levels = c("1:2", "1:6"))
-    legend_models <- intersect(
-      nir_expected_models,
-      unique(as.character(plot_data$model_id))
-    )
     ratio_means <- aggregate(
       value ~ ratio + metric,
       data = plot_data,
@@ -1504,7 +1557,7 @@ build_nir_training_negative_exposure <- function(path) {
           data = ratio_means,
           aes(x = x_start, xend = x_end, y = value, yend = value),
           inherit.aes = FALSE,
-          colour = "red3",
+          colour = "black",
           linewidth = 1.1,
           lineend = "butt"
         ) +
@@ -1519,12 +1572,7 @@ build_nir_training_negative_exposure <- function(path) {
           limits = c(0, NA),
           expand = expansion(mult = c(0, 0.10))
         ) +
-        scale_fill_manual(values = model_colors, labels = model_labels) +
-        guides(
-          fill = guide_legend(override.aes = list(
-            fill = unname(model_colors[legend_models])
-          ))
-        ) +
+        scale_fill_manual(values = nir_model_patterns, labels = model_labels) +
         publication_theme() +
         theme(
           legend.position = "bottom",
@@ -1865,6 +1913,11 @@ nir_manifest <- write_manifest(
     status = nir_status,
     seed = 13L,
     ratios = list("1:2", "1:6"),
+    encoding = list(
+      type = "black_and_white_hatch",
+      model_patterns = as.list(nir_model_pattern_labels),
+      ratio_mean = "solid_black_segment"
+    ),
     sampling = list(
       fps = 1L,
       sample_time_seconds = 0.5,

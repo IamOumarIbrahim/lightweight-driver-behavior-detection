@@ -27,15 +27,15 @@
   "outputs": {
     "pdf": {
       "path": "results/NIR/summary/figures/training_negative_exposure.pdf",
-      "sha256": "f04e672231a409cf005279452d1e1436d6d08bf809935ad08310b829ea0ef7d9"
+      "sha256": "a60ce34ea3166ab1753b06e2c743d2e76fb0ed59b44534e84b8c2bf730afced1"
     },
     "svg": {
       "path": "results/NIR/summary/figures/training_negative_exposure.svg",
-      "sha256": "5ed83128ab903d3848133edbd10b3faa90f276d744637a4350c4544598920bcb"
+      "sha256": "5b670174b322e67f0232031f45d967e5078aa7b4f64002e14b13d3d3ac041a69"
     },
     "png": {
       "path": "results/NIR/summary/figures/training_negative_exposure.png",
-      "sha256": "02820aac6fc9e78bb2a205ddf9e65488565d0183360fe49d61cd31145f76750a"
+      "sha256": "4df956d9c759e2e7022388ec4366b8683e4aca9298fdacf74f1bc7435e8ddd09"
     }
   },
   "status": "complete",
@@ -44,6 +44,20 @@
     "1:2",
     "1:6"
   ],
+  "encoding": {
+    "type": "black_and_white_hatch",
+    "model_patterns": {
+      "yolo11n": "forward_sparse",
+      "yolo26n": "forward_dense",
+      "dfine_n": "backward_sparse",
+      "ssdlite_mobilenet_v3_large": "backward_dense",
+      "rtdetrv2_s": "cross_sparse",
+      "yolox_nano": "cross_dense",
+      "yolov10n": "forward_dense_dotted",
+      "yolov8n": "backward_dense_dotted"
+    },
+    "ratio_mean": "solid_black_segment"
+  },
   "sampling": {
     "fps": 1,
     "sample_time_seconds": 0.5,

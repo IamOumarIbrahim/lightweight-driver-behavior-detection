@@ -90,5 +90,5 @@ Across all eight systems, increasing negative exposure improves strict-IoU AP fo
 
 <p align="center">
   <img src="../results/NIR/summary/figures/training_negative_exposure.png" alt="Eight-model NIR training-negative exposure results" width="780"><br>
-  <sub><b>Figure 4.</b> Sixteen NIR protected-test results at seed 13. Grouped bars compare all eight models at 1:2 and 1:6 training exposures; each thick red segment marks the arithmetic mean for its ratio.</sub>
+  <sub><b>Figure 4.</b> Sixteen NIR protected-test results at seed 13. Distinct black-and-white hatch patterns identify all eight models at 1:2 and 1:6 training exposures; each thick black segment marks the arithmetic mean for its ratio.</sub>
 </p>

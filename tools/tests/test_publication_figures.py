@@ -42,7 +42,7 @@ def test_publication_pipeline_is_ggplot2_only() -> None:
     assert not (REPO_ROOT / "tools" / "publication" / "figures.py").exists()
 
 
-def test_nir_figure_uses_grouped_columns_and_ratio_divider() -> None:
+def test_nir_figure_uses_hatched_columns_ratio_divider_and_black_mean() -> None:
     script = (REPO_ROOT / "tools" / "publication" / "figures.R").read_text(
         encoding="utf-8"
     )
@@ -55,8 +55,9 @@ def test_nir_figure_uses_grouped_columns_and_ratio_divider() -> None:
     assert "xintercept = 1.5" in nir_figure
     assert "ratio_means <- aggregate(" in nir_figure
     assert "geom_segment(" in nir_figure
-    assert 'colour = "red3"' in nir_figure
+    assert 'colour = "black"' in nir_figure
     assert "linewidth = 1.1" in nir_figure
+    assert "scale_fill_manual(values = nir_model_patterns" in nir_figure
     assert 'ratio_means$ratio == "1:2", 0.5, 1.5' in nir_figure
     assert 'ratio_means$ratio == "1:2", 1.5, 2.5' in nir_figure
     assert "geom_line(" not in nir_figure
@@ -69,6 +70,17 @@ def test_late_manuscript_figures_are_anchored_to_avoid_column_gap() -> None:
 
     assert r"\usepackage{float}" in manuscript
     assert manuscript.count(r"\begin{figure}[H]") == 2
+
+
+def test_manuscript_centers_third_author_and_marks_nir_table_optima() -> None:
+    manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
+        encoding="utf-8"
+    )
+
+    assert r"\and[\hfill\mbox{}\par\mbox{}\hfill]" in manuscript
+    for value in ("0.14", "48.51", "84.51", "83.71", "10.24"):
+        assert rf"\textbf{{\underline{{{value}}}}}" in manuscript
+    assert manuscript.count(r"\textbf{\underline{") == 5
 
 
 def test_r_package_lock_and_figure_hashes() -> None:
@@ -163,3 +175,6 @@ def test_nir_exposure_figure_tracks_complete_model_suite() -> None:
     assert manifest["status"] == "complete"
     assert manifest["models"] == source["completed_models"]
     assert manifest["pending_models"] == source["pending_models"]
+    assert manifest["encoding"]["type"] == "black_and_white_hatch"
+    assert list(manifest["encoding"]["model_patterns"]) == source["completed_models"]
+    assert manifest["encoding"]["ratio_mean"] == "solid_black_segment"

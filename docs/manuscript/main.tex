@@ -41,7 +41,7 @@ U22200741@sharjah.ac.ae}
 \IEEEauthorblockA{\textit{Department of Computer Engineering} \\
 \textit{University of Sharjah}, Sharjah, United Arab Emirates \\
 mishak@sharjah.ac.ae}
-\and
+\and[\hfill\mbox{}\par\mbox{}\hfill]
 \IEEEauthorblockN{Khalid Ammar}
 \IEEEauthorblockA{\textit{Department of Electrical and Computer Engineering} \\
 \textit{Ajman University}, Ajman, United Arab Emirates \\
@@ -218,7 +218,7 @@ All 16 protected NIR passes are complete. Table~\ref{tab:nirresults} reports bot
 Increasing negative exposure from 1:2 to 1:6 improves $\mathrm{mAP}_{50:95}$ for only YOLO26n, SSDLite-MobileNetV3-Large, and RT-DETRv2-S; it lowers AP for the other five systems. The changes range from $+5.52$ percentage points for YOLO26n to $-7.71$ for YOLOX-Nano. Micro-$F_1$ improves only for SSDLite-MobileNetV3-Large and decreases for the other seven systems. The direction is therefore model-dependent rather than a uniform benefit of 1:6 exposure. RT-DETRv2-S has the highest strict-IoU AP at both ratios, while YOLOv8n has the highest micro-$F_1$ and lowest tensor-to-final p50 latency at both ratios.
 
 \begin{table}[t]
-\caption{Exploratory NIR Test Results at Seed 13}
+\caption{Exploratory NIR Test Results at Seed 13. Bold underlined values indicate the best result per metric.}
 \label{tab:nirresults}
 \centering
 \setlength{\tabcolsep}{2.2pt}
@@ -227,7 +227,7 @@ Increasing negative exposure from 1:2 to 1:6 improves $\mathrm{mAP}_{50:95}$ for
 \toprule
 Model & Neg. & $\mathrm{mAP}_{50:95}$ & Micro-$F_1$ & Macro-$F_1$ & $\fd$ & p50 \\
 \midrule
-YOLO11n & 1:2 & 42.62 & 71.91 & 61.94 & 0.14 & 15.22 \\
+YOLO11n & 1:2 & 42.62 & 71.91 & 61.94 & \textbf{\underline{0.14}} & 15.22 \\
 YOLO11n & 1:6 & 37.07 & 69.15 & 70.32 & 0.41 & 13.74 \\
 YOLO26n & 1:2 & 35.75 & 76.54 & 83.62 & 2.17 & 17.11 \\
 YOLO26n & 1:6 & 41.28 & 65.96 & 65.57 & 0.68 & 16.84 \\
@@ -236,13 +236,13 @@ D-FINE-N & 1:6 & 46.30 & 79.23 & 76.45 & 0.81 & 24.10 \\
 SSDLite-MNV3-L & 1:2 & 28.43 & 73.39 & 69.97 & 3.11 & 14.76 \\
 SSDLite-MNV3-L & 1:6 & 30.76 & 78.73 & 73.38 & 1.35 & 15.93 \\
 RT-DETRv2-S & 1:2 & 48.14 & 84.42 & 78.14 & 0.27 & 25.61 \\
-RT-DETRv2-S & 1:6 & 48.51 & 79.79 & 76.80 & 0.27 & 24.66 \\
+RT-DETRv2-S & 1:6 & \textbf{\underline{48.51}} & 79.79 & 76.80 & 0.27 & 24.66 \\
 YOLOX-Nano & 1:2 & 33.95 & 79.23 & 76.36 & 0.95 & 15.46 \\
 YOLOX-Nano & 1:6 & 26.24 & 67.37 & 61.31 & 0.41 & 16.24 \\
 YOLOv10n & 1:2 & 36.67 & 69.23 & 65.40 & 2.17 & 15.41 \\
 YOLOv10n & 1:6 & 32.58 & 66.67 & 64.32 & 2.03 & 13.45 \\
-YOLOv8n & 1:2 & 39.21 & 84.51 & 83.71 & 0.27 & 11.74 \\
-YOLOv8n & 1:6 & 37.77 & 80.81 & 76.75 & 0.27 & 10.24 \\
+YOLOv8n & 1:2 & 39.21 & \textbf{\underline{84.51}} & \textbf{\underline{83.71}} & 0.27 & 11.74 \\
+YOLOv8n & 1:6 & 37.77 & 80.81 & 76.75 & 0.27 & \textbf{\underline{10.24}} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -250,7 +250,7 @@ YOLOv8n & 1:6 & 37.77 & 80.81 & 76.75 & 0.27 & 10.24 \\
 \begin{figure}[H]
 \centering
 \includegraphics[width=\columnwidth]{training_negative_exposure.pdf}
-\caption{Sixteen NIR protected-test results at seed 13 and deterministic 1-FPS midpoint sampling. Grouped columns compare all eight models at 1:2 and 1:6 training exposures; the dark-grey rule separates the ratio sections, and each thick red segment marks the eight-model mean for its ratio.}
+\caption{Sixteen NIR protected-test results at seed 13 and deterministic 1-FPS midpoint sampling. Distinct black-and-white hatch patterns identify the eight models at 1:2 and 1:6 training exposures; the dark-grey rule separates the ratio sections, and each thick black segment marks the eight-model mean for its ratio.}
 \label{fig:nir}
 \end{figure}
 
