@@ -72,13 +72,36 @@ def test_late_manuscript_figures_allow_text_to_flow_between_floats() -> None:
 
     assert r"\usepackage{float}" not in manuscript
     assert r"\begin{figure}[H]" not in manuscript
-    assert manuscript.count(r"\begin{figure}[!htbp]") == 3
+    assert manuscript.count(r"\begin{figure}[!htbp]") == 2
+    assert (
+        r"\includegraphics[width=\textwidth]{training_negative_exposure.pdf}"
+        in manuscript
+    )
     assert (
         r"\patchcmd{\thebibliography}{\footnotesize}"
         r"{\scriptsize\setlength{\baselineskip}{7.4pt}}{}{}"
         in manuscript
     )
     assert r"\setlength{\@fpsep}{8pt}" in manuscript
+
+
+def test_manuscript_graphics_use_readable_ieee_scale() -> None:
+    manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
+        encoding="utf-8"
+    )
+    script = (REPO_ROOT / "tools" / "publication" / "figures.R").read_text(
+        encoding="utf-8"
+    )
+
+    assert (
+        r"\includegraphics[width=0.98\textwidth]"
+        r"{normalized_model_comparison.pdf}" in manuscript
+    )
+    assert r"\fontsize{8.5}{9.2}\selectfont\bfseries" in manuscript
+    assert 'axis.text = element_text(size = 9, colour = "black")' in script
+    assert 'strip.text = element_text(size = 10, face = "bold")' in script
+    assert 'legend.text = element_text(size = 9, colour = "black")' in script
+    assert "width = 7.16," in script
 
 
 def test_manuscript_uses_pi_approved_annotation_wording() -> None:

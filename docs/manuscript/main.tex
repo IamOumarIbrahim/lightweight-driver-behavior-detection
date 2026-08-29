@@ -73,7 +73,7 @@ nada.mirza@uaeu.ac.ae}
 \raggedbottom
 
 \begin{abstract}
-Reliable driver monitoring requires detectors that generalize to unseen drivers while remaining efficient. This study benchmarks three lightweight object detectors --- You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N) --- for visible driver-cue localization under a subject-disjoint protocol. A red--green--blue (RGB) benchmark of 15,723 Driver Monitoring Dataset frames from 14 drivers, including 12,722 negatives, is evaluated across three paired seeds with validation-only operating-point selection and a protected test set. YOLO11n achieves the highest coarse-IoU accuracy and throughput, D-FINE-N the highest calibrated-threshold detection performance, and YOLO26n the strongest strict-IoU localization. Variation across held-out drivers exceeds seed variation, underscoring the importance of subject-level reporting. A complementary eight-system near-infrared study confirms that greater negative training exposure does not consistently improve performance. Detector selection should therefore reflect deployment-specific trade-offs.
+Reliable driver monitoring requires detectors that generalize to unseen drivers while remaining efficient. This study benchmarks three lightweight object detectors --- You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N) --- for visible driver-cue localization under a subject-disjoint protocol. A red--green--blue (RGB) benchmark of 15,723 Driver Monitoring Dataset (DMD) frames from 14 drivers, including 12,722 negatives, is evaluated across three paired seeds with validation-only operating-point selection and a protected test set. YOLO11n achieves the highest coarse intersection-over-union (IoU) accuracy and throughput, D-FINE-N the highest calibrated-threshold detection performance, and YOLO26n the strongest strict-IoU localization. Variation across held-out drivers exceeds seed variation, underscoring the importance of subject-level reporting. A complementary eight-system near-infrared (NIR) study confirms that greater negative training exposure does not consistently improve performance. Detector selection should therefore reflect deployment-specific trade-offs.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -83,7 +83,7 @@ driver monitoring, object detection, subject-disjoint evaluation, visible driver
 \section{Introduction}
 Road traffic injuries claim approximately 1.19 million lives annually and impose a substantial economic burden worldwide \cite{who2023roadsafety}. In response, Euro NCAP now awards safety-assist credit for camera-based driver monitoring \cite{euroncap2025dms}, accelerating the deployment of in-cabin driver monitoring systems (DMSs). These systems must operate robustly under changes in driver identity, illumination, viewpoint, and occlusion. Whole-frame recognition can describe an activity, but it may also exploit identity or cabin context without showing the visual evidence used for a decision. Object detection provides a complementary formulation: it localizes cue-specific evidence, makes false positives and misses spatially interpretable, and measures detections on frames containing no target cue. A single-frame detector also avoids the latency and architectural complexity of a temporal model when real-time throughput is the experimental focus. This formulation does \emph{not} infer fatigue, intent, duration, or another temporal driver state.
 
-DMD provides multimodal attention and alertness recordings \cite{ortega2020dmd}, while Drive\&Act contains synchronized color, NIR, depth, and pose streams for fine-grained activities \cite{martin2019driveact}. Both contain temporally correlated video and repeated observations of each driver.
+The Driver Monitoring Dataset (DMD) provides multimodal attention and alertness recordings \cite{ortega2020dmd}, while Drive\&Act contains synchronized color, near-infrared (NIR), depth, and pose streams for fine-grained activities \cite{martin2019driveact}. Both contain temporally correlated video and repeated observations of each driver.
 
 Evaluation can therefore be optimistic if neighboring frames or identities cross partitions, natural negative frames are removed, the test set determines the confidence threshold, or latency boundaries differ. Existing driver-detection studies on DMD \cite{jain2024dmd} and posture-classification benchmarks such as the State Farm challenge \cite{abouelnaga2018sfdd} further illustrate the diversity of evaluation choices and the difficulty of cross-paper comparison.
 
@@ -140,7 +140,7 @@ Phone use & Visible hand--phone interaction & 497 & 8.37\% \\
 
 Each frame contains zero or one box. Yawning and hand-over-mouth are mutually exclusive; when a hand covers a yawn, hand-over-mouth takes precedence. Boxes enclose only the visible target. Occluded, truncated, or out-of-frame anatomy is never estimated, although a partially occluded cue remains valid when visually identifiable. No arbitrary minimum-pixel cutoff is applied at $640\times640$.
 
-An automated COCO audit found 15,723 unique images and 3,001 unique annotations, with zero duplicate identifiers or file names, orphan annotations, invalid categories, nonfinite or nonpositive boxes, out-of-bounds boxes, or multi-annotation frames. The smallest annotated area was 0.81\% of the frame; 139 of 159 yawning boxes occupied below 2\%. These checks verify structural consistency of the annotation files but do not assess semantic agreement or labeling accuracy.
+An automated Microsoft Common Objects in Context (COCO) audit found 15,723 unique images and 3,001 unique annotations, with zero duplicate identifiers or file names, orphan annotations, invalid categories, nonfinite or nonpositive boxes, out-of-bounds boxes, or multi-annotation frames. The smallest annotated area was 0.81\% of the frame; 139 of 159 yawning boxes occupied below 2\%. These checks verify structural consistency of the annotation files but do not assess semantic agreement or labeling accuracy.
 
 \subsection{Split, Models, and Training}
 An exhaustive $8{:}3{:}3$ subject assignment minimizes the worst relative class-distribution deviation, with root-mean-square deviation as a tie-breaker. The frozen training, validation, and test partitions contain 9,087, 3,423, and 3,213 frames. The three test subjects contribute 1,080, 920, and 1,213 frames and 178, 183, and 253 positives, respectively.
@@ -172,7 +172,7 @@ D-FINE optimizer & AdamW + MultiStepLR \\
 
 
 \subsection{Validation, Test Metrics, and Profiling}
-The best model-native validation checkpoint is retained. Its confidence threshold $\tau^*$ maximizes validation micro-$F_1$ over $[0.01,0.99]$, with higher precision and then higher $\tau$ as tie-breakers. At an intersection over union (IoU) of 0.5, predictions are greedily matched one-to-one within class. Protected testing reports COCO $\mathrm{mAP}_{50}$ and $\mathrm{mAP}_{50:95}$ \cite{lin2014coco}, precision, recall, micro- and macro-$F_1$, and
+The best model-native validation checkpoint is retained. Its confidence threshold $\tau^*$ maximizes validation micro-$F_1$ over $[0.01,0.99]$, with higher precision and then higher $\tau$ as tie-breakers. At an intersection over union (IoU) of 0.5, predictions are greedily matched one-to-one within class. Protected testing reports COCO mean average precision (mAP) as $\mathrm{mAP}_{50}$ and $\mathrm{mAP}_{50:95}$ \cite{lin2014coco}, precision, recall, micro- and macro-$F_1$, and
 \begin{equation}
 \fd=100\frac{\mathrm{FP}_{\mathrm{neg}}}{N_{\mathrm{neg}}},
 \end{equation}
@@ -182,21 +182,21 @@ RGB results are the sample mean and sample standard deviation (SD) over three se
 
 For all evaluated systems, model selection and operating-point determination were performed exclusively on the validation set, while the held-out test partition remained fixed and was used only for final evaluation.
 
-Batch-1 16-bit floating-point (FP16) profiling uses an NVIDIA GeForce RTX 4060 8-GB GPU. CUDA synchronization brackets model-forward and tensor-to-final-detection intervals. Disk input/output, decoding, preprocessing, and metric computation are excluded. We report p50 tensor-to-final latency and sustained FPS; these measurements do not represent CPU or embedded-device deployment.
+Batch-1 16-bit floating-point (FP16) profiling uses an NVIDIA GeForce RTX 4060 8-GB graphics processing unit (GPU). Compute Unified Device Architecture (CUDA) synchronization brackets model-forward and tensor-to-final-detection intervals. Disk input/output, decoding, preprocessing, and metric computation are excluded. We report median (p50) tensor-to-final latency and sustained frames per second (FPS); these measurements do not represent central processing unit (CPU) or embedded-device deployment.
 
 \subsection{Exploratory NIR Protocol}
 A practical question for DMS deployment is whether exposing a detector to more negative examples during training consistently reduces false detections. Because this question cannot be answered from the single-condition RGB benchmark above, a separate NIR experiment is introduced using a different dataset and a broader set of detector families. The results are not comparable to the RGB track; they address a complementary training-design question.
 
 The secondary NIR source pool contains 3,786 one-second front-top active-NIR ($850$ nm) Drive\&Act snippets from 15 drivers. Twenty-three unilluminated task snippets are excluded before splitting, leaving 3,763. Drinking and phone-use tracklets provide two positive classes. Each snippet contributes one deterministic frame at 1 FPS: the temporal midpoint at $t=0.5$ s, or zero-based source-frame offset 14. At that instant, the normalized box coordinates ($x$, $y$, width, and height) are linearly interpolated between the nearest human-labeled tracklet keyframes that bracket the midpoint; when no bracketing pair exists, the nearest endpoint box is used. The driver crop is then resized to $640\times640$. Unlike RGB, NIR therefore applies dataset-specific frame exclusion and derives midpoint annotations from human tracklets.
 
-A fixed $9{:}3{:}3$ subject partition is shared across all sixteen configured model--condition runs. The eight systems span one-stage convolutional, SSD, and transformer-based detector families. Validation and test contain identical ordered examples. Training always contains 270 positive snippets and either 540 or 1,620 negative snippets, corresponding to nominal positive:negative ratios of 1:2 and 1:6. The 1:2 negatives are a subject-stratified seed-13 subset of the 1:6 pool.
+A fixed $9{:}3{:}3$ subject partition is shared across all sixteen configured model--condition runs. The eight systems span one-stage convolutional, single-shot detector (SSD), and transformer-based families. Validation and test contain identical ordered examples. Training always contains 270 positive snippets and either 540 or 1,620 negative snippets, corresponding to nominal positive:negative ratios of 1:2 and 1:6. The 1:2 negatives are a subject-stratified seed-13 subset of the 1:6 pool.
 
 All runs use physical batch 8, four-step accumulation, a fixed 100-epoch maximum without early stopping, and the best model-native validation checkpoint. Native optimizers and schedules are retained. The D-FINE augmentation transition is placed at epoch 67. The 1:2 and 1:6 conditions produce 2,600 and 6,000 optimizer updates, respectively. Thus, 1:6 has three times the unique negatives and approximately 2.31 times the optimization updates. It is consequently a \emph{training-negative exposure study}, not a causal class-ratio ablation under matched training signal.
 
 All NIR jobs use seed 13, and operating metrics follow the RGB protocol. Since one frame represents each snippet, no temporal aggregation is performed. Micro-$F_1$ and $\fd$ retain the detection-level definitions above; macro-$F_1$ uses the stored class-presence localization metric, in which repeated same-class detections on a frame count once.
 \begin{figure*}[!b]
 \centering
-\includegraphics[width=0.72\textwidth]{normalized_model_comparison.pdf}
+\includegraphics[width=0.98\textwidth]{normalized_model_comparison.pdf}
 \caption{Directional dot-and-whisker plot for YOLO11n, YOLO26n, and D-FINE-N. Rows are grouped into accuracy (left), speed, and complexity (right); right indicates better performance, and whiskers show sample SD across seeds.}
 \label{fig:rgbplots}
 \vspace{2pt}
@@ -243,7 +243,17 @@ Increasing negative exposure from 1:2 to 1:6 improves $\mathrm{mAP}_{50:95}$ for
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.98\columnwidth]{nir_qualitative_examples.pdf}
+\begingroup
+\setlength{\tabcolsep}{1pt}
+\begin{tabular}{@{}ccc@{}}
+\parbox{0.31\columnwidth}{\centering\fontsize{8.5}{9.2}\selectfont\bfseries (a) Correct\\localization (16/16)} &
+\parbox{0.31\columnwidth}{\centering\fontsize{8.5}{9.2}\selectfont\bfseries (b) False\\positive (10/16)} &
+\parbox{0.31\columnwidth}{\centering\fontsize{8.5}{9.2}\selectfont\bfseries (c) False\\negative (16/16)} \\
+\includegraphics[width=0.31\columnwidth,viewport=0 0 640 640,clip]{nir_qualitative_examples.pdf} &
+\includegraphics[width=0.31\columnwidth,viewport=658 0 1298 640,clip]{nir_qualitative_examples.pdf} &
+\includegraphics[width=0.31\columnwidth,viewport=1316 0 1956 640,clip]{nir_qualitative_examples.pdf}
+\end{tabular}
+\endgroup
 \caption{Agreement-selected NIR outcomes at frozen thresholds. Green denotes ground truth and orange denotes predictions. The correct localization and false negative are unanimous; the most recurrent negative-frame false positive occurs in 10/16 runs.}
 \label{fig:nirqual}
 \end{figure}
@@ -285,12 +295,12 @@ YOLOv8n & 1:6 & 37.77 & 80.81 & 76.75 & 0.27 & \textbf{\underline{10.24}} \\
 \end{tabular}
 \end{table}
 
-\begin{figure}[!htbp]
+\begin{figure*}[!htbp]
 \centering
-\includegraphics[width=\columnwidth]{training_negative_exposure.pdf}
+\includegraphics[width=\textwidth]{training_negative_exposure.pdf}
 \caption{Sixteen NIR protected-test results at seed 13 and deterministic 1-FPS midpoint sampling. Distinct colors identify the eight models at 1:2 and 1:6 training exposures; the dark-grey rule separates the ratio sections, and each thick black segment marks the eight-model mean for its ratio.}
 \label{fig:nir}
-\end{figure}
+\end{figure*}
 
 \section{Discussion}
 \subsection{Performance and Deployment Trade-offs}

@@ -30,6 +30,52 @@ def tracked_files() -> list[str]:
     return [line.strip() for line in output.splitlines() if line.strip()]
 
 
+def _font_is_embedded(font_reference: object) -> bool:
+    font = font_reference.get_object()
+    if font.get("/Subtype") == "/Type3":
+        return True
+    descriptor = font.get("/FontDescriptor")
+    if font.get("/Subtype") == "/Type0":
+        descendants = font.get("/DescendantFonts", [])
+        if descendants:
+            descriptor = descendants[0].get_object().get("/FontDescriptor")
+    if descriptor is None:
+        return False
+    descriptor = descriptor.get_object()
+    return any(key in descriptor for key in ("/FontFile", "/FontFile2", "/FontFile3"))
+
+
+def unembedded_fonts(path: Path) -> list[str]:
+    reader = PdfReader(str(path))
+    failures: set[str] = set()
+    visited: set[tuple[int, int] | int] = set()
+
+    def walk_resources(resource_reference: object) -> None:
+        resources = resource_reference.get_object()
+        indirect = getattr(resources, "indirect_reference", None)
+        marker: tuple[int, int] | int = (
+            (indirect.idnum, indirect.generation) if indirect else id(resources)
+        )
+        if marker in visited:
+            return
+        visited.add(marker)
+        for font_reference in resources.get("/Font", {}).values():
+            font = font_reference.get_object()
+            if not _font_is_embedded(font_reference):
+                failures.add(str(font.get("/BaseFont", "unnamed font")))
+        for xobject_reference in resources.get("/XObject", {}).values():
+            xobject = xobject_reference.get_object()
+            nested = xobject.get("/Resources")
+            if nested is not None:
+                walk_resources(nested)
+
+    for page in reader.pages:
+        resources = page.get("/Resources")
+        if resources is not None:
+            walk_resources(resources)
+    return sorted(failures)
+
+
 def repository_checks(checks: Checks) -> None:
     files = tracked_files()
     root_folders = sorted(
@@ -136,15 +182,96 @@ def repository_checks(checks: Checks) -> None:
         ),
         "Manuscript and bibliography contain no filler prose or placeholder references",
     )
+    checks.check(
+        r"\begin{eqnarray}" not in manuscript and "$$" not in manuscript,
+        "Displayed mathematics uses IEEE-recommended equation environments",
+    )
+    checks.check(
+        r"\mathrm{FP}_{\mathrm{neg}}" in manuscript
+        and r"N_{\mathrm{neg}}" in manuscript
+        and r"\newcommand{\fd}{\mathrm{FD}_{100}}" in manuscript,
+        "Equation acronyms are upright and scalar variables remain italic",
+    )
 
     manuscript_pdf = REPO_ROOT / "docs" / "manuscript" / "main.pdf"
     checks.check(manuscript_pdf.is_file(), "Compiled manuscript review PDF exists")
     if manuscript_pdf.is_file():
-        manuscript_pages = len(PdfReader(str(manuscript_pdf)).pages)
+        manuscript_reader = PdfReader(str(manuscript_pdf))
+        manuscript_pages = len(manuscript_reader.pages)
         checks.check(
             manuscript_pages <= 8,
             f"Expanded review manuscript is at most eight pages ({manuscript_pages} pages)",
         )
+        pdf_version = float(manuscript_reader.pdf_header.removeprefix("%PDF-"))
+        checks.check(
+            1.4 <= pdf_version < 1.9,
+            f"Manuscript PDF version is IEEE Xplore compatible ({pdf_version:.1f})",
+        )
+        checks.check(
+            not manuscript_reader.is_encrypted,
+            "Manuscript PDF has no password or security encryption",
+        )
+        annotations = [
+            annotation
+            for page in manuscript_reader.pages
+            for annotation in page.get("/Annots", [])
+        ]
+        checks.check(
+            not annotations and not manuscript_reader.outline,
+            "Manuscript PDF contains no links, annotations, or bookmarks",
+        )
+        checks.check(
+            not manuscript_reader.attachments,
+            "Manuscript PDF contains no attachments or package payloads",
+        )
+        missing_fonts = unembedded_fonts(manuscript_pdf)
+        checks.check(
+            not missing_fonts,
+            f"Every manuscript and included-figure font is embedded: {missing_fonts}",
+        )
+
+    accepted_graphics = {".ps", ".eps", ".pdf", ".png", ".tif", ".tiff"}
+    graphic_directories = (
+        RESULTS_ROOT / "summary" / "figures",
+        RESULTS_ROOT / "RGB" / "summary" / "figures",
+        RESULTS_ROOT / "NIR" / "summary" / "figures",
+    )
+    included_graphics = set(
+        re.findall(r"\\includegraphics(?:\[[^]]*\])?\{([^}]+)\}", manuscript)
+    )
+    resolved_graphics: list[Path] = []
+    unresolved_graphics: list[str] = []
+    for graphic in sorted(included_graphics):
+        candidates = [directory / graphic for directory in graphic_directories]
+        resolved = next((candidate for candidate in candidates if candidate.is_file()), None)
+        if resolved is None:
+            unresolved_graphics.append(graphic)
+        else:
+            resolved_graphics.append(resolved)
+    checks.check(
+        not unresolved_graphics,
+        f"Every included manuscript graphic resolves: {unresolved_graphics}",
+    )
+    rejected_formats = [
+        path.relative_to(REPO_ROOT).as_posix()
+        for path in resolved_graphics
+        if path.suffix.lower() not in accepted_graphics
+    ]
+    checks.check(
+        not rejected_formats,
+        f"Included graphics use IEEE-accepted formats: {rejected_formats}",
+    )
+    figure_font_failures = {}
+    for path in resolved_graphics:
+        if path.suffix.lower() != ".pdf":
+            continue
+        failures = unembedded_fonts(path)
+        if failures:
+            figure_font_failures[path.relative_to(REPO_ROOT).as_posix()] = failures
+    checks.check(
+        not figure_font_failures,
+        f"Every included PDF graphic embeds or subsets its fonts: {figure_font_failures}",
+    )
 
     aggregate_path = RESULTS_ROOT / "RGB" / "summary" / "final_benchmark_aggregate.json"
     aggregate = json.loads(aggregate_path.read_text(encoding="utf-8"))
