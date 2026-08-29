@@ -16,8 +16,11 @@
 \usepackage{xcolor}
 \usepackage{url}
 \usepackage{placeins}
-\usepackage{float}
+\usepackage{etoolbox}
 \usepackage[protrusion=true,expansion=true]{microtype}
+\makeatletter
+\patchcmd{\thebibliography}{\footnotesize}{\scriptsize}{}{}
+\makeatother
 
 \graphicspath{
   {../../results/summary/figures/}
@@ -205,7 +208,7 @@ Averaged across seeds, YOLO11n micro-$F_1$ is 94.94\%, 62.41\%, and 94.72\% for 
 \subsection{Qualitative Error Analysis}
 Figure~\ref{fig:qual} shows predeclared seed-13 examples from frozen predictions for all three RGB detectors. Correct detections localize the intended interaction, while the false-negative examples expose glare and small drinking targets. More importantly, nominal negatives can appear visually cue-like. They may reflect difficult ontology boundaries or missed labels, so the structural annotation audit alone cannot establish semantic validity. The examples are retained because they expose the benchmark's principal annotation risk.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\columnwidth]{qualitative_examples.pdf}
 \caption{Representative seed-13 outcomes for YOLO11n, YOLO26n, and D-FINE-N. Green boxes denote ground truth and orange boxes denote predictions at the validation-selected threshold; columns show a correct localization, a false detection on a nominal negative, and a false negative.}
@@ -213,9 +216,16 @@ Figure~\ref{fig:qual} shows predeclared seed-13 examples from frozen predictions
 \end{figure}
 
 \subsection{Exploratory NIR Results}
-All 16 protected NIR passes are complete. Table~\ref{tab:nirresults} reports both exposures for YOLO11n, YOLO26n, D-FINE-N, SSDLite-MobileNetV3-Large, RT-DETRv2-S, YOLOX-Nano, YOLOv10n, and YOLOv8n, while Fig.~\ref{fig:nir} plots the same checksum-backed results.
+All 16 protected NIR passes are complete. Table~\ref{tab:nirresults} reports both exposures for YOLO11n, YOLO26n, D-FINE-N, SSDLite-MobileNetV3-Large, RT-DETRv2-S, YOLOX-Nano, YOLOv10n, and YOLOv8n, while Fig.~\ref{fig:nir} plots the same checksum-backed results. Figure~\ref{fig:nirqual} shows agreement-selected qualitative outcomes across the 16 runs.
 
 Increasing negative exposure from 1:2 to 1:6 improves $\mathrm{mAP}_{50:95}$ for only YOLO26n, SSDLite-MobileNetV3-Large, and RT-DETRv2-S; it lowers AP for the other five systems. The changes range from $+5.52$ percentage points for YOLO26n to $-7.71$ for YOLOX-Nano. Micro-$F_1$ improves only for SSDLite-MobileNetV3-Large and decreases for the other seven systems. The direction is therefore model-dependent rather than a uniform benefit of 1:6 exposure. RT-DETRv2-S has the highest strict-IoU AP at both ratios, while YOLOv8n has the highest micro-$F_1$ and lowest tensor-to-final p50 latency at both ratios.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.98\columnwidth]{nir_qualitative_examples.pdf}
+\caption{Agreement-selected NIR outcomes at frozen thresholds. Green denotes ground truth and orange denotes predictions. The correct localization and false negative are unanimous; the most recurrent negative-frame false positive occurs in 10/16 runs.}
+\label{fig:nirqual}
+\end{figure}
 
 \begin{table}[t]
 \caption{Exploratory NIR Test Results at Seed 13. Bold underlined values indicate the best result per metric.}
@@ -247,7 +257,7 @@ YOLOv8n & 1:6 & 37.77 & 80.81 & 76.75 & 0.27 & \textbf{\underline{10.24}} \\
 \end{tabular}
 \end{table}
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=\columnwidth]{training_negative_exposure.pdf}
 \caption{Sixteen NIR protected-test results at seed 13 and deterministic 1-FPS midpoint sampling. Distinct black-and-white hatch patterns identify the eight models at 1:2 and 1:6 training exposures; the dark-grey rule separates the ratio sections, and each thick black segment marks the eight-model mean for its ratio.}

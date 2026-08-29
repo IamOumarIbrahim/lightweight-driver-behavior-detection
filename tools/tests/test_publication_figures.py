@@ -63,13 +63,18 @@ def test_nir_figure_uses_hatched_columns_ratio_divider_and_black_mean() -> None:
     assert "geom_line(" not in nir_figure
 
 
-def test_late_manuscript_figures_are_anchored_to_avoid_column_gap() -> None:
+def test_late_manuscript_figures_allow_text_to_flow_between_floats() -> None:
     manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
         encoding="utf-8"
     )
 
-    assert r"\usepackage{float}" in manuscript
-    assert manuscript.count(r"\begin{figure}[H]") == 2
+    assert r"\usepackage{float}" not in manuscript
+    assert r"\begin{figure}[H]" not in manuscript
+    assert manuscript.count(r"\begin{figure}[!htbp]") == 3
+    assert (
+        r"\patchcmd{\thebibliography}{\footnotesize}{\scriptsize}{}{}"
+        in manuscript
+    )
 
 
 def test_manuscript_centers_third_author_and_marks_nir_table_optima() -> None:
