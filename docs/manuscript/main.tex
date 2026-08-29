@@ -20,6 +20,9 @@
 \usepackage[protrusion=true,expansion=true]{microtype}
 \makeatletter
 \patchcmd{\thebibliography}{\footnotesize}{\scriptsize}{}{}
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{8pt}
+\setlength{\@fpbot}{0pt plus 1fil}
 \makeatother
 
 \graphicspath{
@@ -56,7 +59,7 @@ ORCID: 0000-0003-0039-9018}
 \raggedbottom
 
 \begin{abstract}
-Road traffic injuries remain a leading cause of death worldwide, and driver monitoring systems (DMSs) are increasingly mandated by vehicle-safety programmes. Object detection can spatially localize visible evidence of driver inattention, yet existing evaluations often lack subject-disjoint splits, retain no negative frames, or select operating points on test data. We present a reproducible benchmark that addresses these gaps. The primary red--green--blue (RGB) experiment retains 15,723 Driver Monitoring Dataset frames from 14 drivers, including 12,722 negatives, and evaluates three nano-scale detectors --- You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N) --- across three paired seeds under a strict validation-only threshold protocol. No single detector dominates: YOLO11n leads coarse-IoU mean average precision at $91.79\pm0.44\%$ and throughput at $68.0\pm1.3$ frames per second, while D-FINE-N leads micro-$F_1$ at $91.14\pm2.66\%$. Between-subject variation exceeds seed variation. A complementary eight-system near-infrared exposure study finds no uniform benefit from increased training negatives. Claims concern visible-cue localization, not temporal fatigue or behavior inference. Together, the results show that detector selection requires matching the deployment priority---coarse accuracy, tight localization, or calibrated alerting---and that subject variation, not random-seed variation, is the dominant source of performance uncertainty.
+Road traffic injuries remain a major global public health challenge, increasing the need for reliable and computationally efficient driver monitoring systems. Although object detection enables spatial localization of visible driver cues, existing evaluations can be affected by identity leakage, exclusion of natural negative frames, and test-set-dependent operating-point selection, limiting reliable assessment of generalization. This study investigates the generalization, detection reliability, and deployment trade-offs of lightweight object detectors under a rigorous subject-disjoint evaluation framework. The primary red--green--blue (RGB) benchmark comprises 15,723 frames from 14 drivers in the Driver Monitoring Dataset, including 12,722 negative frames, and evaluates three nano-scale detectors---YOLO11n, YOLO26n, and D-FINE-N---across three paired seeds using validation-only operating-point selection and protected testing. The results reveal no universally superior detector. YOLO11n achieves the highest $\mathrm{mAP}_{50}$ of $91.79\pm0.44\%$ and throughput of $68.0\pm1.3$ frames per second, whereas D-FINE-N achieves the highest micro-$F_1$ of $91.14\pm2.66\%$. YOLO26n provides the strongest strict-IoU localization performance. Importantly, performance variation across held-out drivers substantially exceeds variation across random seeds, highlighting generalization to unseen drivers as a critical source of performance uncertainty. A complementary eight-system near-infrared study further demonstrates that increased negative training exposure does not consistently improve performance across detector architectures. Overall, the findings demonstrate that lightweight detector selection for driver monitoring should consider application-specific trade-offs among localization quality, detection reliability, false-positive behavior, and computational efficiency rather than relying on a single aggregate performance metric.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -68,7 +71,7 @@ Road traffic injuries claim approximately 1.19 million lives annually and impose
 
 DMD provides multimodal attention and alertness recordings \cite{ortega2020dmd}, while Drive\&Act contains synchronized color, NIR, depth, and pose streams for fine-grained activities \cite{martin2019driveact}. Both contain temporally correlated video and repeated observations of each driver. Evaluation can therefore be optimistic if neighboring frames or identities cross partitions, natural negative frames are removed, the test set determines the confidence threshold, or latency boundaries differ. Existing driver-detection studies on DMD \cite{jain2024dmd} and posture-classification benchmarks such as the State Farm challenge \cite{abouelnaga2018sfdd} further illustrate the diversity of evaluation choices and the difficulty of cross-paper comparison.
 
-Recent work proposes specialized lightweight networks for in-cabin recognition and detection \cite{baheti2020mobilevgg,wang2024mfyolo,li2024yolosgc,jin2025yolo11cr}. Our objective is different: to compare complete, publicly released nano detector systems without task-specific architectural modification. The contributions are:
+Recent work proposes specialized lightweight networks for in-cabin recognition and detection \cite{baheti2020mobilevgg,wang2024mfyolo,li2024yolosgc,jin2025yolo11cr}. The objective of this study is to investigate the generalization, detection reliability, and deployment trade-offs of lightweight object detectors for visible driver-cue localization under a rigorous subject-disjoint evaluation framework. Specifically, the study examines the ability of complete, publicly released nano-scale detector systems, without task-specific architectural modification, to generalize to unseen drivers while balancing localization accuracy, false-positive behavior, and computational efficiency. A separate near-infrared (NIR) study further investigates the influence of negative training exposure on detection performance across diverse lightweight detector architectures. The contributions are:
 \begin{itemize}
     \item a primary subject-disjoint RGB benchmark for four explicitly defined visible cues, with all sampled frames preserved and annotation structure automatically audited;
     \item validation-only operating-point selection followed by protected testing, three paired RGB seeds, class- and subject-level analysis, false detections on negative frames, and synchronized latency; and
@@ -174,7 +177,7 @@ All NIR jobs use seed 13, and operating metrics follow the RGB protocol. Since o
 Table~\ref{tab:rgbresults} summarizes all nine RGB runs. YOLO11n leads $\mathrm{mAP}_{50}$ and throughput, YOLO26n leads $\mathrm{mAP}_{50:95}$, and D-FINE-N leads micro- and macro-$F_1$. The D-FINE advantage is concentrated at the calibrated operating point rather than strict-IoU AP and costs 8.0--26.4 FPS relative to the YOLO systems. The evidence supports an accuracy--efficiency trade-off, not universal superiority.
 
 \begin{table*}[t]
-\caption{Mean and sample standard deviation across three seeds for the RGB track on the protected test split. Bold indicates the best result per column.}
+\caption{Mean and sample standard deviation across three seeds for the RGB track on the protected test split. Bold underlined values indicate the best result per column.}
 \label{tab:rgbresults}
 \centering
 \setlength{\tabcolsep}{2.7pt}
@@ -183,9 +186,9 @@ Table~\ref{tab:rgbresults} summarizes all nine RGB runs. YOLO11n leads $\mathrm{
 \toprule
 Model & $\mathrm{mAP}_{50}$ & $\mathrm{mAP}_{50:95}$ & Micro-$F_1$ & Macro-$F_1$ & $\fd$ & p50 (ms) & FPS & Params (M) & GFLOPs \\
 \midrule
-YOLO11n & \textbf{91.79$\pm$0.44} & 55.38$\pm$0.41 & 86.60$\pm$0.49 & 83.42$\pm$1.36 & \textbf{0.63$\pm$0.04} & \textbf{14.30$\pm$0.20} & \textbf{68.0$\pm$1.3} & 2.59 & 6.44 \\
-YOLO26n & 89.28$\pm$0.99 & \textbf{56.98$\pm$0.81} & 84.44$\pm$1.14 & 79.39$\pm$1.49 & 0.67$\pm$0.06 & 19.21$\pm$0.09 & 51.7$\pm$0.2 & \textbf{2.51} & \textbf{5.78} \\
-D-FINE-N & 90.22$\pm$2.29 & 55.38$\pm$0.89 & \textbf{91.14$\pm$2.66} & \textbf{84.33$\pm$4.51} & 0.87$\pm$0.21 & 23.31$\pm$0.46 & 40.4$\pm$1.2 & 3.72 & 7.44 \\
+YOLO11n & \textbf{\underline{91.79$\pm$0.44}} & 55.38$\pm$0.41 & 86.60$\pm$0.49 & 83.42$\pm$1.36 & \textbf{\underline{0.63$\pm$0.04}} & \textbf{\underline{14.30$\pm$0.20}} & \textbf{\underline{68.0$\pm$1.3}} & 2.59 & 6.44 \\
+YOLO26n & 89.28$\pm$0.99 & \textbf{\underline{56.98$\pm$0.81}} & 84.44$\pm$1.14 & 79.39$\pm$1.49 & 0.67$\pm$0.06 & 19.21$\pm$0.09 & 51.7$\pm$0.2 & \textbf{\underline{2.51}} & \textbf{\underline{5.78}} \\
+D-FINE-N & 90.22$\pm$2.29 & 55.38$\pm$0.89 & \textbf{\underline{91.14$\pm$2.66}} & \textbf{\underline{84.33$\pm$4.51}} & 0.87$\pm$0.21 & 23.31$\pm$0.46 & 40.4$\pm$1.2 & 3.72 & 7.44 \\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -228,7 +231,7 @@ Increasing negative exposure from 1:2 to 1:6 improves $\mathrm{mAP}_{50:95}$ for
 \end{figure}
 
 \begin{table}[t]
-\caption{Exploratory NIR Test Results at Seed 13. Bold underlined values indicate the best result per metric.}
+\caption{Exploratory NIR Test Results at Seed 13. Per-model ratio winners are bold underlined; displayed ties are unmarked.}
 \label{tab:nirresults}
 \centering
 \setlength{\tabcolsep}{2.2pt}
@@ -237,21 +240,28 @@ Increasing negative exposure from 1:2 to 1:6 improves $\mathrm{mAP}_{50:95}$ for
 \toprule
 Model & Neg. & $\mathrm{mAP}_{50:95}$ & Micro-$F_1$ & Macro-$F_1$ & $\fd$ & p50 \\
 \midrule
-YOLO11n & 1:2 & 42.62 & 71.91 & 61.94 & \textbf{\underline{0.14}} & 15.22 \\
-YOLO11n & 1:6 & 37.07 & 69.15 & 70.32 & 0.41 & 13.74 \\
-YOLO26n & 1:2 & 35.75 & 76.54 & 83.62 & 2.17 & 17.11 \\
-YOLO26n & 1:6 & 41.28 & 65.96 & 65.57 & 0.68 & 16.84 \\
-D-FINE-N & 1:2 & 46.38 & 83.58 & 80.25 & 0.54 & 24.58 \\
-D-FINE-N & 1:6 & 46.30 & 79.23 & 76.45 & 0.81 & 24.10 \\
-SSDLite-MNV3-L & 1:2 & 28.43 & 73.39 & 69.97 & 3.11 & 14.76 \\
-SSDLite-MNV3-L & 1:6 & 30.76 & 78.73 & 73.38 & 1.35 & 15.93 \\
-RT-DETRv2-S & 1:2 & 48.14 & 84.42 & 78.14 & 0.27 & 25.61 \\
-RT-DETRv2-S & 1:6 & \textbf{\underline{48.51}} & 79.79 & 76.80 & 0.27 & 24.66 \\
-YOLOX-Nano & 1:2 & 33.95 & 79.23 & 76.36 & 0.95 & 15.46 \\
-YOLOX-Nano & 1:6 & 26.24 & 67.37 & 61.31 & 0.41 & 16.24 \\
-YOLOv10n & 1:2 & 36.67 & 69.23 & 65.40 & 2.17 & 15.41 \\
-YOLOv10n & 1:6 & 32.58 & 66.67 & 64.32 & 2.03 & 13.45 \\
-YOLOv8n & 1:2 & 39.21 & \textbf{\underline{84.51}} & \textbf{\underline{83.71}} & 0.27 & 11.74 \\
+YOLO11n & 1:2 & \textbf{\underline{42.62}} & \textbf{\underline{71.91}} & 61.94 & \textbf{\underline{0.14}} & 15.22 \\
+YOLO11n & 1:6 & 37.07 & 69.15 & \textbf{\underline{70.32}} & 0.41 & \textbf{\underline{13.74}} \\
+\specialrule{0.3pt}{1.2pt}{1.2pt}
+YOLO26n & 1:2 & 35.75 & \textbf{\underline{76.54}} & \textbf{\underline{83.62}} & 2.17 & 17.11 \\
+YOLO26n & 1:6 & \textbf{\underline{41.28}} & 65.96 & 65.57 & \textbf{\underline{0.68}} & \textbf{\underline{16.84}} \\
+\specialrule{0.3pt}{1.2pt}{1.2pt}
+D-FINE-N & 1:2 & \textbf{\underline{46.38}} & \textbf{\underline{83.58}} & \textbf{\underline{80.25}} & \textbf{\underline{0.54}} & 24.58 \\
+D-FINE-N & 1:6 & 46.30 & 79.23 & 76.45 & 0.81 & \textbf{\underline{24.10}} \\
+\specialrule{0.3pt}{1.2pt}{1.2pt}
+SSDLite-MNV3-L & 1:2 & 28.43 & 73.39 & 69.97 & 3.11 & \textbf{\underline{14.76}} \\
+SSDLite-MNV3-L & 1:6 & \textbf{\underline{30.76}} & \textbf{\underline{78.73}} & \textbf{\underline{73.38}} & \textbf{\underline{1.35}} & 15.93 \\
+\specialrule{0.3pt}{1.2pt}{1.2pt}
+RT-DETRv2-S & 1:2 & 48.14 & \textbf{\underline{84.42}} & \textbf{\underline{78.14}} & 0.27 & 25.61 \\
+RT-DETRv2-S & 1:6 & \textbf{\underline{48.51}} & 79.79 & 76.80 & 0.27 & \textbf{\underline{24.66}} \\
+\specialrule{0.3pt}{1.2pt}{1.2pt}
+YOLOX-Nano & 1:2 & \textbf{\underline{33.95}} & \textbf{\underline{79.23}} & \textbf{\underline{76.36}} & 0.95 & \textbf{\underline{15.46}} \\
+YOLOX-Nano & 1:6 & 26.24 & 67.37 & 61.31 & \textbf{\underline{0.41}} & 16.24 \\
+\specialrule{0.3pt}{1.2pt}{1.2pt}
+YOLOv10n & 1:2 & \textbf{\underline{36.67}} & \textbf{\underline{69.23}} & \textbf{\underline{65.40}} & 2.17 & 15.41 \\
+YOLOv10n & 1:6 & 32.58 & 66.67 & 64.32 & \textbf{\underline{2.03}} & \textbf{\underline{13.45}} \\
+\specialrule{0.3pt}{1.2pt}{1.2pt}
+YOLOv8n & 1:2 & \textbf{\underline{39.21}} & \textbf{\underline{84.51}} & \textbf{\underline{83.71}} & 0.27 & 11.74 \\
 YOLOv8n & 1:6 & 37.77 & 80.81 & 76.75 & 0.27 & \textbf{\underline{10.24}} \\
 \bottomrule
 \end{tabular}
@@ -260,7 +270,7 @@ YOLOv8n & 1:6 & 37.77 & 80.81 & 76.75 & 0.27 & \textbf{\underline{10.24}} \\
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=\columnwidth]{training_negative_exposure.pdf}
-\caption{Sixteen NIR protected-test results at seed 13 and deterministic 1-FPS midpoint sampling. Distinct black-and-white hatch patterns identify the eight models at 1:2 and 1:6 training exposures; the dark-grey rule separates the ratio sections, and each thick black segment marks the eight-model mean for its ratio.}
+\caption{Sixteen NIR protected-test results at seed 13 and deterministic 1-FPS midpoint sampling. Distinct colors identify the eight models at 1:2 and 1:6 training exposures; the dark-grey rule separates the ratio sections, and each thick black segment marks the eight-model mean for its ratio.}
 \label{fig:nir}
 \end{figure}
 
