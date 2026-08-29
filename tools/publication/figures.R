@@ -1520,9 +1520,9 @@ build_nir_training_negative_exposure <- function(path) {
         publication_theme() +
         theme(
           legend.position = "bottom",
-          axis.title.x = element_text(size = 15, colour = "black"),
-          axis.text = element_text(size = 14, colour = "black"),
-          strip.text = element_text(size = 15, face = "bold"),
+          axis.title.x = element_text(size = 9.5, colour = "black"),
+          axis.text = element_text(size = 8.5, colour = "black"),
+          strip.text = element_text(size = 10, face = "bold"),
           panel.spacing = grid::unit(7, "pt")
         )
     )
@@ -1567,9 +1567,9 @@ build_nir_training_negative_exposure <- function(path) {
     publication_theme() +
     theme(
       legend.position = "bottom",
-      axis.title.x = element_text(size = 15, colour = "black"),
-      axis.text = element_text(size = 14, colour = "black"),
-      strip.text = element_text(size = 15, face = "bold"),
+      axis.title.x = element_text(size = 9.5, colour = "black"),
+      axis.text = element_text(size = 8.5, colour = "black"),
+      strip.text = element_text(size = 10, face = "bold"),
       panel.spacing = grid::unit(7, "pt")
     )
 }
