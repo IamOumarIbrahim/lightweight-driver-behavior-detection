@@ -1,6 +1,6 @@
 {
   "artifact": "nir_training_negative_exposure_figure_source",
-  "status": "partial",
+  "status": "complete",
   "seed": 13,
   "ratios": [
     "1:2",
@@ -21,13 +21,12 @@
     "yolo26n",
     "dfine_n",
     "ssdlite_mobilenet_v3_large",
-    "rtdetrv2_s"
-  ],
-  "pending_models": [
+    "rtdetrv2_s",
     "yolox_nano",
     "yolov10n",
     "yolov8n"
   ],
+  "pending_models": [],
   "sampling": {
     "fps": 1,
     "sample_time_seconds": 0.5,
@@ -158,6 +157,78 @@
       "tensor_to_final_sustained_fps": 38.56016227084645,
       "metrics_path": "results/NIR/rtdetrv2_s/ratio_1to6/metrics.json",
       "metrics_sha256": "783d8243282a627df0a73425740a3cc41fd874bef3a1526fddba8553c10d6d83"
+    },
+    {
+      "model_id": "yolox_nano",
+      "ratio": "1:2",
+      "map_50_95": 0.3395056104598511,
+      "micro_f1": 0.7922705314009663,
+      "macro_f1": 0.7636165577342049,
+      "false_detections_per_100_negative_frames": 0.9472259810554804,
+      "tensor_to_final_p50_ms": 15.460600006917957,
+      "tensor_to_final_sustained_fps": 60.7382295915048,
+      "metrics_path": "results/NIR/yolox_nano/ratio_1to2/metrics.json",
+      "metrics_sha256": "a51b43963fed5056a295fb307e605c1971b01758b82bfc3e7a9eab239a3a5a75"
+    },
+    {
+      "model_id": "yolox_nano",
+      "ratio": "1:6",
+      "map_50_95": 0.2624017263208761,
+      "micro_f1": 0.6736842105263158,
+      "macro_f1": 0.6130952380952381,
+      "false_detections_per_100_negative_frames": 0.4059539918809202,
+      "tensor_to_final_p50_ms": 16.235200004302897,
+      "tensor_to_final_sustained_fps": 59.59620138071591,
+      "metrics_path": "results/NIR/yolox_nano/ratio_1to6/metrics.json",
+      "metrics_sha256": "693af3e285be83600ba8041acba410505d6f7449f998f5a43e5f05df709557b8"
+    },
+    {
+      "model_id": "yolov10n",
+      "ratio": "1:2",
+      "map_50_95": 0.3667414872542842,
+      "micro_f1": 0.6923076923076923,
+      "macro_f1": 0.6540025015634772,
+      "false_detections_per_100_negative_frames": 2.165087956698241,
+      "tensor_to_final_p50_ms": 15.406250000523869,
+      "tensor_to_final_sustained_fps": 62.30970432900307,
+      "metrics_path": "results/NIR/yolov10n/ratio_1to2/metrics.json",
+      "metrics_sha256": "58e07b762cb01c276e7159c574ae103fb7a42cf8d03d3b86bc32fdcd9ca872a6"
+    },
+    {
+      "model_id": "yolov10n",
+      "ratio": "1:6",
+      "map_50_95": 0.3257507201564074,
+      "micro_f1": 0.6666666666666667,
+      "macro_f1": 0.6431547619047618,
+      "false_detections_per_100_negative_frames": 2.029769959404601,
+      "tensor_to_final_p50_ms": 13.446599994495045,
+      "tensor_to_final_sustained_fps": 69.69283906137123,
+      "metrics_path": "results/NIR/yolov10n/ratio_1to6/metrics.json",
+      "metrics_sha256": "c4f1888c6d639d2f734a535a9ec78784c8b6c5f11c426d7f7097a42f882bcc4a"
+    },
+    {
+      "model_id": "yolov8n",
+      "ratio": "1:2",
+      "map_50_95": 0.392091300323338,
+      "micro_f1": 0.8450704225352113,
+      "macro_f1": 0.8371221906484112,
+      "false_detections_per_100_negative_frames": 0.2706359945872801,
+      "tensor_to_final_p50_ms": 11.744149996957276,
+      "tensor_to_final_sustained_fps": 79.61719080525214,
+      "metrics_path": "results/NIR/yolov8n/ratio_1to2/metrics.json",
+      "metrics_sha256": "5c6bd6fcb0b2f809e284d112db92ae51ca18bcf3b750e0f9bd6acd9c59dc9f3a"
+    },
+    {
+      "model_id": "yolov8n",
+      "ratio": "1:6",
+      "map_50_95": 0.3776804376934927,
+      "micro_f1": 0.8080808080808081,
+      "macro_f1": 0.7675438596491229,
+      "false_detections_per_100_negative_frames": 0.2706359945872801,
+      "tensor_to_final_p50_ms": 10.239449991786387,
+      "tensor_to_final_sustained_fps": 90.51772132659141,
+      "metrics_path": "results/NIR/yolov8n/ratio_1to6/metrics.json",
+      "metrics_sha256": "789f6337ce38d291d779a3fadbd12d927c333412fd382e0ed07e9fa0dcfb8e07"
     }
   ]
 }

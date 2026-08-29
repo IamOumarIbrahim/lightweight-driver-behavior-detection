@@ -53,7 +53,7 @@ ORCID: 0000-0003-0039-9018}
 \raggedbottom
 
 \begin{abstract}
-Road traffic injuries remain a leading cause of death worldwide, and driver monitoring systems (DMSs) are increasingly mandated by vehicle-safety assessment programmes. Object detection can spatially localize visible evidence of driver inattention inside a vehicle cabin, yet existing evaluations often lack subject-disjoint splits, retain no negative frames, or select operating points on test data. We present a reproducible benchmark that addresses these gaps. The primary red--green--blue (RGB) experiment retains 15,723 Driver Monitoring Dataset frames from 14 drivers, including 12,722 negatives, and evaluates three nano-scale detection systems --- You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N) --- across three paired seeds under a strict validation-only threshold protocol. No single detector dominates: YOLO11n leads coarse-IoU mean average precision (mAP$_{50}$) at $91.79\pm0.44\%$ and throughput at $68.0\pm1.3$ frames per second (FPS), while D-FINE-N leads micro-$F_1$ at $91.14\pm2.66\%$ but runs slowest at $40.4\pm1.2$ FPS. Between-subject variation exceeds seed variation, and class imbalance materially affects pooled metrics. In the currently completed five-system near-infrared (NIR) exposure study, 1:6 negative exposure produces no uniform strict-IoU gain, while RT-DETRv2-S leads strict-IoU AP and micro-$F_1$ at both exposures. Claims concern visible-cue localization, not temporal fatigue or behavior inference.
+Road traffic injuries remain a leading cause of death worldwide, and driver monitoring systems (DMSs) are increasingly mandated by vehicle-safety assessment programmes. Object detection can spatially localize visible evidence of driver inattention inside a vehicle cabin, yet existing evaluations often lack subject-disjoint splits, retain no negative frames, or select operating points on test data. We present a reproducible benchmark that addresses these gaps. The primary red--green--blue (RGB) experiment retains 15,723 Driver Monitoring Dataset frames from 14 drivers, including 12,722 negatives, and evaluates three nano-scale detection systems --- You Only Look Once (YOLO) 11n, YOLO26n, and nano Fine-grained Distribution Refinement (D-FINE-N) --- across three paired seeds under a strict validation-only threshold protocol. No single detector dominates: YOLO11n leads coarse-IoU mean average precision (mAP$_{50}$) at $91.79\pm0.44\%$ and throughput at $68.0\pm1.3$ frames per second (FPS), while D-FINE-N leads micro-$F_1$ at $91.14\pm2.66\%$ but runs slowest at $40.4\pm1.2$ FPS. Between-subject variation exceeds seed variation, and class imbalance materially affects pooled metrics. In the completed eight-system near-infrared (NIR) exposure study, 1:6 negative exposure produces no uniform strict-IoU gain; RT-DETRv2-S leads strict-IoU AP, whereas YOLOv8n leads micro-$F_1$ at both exposures. Claims concern visible-cue localization, not temporal fatigue or behavior inference.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -69,7 +69,7 @@ Recent work proposes specialized lightweight networks for in-cabin recognition a
 \begin{itemize}
     \item a primary subject-disjoint RGB benchmark for four explicitly defined visible cues, with all sampled frames preserved and annotation structure automatically audited;
     \item validation-only operating-point selection followed by protected testing, three paired RGB seeds, class- and subject-level analysis, false detections on negative frames, and synchronized latency; and
-    \item a checksum-backed reproduction workflow plus a clearly separated, one-seed, currently five-system NIR training-negative exposure study with deterministic 1-FPS midpoint sampling.
+    \item a checksum-backed reproduction workflow plus a clearly separated, one-seed, eight-system NIR training-negative exposure study with deterministic 1-FPS midpoint sampling.
 \end{itemize}
 
 \section{Related Work}
@@ -213,9 +213,9 @@ Figure~\ref{fig:qual} shows predeclared seed-13 examples from frozen predictions
 \end{figure}
 
 \subsection{Exploratory NIR Results}
-Ten protected NIR passes are complete. Table~\ref{tab:nirresults} reports both exposures for YOLO11n, YOLO26n, D-FINE-N, SSDLite-MobileNetV3-Large, and RT-DETRv2-S, while Fig.~\ref{fig:nir} plots the same checksum-backed results. YOLOX-Nano, YOLOv10n, and YOLOv8n remain pending and are not inferred.
+All 16 protected NIR passes are complete. Table~\ref{tab:nirresults} reports both exposures for YOLO11n, YOLO26n, D-FINE-N, SSDLite-MobileNetV3-Large, RT-DETRv2-S, YOLOX-Nano, YOLOv10n, and YOLOv8n, while Fig.~\ref{fig:nir} plots the same checksum-backed results.
 
-Increasing negative exposure from 1:2 to 1:6 changes $\mathrm{mAP}_{50:95}$ by $-5.55$, $+5.52$, $-0.08$, $+2.32$, and $+0.37$ percentage points for YOLO11n, YOLO26n, D-FINE-N, SSDLite-MobileNetV3-Large, and RT-DETRv2-S, respectively. Micro-$F_1$ improves only for SSDLite-MobileNetV3-Large and decreases for the other four systems. The direction is therefore model-dependent rather than a uniform benefit of 1:6 exposure. RT-DETRv2-S has the highest strict-IoU AP and micro-$F_1$ at both ratios in the completed subset, with 24.66--25.61-ms tensor-to-final p50 latency.
+Increasing negative exposure from 1:2 to 1:6 improves $\mathrm{mAP}_{50:95}$ for only YOLO26n, SSDLite-MobileNetV3-Large, and RT-DETRv2-S; it lowers AP for the other five systems. The changes range from $+5.52$ percentage points for YOLO26n to $-7.71$ for YOLOX-Nano. Micro-$F_1$ improves only for SSDLite-MobileNetV3-Large and decreases for the other seven systems. The direction is therefore model-dependent rather than a uniform benefit of 1:6 exposure. RT-DETRv2-S has the highest strict-IoU AP at both ratios, while YOLOv8n has the highest micro-$F_1$ and lowest tensor-to-final p50 latency at both ratios.
 
 \begin{table}[t]
 \caption{Exploratory NIR Test Results at Seed 13}
@@ -237,6 +237,12 @@ SSDLite-MNV3-L & 1:2 & 28.43 & 73.39 & 69.97 & 3.11 & 14.76 \\
 SSDLite-MNV3-L & 1:6 & 30.76 & 78.73 & 73.38 & 1.35 & 15.93 \\
 RT-DETRv2-S & 1:2 & 48.14 & 84.42 & 78.14 & 0.27 & 25.61 \\
 RT-DETRv2-S & 1:6 & 48.51 & 79.79 & 76.80 & 0.27 & 24.66 \\
+YOLOX-Nano & 1:2 & 33.95 & 79.23 & 76.36 & 0.95 & 15.46 \\
+YOLOX-Nano & 1:6 & 26.24 & 67.37 & 61.31 & 0.41 & 16.24 \\
+YOLOv10n & 1:2 & 36.67 & 69.23 & 65.40 & 2.17 & 15.41 \\
+YOLOv10n & 1:6 & 32.58 & 66.67 & 64.32 & 2.03 & 13.45 \\
+YOLOv8n & 1:2 & 39.21 & 84.51 & 83.71 & 0.27 & 11.74 \\
+YOLOv8n & 1:6 & 37.77 & 80.81 & 76.75 & 0.27 & 10.24 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -244,13 +250,13 @@ RT-DETRv2-S & 1:6 & 48.51 & 79.79 & 76.80 & 0.27 & 24.66 \\
 \begin{figure}[H]
 \centering
 \includegraphics[width=\columnwidth]{training_negative_exposure.pdf}
-\caption{Ten NIR protected-test results at seed 13 and deterministic 1-FPS midpoint sampling. Grouped columns compare each completed model at 1:2 and 1:6 training exposures; the dark-grey rule separates the ratio sections, and each thick red segment marks the five-model mean for its ratio.}
+\caption{Sixteen NIR protected-test results at seed 13 and deterministic 1-FPS midpoint sampling. Grouped columns compare all eight models at 1:2 and 1:6 training exposures; the dark-grey rule separates the ratio sections, and each thick red segment marks the eight-model mean for its ratio.}
 \label{fig:nir}
 \end{figure}
 
 \section{Discussion}
 \subsection{Accuracy--Efficiency Trade-offs}
-No detector is universally best: YOLO11n leads coarse-IoU mAP and throughput, YOLO26n leads strict-IoU mAP and compactness, and D-FINE-N leads micro- and macro-$F_1$ but runs slowest in RGB. In the completed NIR subset, RT-DETRv2-S leads strict-IoU AP and micro-$F_1$ at both exposures, while SSDLite-MobileNetV3-Large is faster but has lower AP and more false detections. Native training and postprocessing make these shipped-system comparisons, not isolations of architecture.
+No detector is universally best: YOLO11n leads coarse-IoU mAP and throughput, YOLO26n leads strict-IoU mAP and compactness, and D-FINE-N leads micro- and macro-$F_1$ but runs slowest in RGB. In NIR, RT-DETRv2-S leads strict-IoU AP, whereas YOLOv8n leads micro-$F_1$ and is fastest at both exposures. Native training and postprocessing make these shipped-system comparisons, not isolations of architecture.
 
 \subsection{Class and Subject Effects}
 The phone-use majority is a real benchmark characteristic and a limitation for pooled operating metrics, but it does not invalidate YOLO26n's strict-IoU advantage. Equal-weight class AP, macro-$F_1$, per-class supports, and paired-seed directions separate that result from majority-class dominance. The narrow aggregate margin, low support for three categories, and drinking sign reversal mean the accurate conclusion is a trade-off rather than a definitive rank. The difficult Subject 10 further shows that seed variation on a single split understates deployment variation across people.
@@ -259,7 +265,7 @@ The phone-use majority is a real benchmark characteristic and a limitation for p
 Subject-disjoint evaluation reduces identity leakage but does not establish population-level generalization from only 14 drivers and three held-out test identities. A single annotator and one pass provide internally consistent data but no independent semantic agreement estimate; the qualitative nominal-negative case makes this concrete. Correlated frames remain within RGB recordings, and single-frame detection neither estimates temporal fatigue nor models alert debouncing. NIR avoids within-snippet duplication through one midpoint frame, but 1-FPS sampling does not characterize motion within the second. NIR additionally differs in dataset, ontology, annotation source, and preprocessing, uses one seed, and changes negative diversity together with training steps. It cannot be interpreted as a controlled RGB-versus-NIR modality effect. Finally, RTX 4060 timing excludes preprocessing and is not an embedded-hardware measurement. These boundaries define what the benchmark supports without removing its value as a transparent, reproducible comparison.
 
 \section{Conclusion and Future Work}
-The RGB comparison establishes a system-level trade-off: YOLO11n leads coarse-IoU accuracy and throughput, YOLO26n leads strict-IoU AP and compactness, and D-FINE-N leads pooled and class-balanced $F_1$ but is slowest. Class, subject, and suite-extension evidence prevent a universal winner or jointly frozen nine-run claim. The ten completed NIR passes show no uniform strict-IoU benefit from 1:6 exposure; micro-$F_1$ improves only for SSDLite-MobileNetV3-Large, and RT-DETRv2-S leads strict-IoU AP and micro-$F_1$ at both ratios in the five-system subset.
+The RGB comparison establishes a system-level trade-off: YOLO11n leads coarse-IoU accuracy and throughput, YOLO26n leads strict-IoU AP and compactness, and D-FINE-N leads pooled and class-balanced $F_1$ but is slowest. Class, subject, and suite-extension evidence prevent a universal winner or jointly frozen nine-run claim. The 16 completed NIR passes show no uniform strict-IoU benefit from 1:6 exposure; micro-$F_1$ improves only for SSDLite-MobileNetV3-Large, RT-DETRv2-S leads strict-IoU AP, and YOLOv8n leads micro-$F_1$ at both ratios.
 
 Future work will add independent multi-annotator review, increase rare-cue and held-out-driver coverage, repeat the benchmark across subject partitions and external cabins, and test class-balanced or matched-step training. Temporal alert logic will connect frame localization to user-facing warnings. The NIR study will be strengthened with matched optimization exposure and additional seeds, while embedded-device profiling will include preprocessing and end-to-end input latency. These extensions directly target the uncertainty exposed by the present class, subject, and qualitative analyses.
 

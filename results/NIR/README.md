@@ -1,6 +1,5 @@
 # NIR Results
 
-Ten checksum-backed protected results are published for YOLO11n, YOLO26n,
-D-FINE-N, SSDLite-MobileNetV3-Large, and RT-DETRv2-S. The two-ratio result
-locations for YOLOX-Nano, YOLOv10n, and YOLOv8n remain reserved until their
-validation-gated protected passes complete.
+Sixteen checksum-backed protected results are published for YOLO11n, YOLO26n,
+D-FINE-N, SSDLite-MobileNetV3-Large, RT-DETRv2-S, YOLOX-Nano, YOLOv10n, and
+YOLOv8n. Every model has seed-13 results for the 1:2 and 1:6 training ratios.

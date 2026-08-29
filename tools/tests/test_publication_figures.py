@@ -122,7 +122,7 @@ def test_validation_sweep_is_complete_and_path_safe() -> None:
     assert {row["model_id"] for row in rows} == {"yolo11n", "yolo26n"}
 
 
-def test_nir_exposure_figure_tracks_pending_extension_models() -> None:
+def test_nir_exposure_figure_tracks_complete_model_suite() -> None:
     source_path = (
         REPO_ROOT
         / "results"
@@ -131,7 +131,7 @@ def test_nir_exposure_figure_tracks_pending_extension_models() -> None:
         / "training_negative_exposure_source.json"
     )
     source = json.loads(source_path.read_text(encoding="utf-8"))
-    assert source["status"] == "partial"
+    assert source["status"] == "complete"
     assert source["seed"] == 13
     assert source["ratios"] == ["1:2", "1:6"]
     assert source["completed_models"] == [
@@ -140,13 +140,12 @@ def test_nir_exposure_figure_tracks_pending_extension_models() -> None:
         "dfine_n",
         "ssdlite_mobilenet_v3_large",
         "rtdetrv2_s",
-    ]
-    assert source["pending_models"] == [
         "yolox_nano",
         "yolov10n",
         "yolov8n",
     ]
-    assert len(source["rows"]) == 10
+    assert source["pending_models"] == []
+    assert len(source["rows"]) == 16
     for row in source["rows"]:
         metrics_path = REPO_ROOT / row["metrics_path"]
         assert metrics_path.is_file()
@@ -161,6 +160,6 @@ def test_nir_exposure_figure_tracks_pending_extension_models() -> None:
         source_path.parent / "figures" / "training_negative_exposure.manifest.json"
     )
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    assert manifest["status"] == "partial"
+    assert manifest["status"] == "complete"
     assert manifest["models"] == source["completed_models"]
     assert manifest["pending_models"] == source["pending_models"]

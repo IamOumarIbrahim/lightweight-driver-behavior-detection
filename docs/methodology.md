@@ -9,7 +9,7 @@
 
 | Parameter / Shared Element | Frozen Specification | Notes |
 | :---: | :---: | :---: |
-| **Models** | RGB: YOLO11n, YOLO26n, D-FINE-N; NIR adds SSDLite-MobileNetV3-Large, RT-DETRv2-S, YOLOX-Nano, YOLOv10n, YOLOv8n | Eight configured detector systems; five currently have protected NIR results |
+| **Models** | RGB: YOLO11n, YOLO26n, D-FINE-N; NIR adds SSDLite-MobileNetV3-Large, RT-DETRv2-S, YOLOX-Nano, YOLOv10n, YOLOv8n | Eight detector systems; all have protected NIR results |
 | **Input Resolution** | 640 × 640 px | All models and tracks |
 | **Physical Batch Size** | 8 | Per iteration |
 | **Gradient Accumulation** | 4 steps | Effective batch size 32 |

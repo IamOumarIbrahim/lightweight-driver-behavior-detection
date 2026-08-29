@@ -1,0 +1,130 @@
+{
+  "checkpoint_bytes_local": 5762739,
+  "checkpoint_sha256": "cbcded4bde05d4f668c7b6e85f3bba7d65a5bd0ef756fbef93e142378023e6d3",
+  "coco_metrics": {
+    "implementation": "pycocotools",
+    "map_50": 0.6281993291149307,
+    "map_50_95": 0.3257507201564074,
+    "per_class_ap_50_95": {
+      "drinking": 0.24215978419109363,
+      "phone_use": 0.4093416561217212
+    }
+  },
+  "created_at_utc": "2026-08-29T00:10:52.275098+00:00",
+  "flop_estimates": {
+    "interpretation": "Tool-dependent estimates; disagreement indicates operator-coverage uncertainty.",
+    "thop": {
+      "flops": 8392652800,
+      "method": "ultralytics-thop MACs multiplied by 2",
+      "status": "estimated"
+    },
+    "torch_profiler": {
+      "flops": 16518066400,
+      "method": "torch.profiler with_flops operator sum",
+      "status": "estimated"
+    }
+  },
+  "model": "yolov10n",
+  "operating_point": {
+    "far_per_100_negative_frames": 2.029769959404601,
+    "fn": 39,
+    "fp": 33,
+    "fp_detections_on_negative_frames": 15,
+    "iou_threshold": 0.5,
+    "micro_f1": 0.6666666666666667,
+    "negative_frames": 739,
+    "precision": 0.6857142857142857,
+    "recall": 0.6486486486486487,
+    "threshold": 0.48,
+    "tp": 72
+  },
+  "parameters": 2707820,
+  "ratio": "1to6",
+  "runtime_profile": {
+    "batch_size": 1,
+    "environment": {
+      "compute_capability": "8.9",
+      "cuda_available": true,
+      "cuda_runtime": "12.1",
+      "cudnn": 90100,
+      "gpu": "NVIDIA GeForce RTX 4060",
+      "gpu_total_bytes": 8585216000,
+      "platform": "Windows-11-10.0.26200-SP0",
+      "python": "3.12.10",
+      "torch": "2.4.1+cu121"
+    },
+    "input_shape": [
+      1,
+      3,
+      640,
+      640
+    ],
+    "model_and_input_storage": "fp32",
+    "model_forward": {
+      "boundary": "preprocessed_tensor_to_raw_model_output",
+      "p50_ms": 13.097968101501465,
+      "p95_ms": 19.414507579803463,
+      "p99_ms": 21.890595912933346,
+      "sustained_fps": 71.51939741174152,
+      "timed_frames": 850,
+      "timing": "synchronized_cuda_events",
+      "total_ms": 11884.887607574463
+    },
+    "peak_allocated_vram_bytes": 64990208,
+    "precision": "fp16_autocast",
+    "precision_mode": "cuda_amp_fp16",
+    "tensor_to_final_detections": {
+      "boundary": "preprocessed_tensor_to_normalized_detections_including_required_postprocessing",
+      "p50_ms": 13.446599994495045,
+      "p95_ms": 19.928624994645357,
+      "p99_ms": 22.60247600308503,
+      "sustained_fps": 69.69283906137123,
+      "timed_frames": 850,
+      "timing": "synchronized_high_resolution_wall_clock",
+      "total_ms": 12196.374999897671
+    },
+    "warmup_passes": 10
+  },
+  "schema_version": 1,
+  "seed": null,
+  "snippet_operating_point": {
+    "aggregation": "any_frame_same_class_iou_match_repeated_class_counts_once",
+    "false_positive_snippets": 12,
+    "false_positive_snippets_per_100_negative_snippets": 1.6238159675236807,
+    "fn": 39,
+    "fp": 19,
+    "frames_per_snippet": 1,
+    "iou_threshold": 0.5,
+    "macro_f1": 0.6431547619047618,
+    "micro_f1": 0.7128712871287128,
+    "negative_snippets": 739,
+    "per_class": {
+      "drinking": {
+        "f1": 0.5238095238095237,
+        "fn": 17,
+        "fp": 3,
+        "precision": 0.7857142857142857,
+        "recall": 0.39285714285714285,
+        "tp": 11
+      },
+      "phone_use": {
+        "f1": 0.7625,
+        "fn": 22,
+        "fp": 16,
+        "precision": 0.7922077922077922,
+        "recall": 0.7349397590361446,
+        "tp": 61
+      }
+    },
+    "precision": 0.7912087912087912,
+    "recall": 0.6486486486486487,
+    "snippets": 850,
+    "threshold": 0.48,
+    "tp": 72
+  },
+  "test_ground_truth_sha256": "52c1c50ea2c2c02c9ea1ad28156611a2bd28505a673a2c3ac75ceb52b64e3a0f",
+  "test_predictions_sha256": "295fe406f8a4a5de7f4a20902e70da4a84652ac8ebca9490bb46c33c8732e6ad",
+  "track": "NIR",
+  "training_seed": 13,
+  "validation_manifest_sha256": "d5c33adc7bd8bad8a02bb006ccfff063606e40dffc1f4cc0492dfa13086ff3e0"
+}

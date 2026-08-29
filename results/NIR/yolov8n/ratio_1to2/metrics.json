@@ -1,0 +1,130 @@
+{
+  "checkpoint_bytes_local": 6258595,
+  "checkpoint_sha256": "3b326e5dbc6aa4642a089fcf0fd954d793b4b5766c8f4b445091ed91df14151f",
+  "coco_metrics": {
+    "implementation": "pycocotools",
+    "map_50": 0.8087656661992915,
+    "map_50_95": 0.392091300323338,
+    "per_class_ap_50_95": {
+      "drinking": 0.3252580038192127,
+      "phone_use": 0.4589245968274633
+    }
+  },
+  "created_at_utc": "2026-08-29T00:11:11.727032+00:00",
+  "flop_estimates": {
+    "interpretation": "Tool-dependent estimates; disagreement indicates operator-coverage uncertainty.",
+    "thop": {
+      "flops": 8192768000,
+      "method": "ultralytics-thop MACs multiplied by 2",
+      "status": "estimated"
+    },
+    "torch_profiler": {
+      "flops": 16168771200,
+      "method": "torch.profiler with_flops operator sum",
+      "status": "estimated"
+    }
+  },
+  "model": "yolov8n",
+  "operating_point": {
+    "far_per_100_negative_frames": 0.2706359945872801,
+    "fn": 21,
+    "fp": 12,
+    "fp_detections_on_negative_frames": 2,
+    "iou_threshold": 0.5,
+    "micro_f1": 0.8450704225352113,
+    "negative_frames": 739,
+    "precision": 0.8823529411764706,
+    "recall": 0.8108108108108109,
+    "threshold": 0.62,
+    "tp": 90
+  },
+  "parameters": 3011238,
+  "ratio": "1to2",
+  "runtime_profile": {
+    "batch_size": 1,
+    "environment": {
+      "compute_capability": "8.9",
+      "cuda_available": true,
+      "cuda_runtime": "12.1",
+      "cudnn": 90100,
+      "gpu": "NVIDIA GeForce RTX 4060",
+      "gpu_total_bytes": 8585216000,
+      "platform": "Windows-11-10.0.26200-SP0",
+      "python": "3.12.10",
+      "torch": "2.4.1+cu121"
+    },
+    "input_shape": [
+      1,
+      3,
+      640,
+      640
+    ],
+    "model_and_input_storage": "fp32",
+    "model_forward": {
+      "boundary": "preprocessed_tensor_to_raw_model_output",
+      "p50_ms": 8.34604787826538,
+      "p95_ms": 14.45823197364807,
+      "p99_ms": 16.704607505798336,
+      "sustained_fps": 107.46892338745208,
+      "timed_frames": 850,
+      "timing": "synchronized_cuda_events",
+      "total_ms": 7909.263191699982
+    },
+    "peak_allocated_vram_bytes": 30653440,
+    "precision": "fp16_autocast",
+    "precision_mode": "cuda_amp_fp16",
+    "tensor_to_final_detections": {
+      "boundary": "preprocessed_tensor_to_normalized_detections_including_required_postprocessing",
+      "p50_ms": 11.744149996957276,
+      "p95_ms": 19.009295004798332,
+      "p99_ms": 23.544525001634607,
+      "sustained_fps": 79.61719080525214,
+      "timed_frames": 850,
+      "timing": "synchronized_high_resolution_wall_clock",
+      "total_ms": 10676.086299994495
+    },
+    "warmup_passes": 10
+  },
+  "schema_version": 1,
+  "seed": null,
+  "snippet_operating_point": {
+    "aggregation": "any_frame_same_class_iou_match_repeated_class_counts_once",
+    "false_positive_snippets": 2,
+    "false_positive_snippets_per_100_negative_snippets": 0.2706359945872801,
+    "fn": 21,
+    "fp": 6,
+    "frames_per_snippet": 1,
+    "iou_threshold": 0.5,
+    "macro_f1": 0.8371221906484112,
+    "micro_f1": 0.8695652173913043,
+    "negative_snippets": 739,
+    "per_class": {
+      "drinking": {
+        "f1": 0.7755102040816326,
+        "fn": 9,
+        "fp": 2,
+        "precision": 0.9047619047619048,
+        "recall": 0.6785714285714286,
+        "tp": 19
+      },
+      "phone_use": {
+        "f1": 0.8987341772151898,
+        "fn": 12,
+        "fp": 4,
+        "precision": 0.9466666666666667,
+        "recall": 0.8554216867469879,
+        "tp": 71
+      }
+    },
+    "precision": 0.9375,
+    "recall": 0.8108108108108109,
+    "snippets": 850,
+    "threshold": 0.62,
+    "tp": 90
+  },
+  "test_ground_truth_sha256": "52c1c50ea2c2c02c9ea1ad28156611a2bd28505a673a2c3ac75ceb52b64e3a0f",
+  "test_predictions_sha256": "e3169ea14559b804c9d01660d51a3e46d8f6e3973d27e2570af2b5fe340dcee0",
+  "track": "NIR",
+  "training_seed": 13,
+  "validation_manifest_sha256": "1695edb5c9473d60ddddb67fdb666a3e07b79cb0b04bb09193f1a927a639dddb"
+}

@@ -3,7 +3,7 @@
 [← Back to Main README](../README.md)
 
 > [!IMPORTANT]
-> All nine RGB protected passes and ten NIR protected passes are complete. Six extension runs remain pending for YOLOX-Nano, YOLOv10n, and YOLOv8n.
+> All nine RGB protected passes and all 16 NIR protected passes are complete.
 
 ## RGB Summary
 
@@ -63,7 +63,7 @@ Machine-readable YOLO values are in [`results/RGB/summary`](../results/RGB/summa
 > [!NOTE]
 > D-FINE-N was added after the original six-run YOLO suite had already crossed its protected-test gate. Its checkpoints and thresholds were frozen without test feedback, and its three passes are valid under the expanded nine-run suite. A single combined nine-run aggregate is not claimed because the suite IDs differ.
 
-## NIR Benchmark — Five-Model Published Results
+## NIR Benchmark — Eight-Model Published Results
 
 All values below are from the seed-13 protected test split after validation-only threshold selection. Macro-F1 is the stored class-presence localization metric; micro-F1 and false detections retain their detection-level definitions. Tensor-to-final latency is batch-1 CUDA AMP FP16 on the RTX 4060 and excludes input/output, decoding, and preprocessing.
 
@@ -77,17 +77,18 @@ All values below are from the seed-13 protected test split after validation-only
 | D-FINE-N | 1:6 | 0.4630 | 0.7923 | 0.7645 | 0.81 | 24.10 |
 | SSDLite-MobileNetV3-Large | 1:2 | 0.2843 | 0.7339 | 0.6997 | 3.11 | 14.76 |
 | SSDLite-MobileNetV3-Large | 1:6 | 0.3076 | 0.7873 | 0.7338 | 1.35 | 15.93 |
-| RT-DETRv2-S | 1:2 | **0.4814** | **0.8442** | 0.7814 | 0.27 | 25.61 |
-| RT-DETRv2-S | 1:6 | **0.4851** | **0.7979** | 0.7680 | 0.27 | 24.66 |
+| RT-DETRv2-S | 1:2 | **0.4814** | 0.8442 | 0.7814 | 0.27 | 25.61 |
+| RT-DETRv2-S | 1:6 | **0.4851** | 0.7979 | **0.7680** | 0.27 | 24.66 |
+| YOLOX-Nano | 1:2 | 0.3395 | 0.7923 | 0.7636 | 0.95 | 15.46 |
+| YOLOX-Nano | 1:6 | 0.2624 | 0.6737 | 0.6131 | 0.41 | 16.24 |
+| YOLOv10n | 1:2 | 0.3667 | 0.6923 | 0.6540 | 2.17 | 15.41 |
+| YOLOv10n | 1:6 | 0.3258 | 0.6667 | 0.6432 | 2.03 | 13.45 |
+| YOLOv8n | 1:2 | 0.3921 | **0.8451** | **0.8371** | 0.27 | **11.74** |
+| YOLOv8n | 1:6 | 0.3777 | **0.8081** | 0.7675 | 0.27 | **10.24** |
 
-Across the five completed systems, increasing negative exposure improves strict-IoU AP for YOLO26n, SSDLite-MobileNetV3-Large, and RT-DETRv2-S, but lowers it for YOLO11n and D-FINE-N. Micro-F1 improves only for SSDLite-MobileNetV3-Large and decreases for the other four systems. RT-DETRv2-S has the highest strict-IoU AP and micro-F1 at both ratios in the completed subset. These are within-model exposure comparisons at one seed, not a controlled RGB-versus-NIR modality comparison.
-
-The published extension rows now include SSDLite-MobileNetV3-Large and
-RT-DETRv2-S. YOLOX-Nano, YOLOv10n, and YOLOv8n remain absent until both ratios
-complete training, validation-only threshold selection, and the
-confirmation-gated protected test pass.
+Across all eight systems, increasing negative exposure improves strict-IoU AP for YOLO26n, SSDLite-MobileNetV3-Large, and RT-DETRv2-S, but lowers it for the other five systems. Micro-F1 improves only for SSDLite-MobileNetV3-Large and decreases for the other seven. RT-DETRv2-S has the highest strict-IoU AP at both ratios; YOLOv8n has the highest micro-F1 and the lowest tensor-to-final p50 latency at both ratios. These are within-model exposure comparisons at one seed, not a controlled RGB-versus-NIR modality comparison.
 
 <p align="center">
-  <img src="../results/NIR/summary/figures/training_negative_exposure.png" alt="Five-model NIR training-negative exposure results" width="780"><br>
-  <sub><b>Figure 4.</b> Ten NIR protected-test results at seed 13. Grouped bars compare the five completed models at 1:2 and 1:6 training exposures; each thick red segment marks the arithmetic mean for its ratio.</sub>
+  <img src="../results/NIR/summary/figures/training_negative_exposure.png" alt="Eight-model NIR training-negative exposure results" width="780"><br>
+  <sub><b>Figure 4.</b> Sixteen NIR protected-test results at seed 13. Grouped bars compare all eight models at 1:2 and 1:6 training exposures; each thick red segment marks the arithmetic mean for its ratio.</sub>
 </p>
