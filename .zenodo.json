@@ -1,0 +1,35 @@
+{
+  "title": "Subject-Disjoint Benchmarking of Lightweight Detectors for Visible Driver-Cue Localization",
+  "description": "Reproducibility package for a subject-disjoint benchmark of lightweight object detectors for visible driver-cue localization. It includes frozen RGB and NIR protocols, media-free authored annotations and split metadata, pinned configurations and dependencies, evaluation and publication tools, sanitized predictions, metrics, and publication artifacts. Licensed DMD and Drive&Act source media and trained checkpoints are not included.",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "Apache-2.0",
+  "version": "1.0.0",
+  "publication_date": "2026-08-30",
+  "creators": [
+    {
+      "name": "Ibrahim, Oumar Mamoun",
+      "affiliation": "Department of Computer Engineering, University of Sharjah",
+      "orcid": "0009-0008-0312-1605"
+    },
+    {
+      "name": "bin Ishak, Mohamad Khairi",
+      "affiliation": "Department of Computer Engineering, University of Sharjah",
+      "orcid": "0000-0002-3554-0061"
+    },
+    {
+      "name": "Ammar, Khalid",
+      "affiliation": "Department of Electrical and Computer Engineering, Ajman University",
+      "orcid": "0000-0003-0039-9018"
+    }
+  ],
+  "keywords": [
+    "driver monitoring",
+    "object detection",
+    "subject-disjoint evaluation",
+    "reproducible research",
+    "near-infrared imaging",
+    "lightweight neural networks"
+  ],
+  "notes": "The archive intentionally excludes licensed DMD and Drive&Act source media, locally generated frames, backend downloads, training logs, and model checkpoints. Licensed users can reconstruct the benchmark using the published annotations, checksums, and deterministic preparation tools."
+}

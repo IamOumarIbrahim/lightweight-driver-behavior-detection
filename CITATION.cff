@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: "If you use this software or its research artifacts, please cite this repository release."
+title: "Subject-Disjoint Benchmarking of Lightweight Detectors for Visible Driver-Cue Localization"
+type: software
+version: 1.0.0
+date-released: 2026-08-30
+license: Apache-2.0
+repository-code: "https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection"
+url: "https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection"
+authors:
+  - family-names: Ibrahim
+    given-names: "Oumar Mamoun"
+    email: U22200741@sharjah.ac.ae
+    affiliation: "Department of Computer Engineering, University of Sharjah"
+    orcid: "https://orcid.org/0009-0008-0312-1605"
+  - family-names: "bin Ishak"
+    given-names: "Mohamad Khairi"
+    email: mishak@sharjah.ac.ae
+    affiliation: "Department of Computer Engineering, University of Sharjah"
+    orcid: "https://orcid.org/0000-0002-3554-0061"
+  - family-names: Ammar
+    given-names: Khalid
+    email: k.ammar@ajman.ac.ae
+    affiliation: "Department of Electrical and Computer Engineering, Ajman University"
+    orcid: "https://orcid.org/0000-0003-0039-9018"
+abstract: >-
+  Reproducibility package for a subject-disjoint benchmark of lightweight
+  object detectors for visible driver-cue localization. It includes frozen
+  RGB and NIR protocols, media-free authored annotations and split metadata,
+  pinned configurations and dependencies, evaluation and publication tools,
+  sanitized predictions, metrics, and publication artifacts. Licensed DMD
+  and Drive&Act source media are not redistributed.
+keywords:
+  - driver monitoring
+  - object detection
+  - subject-disjoint evaluation
+  - reproducible research
+  - near-infrared imaging
+  - lightweight neural networks

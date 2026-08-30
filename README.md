@@ -100,6 +100,10 @@ Only these six semantic folders are published. Local `runs`, `third_party`, and 
 
 ## Authors & Citation
 
+Machine-readable citation metadata for the versioned research-software
+release is available in [`CITATION.cff`](./CITATION.cff). GitHub's
+**Cite this repository** control can export it as BibTeX or APA.
+
 - **Oumar Mamoun Ibrahim** — Department of Computer Engineering, University of Sharjah<br>
   [U22200741@sharjah.ac.ae](mailto:U22200741@sharjah.ac.ae) · [ORCID 0009-0008-0312-1605](https://orcid.org/0009-0008-0312-1605)
 - **Dr. Mohamad Khairi bin Ishak** — Department of Computer Engineering, University of Sharjah<br>
