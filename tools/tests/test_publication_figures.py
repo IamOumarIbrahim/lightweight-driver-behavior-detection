@@ -106,6 +106,28 @@ def test_manuscript_uses_pi_approved_annotation_wording() -> None:
     )
 
 
+def test_documentation_matches_current_annotation_and_figure_status() -> None:
+    methodology = (REPO_ROOT / "docs" / "methodology.md").read_text(
+        encoding="utf-8"
+    )
+    limitations = (REPO_ROOT / "docs" / "limitations.md").read_text(
+        encoding="utf-8"
+    )
+    manuscript_readme = (
+        REPO_ROOT / "docs" / "manuscript" / "README.md"
+    ).read_text(encoding="utf-8")
+    results = (REPO_ROOT / "docs" / "results.md").read_text(encoding="utf-8")
+
+    assert "smooth pass" not in methodology + limitations
+    assert "No independent second annotator was available" in methodology
+    assert "one annotation pass without independent review" in limitations
+    assert "Draft 2" not in manuscript_readme
+    assert "unfinished NIR" not in manuscript_readme
+    assert "all 16 completed runs" in manuscript_readme
+    assert "Distinct colors identify all eight models" in results
+    assert "hatch patterns" not in results
+
+
 def test_rgb_comparison_figure_precedes_results_section() -> None:
     manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
         encoding="utf-8"

@@ -45,7 +45,7 @@ Training and validation are separate operations. Model-native validation selects
 
 The RGB track contains 15,723 cropped `640×640` frames sampled at 1 FPS from 81 driver-facing [DMD](https://dmd.vicomtech.org/) recordings across 14 subjects. It localizes four discrete, momentary visual cues: `yawning`, `hand_over_mouth`, `drinking`, and `phone_use`. This single-frame task does not infer temporal fatigue, intent, or driver state. The 3,001 positive frames and 12,722 naturalistic negatives produce a negative-heavy continuous benchmark.
 
-One primary annotator labeled the dataset in one pass; no independent second-person review was established. The frozen spatial definitions are:
+One primary annotator completed the RGB annotations in one annotation pass. No independent second annotator was available for semantic agreement assessment. The frozen spatial definitions are:
 
 - `yawning`: tightly enclose the visible mouth.
 - `hand_over_mouth`: enclose the full visible face and hand covering the mouth.

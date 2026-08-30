@@ -1,4 +1,4 @@
-# RT-DETRv2-S NIR configuration
+# RT-DETRv2-S NIR Configuration
 
 The official RT-DETRv2 R18VD architecture is the smallest upstream v2 model and
 is named `RT-DETRv2-S` by its authors. These files keep its official 640-pixel

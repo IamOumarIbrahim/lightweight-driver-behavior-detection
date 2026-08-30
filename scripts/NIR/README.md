@@ -6,6 +6,7 @@ and effective batch 32. `train_new_ten.ps1` verifies every pinned backend and
 runs only these extension jobs sequentially with safe resume, automatically
 skipping completed pairs. It excludes the original YOLO11n, YOLO26n, and
 D-FINE-N runs. Pass `-Yes` only for an unattended start.
+
 Run `validate_all_sixteen.bat` before the confirmation-gated
 `test_all_sixteen.bat`.
 

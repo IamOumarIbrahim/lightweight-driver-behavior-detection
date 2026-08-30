@@ -19,7 +19,7 @@
 ## Annotation and Metric Constraints
 
 - The ontology permits at most one target cue per frame. Real driving can contain simultaneous behaviors outside this mutual-exclusion rule.
-- One primary annotator completed one smooth pass without independent review. Automated checks establish file/geometric integrity but not semantic agreement; the published qualitative false positive exposes a cue-like nominal negative that may be an ontology-boundary case or missed label.
+- One primary annotator completed the RGB annotations in one annotation pass without independent review. Automated checks establish file/geometric integrity but not semantic agreement; the published qualitative false positive exposes a cue-like nominal negative that may be an ontology-boundary case or missed label.
 - Neighboring RGB frames from the same recording remain correlated. NIR avoids within-snippet duplication by evaluating one deterministic midpoint frame per one-second snippet, but different snippets from the same recording can still be correlated.
 - Each NIR midpoint box is linearly interpolated from human tracklet keyframes. Rapid non-linear hand motion may introduce localization error at the sampled instant, and 1-FPS sampling does not characterize cue evolution within the second.
 - False detections per 100 negative frames is a static per-frame count and complements, rather than replaces, COCO AP. It is not an operational alert rate; safety decisions require application-specific temporal logic and prospective validation.

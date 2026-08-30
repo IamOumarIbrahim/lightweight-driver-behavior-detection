@@ -1,4 +1,14 @@
+from tools.benchmark.paths import REPO_ROOT
 from tools.benchmark.protocol import load_yaml, validate_protocol
+
+
+def test_configuration_docs_match_backend_patch_inventory():
+    readme = (REPO_ROOT / "configs" / "README.md").read_text(encoding="utf-8")
+    patches = sorted((REPO_ROOT / "configs" / "patches").glob("*.patch"))
+
+    assert len(patches) == 5
+    assert "contains the five audited backend" in readme
+    assert "container stacks" not in readme
 
 
 def test_rgb_protocol_and_fingerprints():

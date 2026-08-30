@@ -116,6 +116,8 @@ reproducibility release used by the manuscript is archived at
 - **Nada Masood Mirza** — College of Engineering, Engineering Requirements Unit, United Arab Emirates University<br>
   [nada.mirza@uaeu.ac.ae](mailto:nada.mirza@uaeu.ac.ae)
 
+For the conference manuscript itself, use:
+
 ```bibtex
 @unpublished{ibrahim2026lightweight,
   title     = {Lightweight Object Detection for Driver Monitoring: A Subject-Disjoint Benchmark},
