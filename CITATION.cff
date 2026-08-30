@@ -25,6 +25,10 @@ authors:
     email: k.ammar@ajman.ac.ae
     affiliation: "Department of Electrical and Computer Engineering, Ajman University"
     orcid: "https://orcid.org/0000-0003-0039-9018"
+  - family-names: Mirza
+    given-names: "Nada Masood"
+    email: nada.mirza@uaeu.ac.ae
+    affiliation: "College of Engineering, Engineering Requirements Unit, United Arab Emirates University"
 abstract: >-
   Reproducibility package for a subject-disjoint benchmark of lightweight
   object detectors for visible driver-cue localization. It includes frozen

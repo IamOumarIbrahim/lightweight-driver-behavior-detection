@@ -113,11 +113,13 @@ reproducibility release used by the manuscript is archived at
   [mishak@sharjah.ac.ae](mailto:mishak@sharjah.ac.ae) · [ORCID 0000-0002-3554-0061](https://orcid.org/0000-0002-3554-0061)
 - **Khalid Ammar** — Department of Electrical and Computer Engineering, Ajman University<br>
   [k.ammar@ajman.ac.ae](mailto:k.ammar@ajman.ac.ae) · [ORCID 0000-0003-0039-9018](https://orcid.org/0000-0003-0039-9018)
+- **Nada Masood Mirza** — College of Engineering, Engineering Requirements Unit, United Arab Emirates University<br>
+  [nada.mirza@uaeu.ac.ae](mailto:nada.mirza@uaeu.ac.ae)
 
 ```bibtex
 @unpublished{ibrahim2026lightweight,
   title     = {Subject-Disjoint Benchmarking of Lightweight Detectors for Visible Driver-Cue Localization},
-  author    = {Ibrahim, Oumar Mamoun and Bin Ishak, Mohamad Khairi and Ammar, Khalid},
+  author    = {Ibrahim, Oumar Mamoun and Bin Ishak, Mohamad Khairi and Ammar, Khalid and Mirza, Nada Masood},
   year      = {2026},
   note      = {Conference paper to be submitted to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026)}
 }
