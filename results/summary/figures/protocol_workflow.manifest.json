@@ -22,15 +22,15 @@
   "outputs": {
     "pdf": {
       "path": "results/summary/figures/protocol_workflow.pdf",
-      "sha256": "06e9b50d9cba898640cb58a75668b86b3eb56ad40b3c1fe2165f475001549751"
+      "sha256": "64ea565899f0c7a94ecf86d303b84355e3b83f21a53c98033c93a23e49320781"
     },
     "svg": {
       "path": "results/summary/figures/protocol_workflow.svg",
-      "sha256": "e7936fc0753afd8b5e4a56633d82edd9e0941f03fef5963f3c1aa50761557817"
+      "sha256": "2c9bfd507b1f2f2b804dd388bb2e046f3d22745c97da5472220f0dd3692fc34f"
     },
     "png": {
       "path": "results/summary/figures/protocol_workflow.png",
-      "sha256": "4b174a9bec423ca8b39d530cecc2f7061170d57ee5351d428c00676a07b16609"
+      "sha256": "eba6cf02c2d825dccc34ea08849d26b31236c2f77a642c2e8369eb78c704f991"
     }
   },
   "inputs": [

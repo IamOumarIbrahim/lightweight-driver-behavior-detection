@@ -1077,7 +1077,7 @@ load_qualitative_examples <- function(path) {
 
 build_qualitative_grid <- function(examples) {
   row_count <- length(examples) %/% 3L
-  row_stride <- 1.18
+  row_stride <- 1.06
   plot_ymax <- row_count * row_stride - 0.06
   plot <- ggplot()
   for (index in seq_along(examples)) {
@@ -1090,12 +1090,12 @@ build_qualitative_grid <- function(examples) {
     row <- (index - 1L) %/% 3L
     row_base <- (row_count - row - 1L) * row_stride
     image_ymin <- row_base + 0.02
-    image_ymax <- row_base + 0.93
-    title_y <- row_base + 1.055
+    image_ymax <- row_base + 0.87
+    title_y <- row_base + 0.95
     label <- paste(
       unname(model_labels[as.character(example$model_id)]),
       as.character(example$case),
-      sep = "\n"
+      sep = " - "
     )
     plot <- plot +
       annotation_custom(
@@ -1112,7 +1112,7 @@ build_qualitative_grid <- function(examples) {
         label = label,
         family = "Times New Roman",
         fontface = "bold",
-        size = 3.25
+        size = 4.2
       )
   }
   plot +
@@ -1162,8 +1162,8 @@ build_protocol_workflow <- function() {
     x = c(2.85, 6.40),
     title = c("Primary RGB | DMD", "Exploratory NIR | Drive&Act"),
     detail = c(
-      "Samples 15,723 frames at 1 FPS;\nlabels four cues; evaluates\nseeds 13, 37, and 73.",
-      "Samples two cues at 1 FPS midpoints;\ntrains seed 13 for 100 epochs;\ncompares 1:2 and 1:6 negatives."
+      "The RGB study samples 15,723\nframes at 1 FPS, labels four cues,\nand evaluates seeds 13, 37, and 73.",
+      "The NIR study samples two cues\nat 1 FPS midpoints, trains seed 13\nfor 100 epochs, and compares 1:2\nwith 1:6 negative ratios."
     ),
     stringsAsFactors = FALSE
   )
@@ -1206,14 +1206,14 @@ build_protocol_workflow <- function() {
       family = "Times New Roman",
       fontface = "bold",
       hjust = 0.5,
-      size = 3.5
+      size = 3.2
     ) +
     geom_text(
       data = lane_text,
       aes(x = x, y = 0.39, label = detail),
       family = "Times New Roman",
       hjust = 0.5,
-      size = 3.0,
+      size = 2.12,
       lineheight = 1.0
     ) +
     geom_segment(
@@ -1241,12 +1241,12 @@ build_protocol_workflow <- function() {
       data = steps,
       aes(x = x, y = 1.62, label = label),
       family = "Times New Roman",
-      size = 3.0,
+      size = 2.35,
       lineheight = 0.95
     ) +
     annotate(
       "text", x = 5, y = 1.12, label = "NO TEST TUNING",
-      family = "Times New Roman", fontface = "bold", size = 3.0,
+      family = "Times New Roman", fontface = "bold", size = 2.25,
       colour = "#8C4B00"
     ) +
     coord_cartesian(xlim = c(0.45, 7.55), ylim = c(0.05, 2.05), clip = "off") +
@@ -1521,11 +1521,8 @@ build_nir_training_negative_exposure <- function(path) {
         theme(
           legend.position = "bottom",
           axis.title.x = element_text(size = 9.5, colour = "black"),
-          axis.text = element_text(size = 9, colour = "black"),
+          axis.text = element_text(size = 8.5, colour = "black"),
           strip.text = element_text(size = 10, face = "bold"),
-          legend.text = element_text(size = 9, colour = "black"),
-          legend.key.height = grid::unit(12, "pt"),
-          legend.key.width = grid::unit(15, "pt"),
           panel.spacing = grid::unit(7, "pt")
         )
     )
@@ -1641,8 +1638,8 @@ if ("--only-protocol-workflow" %in% trailing_arguments) {
 comparison_outputs <- export_figure(
   build_normalized_model_comparison(comparison_data),
   "normalized_model_comparison",
-  width = 7.16,
-  height = 3.42,
+  width = 11.2,
+  height = 5.35,
   title = "Normalized RGB accuracy, speed, and complexity comparison",
   figure_id = "rgb_normalized_model_comparison"
 )
@@ -1742,8 +1739,8 @@ qualitative_plot <- build_qualitative_grid(qualitative_examples)
 qualitative_outputs <- export_figure(
   qualitative_plot,
   "qualitative_examples",
-  width = 3.5,
-  height = 4.1,
+  width = 7.16,
+  height = 7.35,
   title = "RGB qualitative successes and errors",
   figure_id = "rgb_qualitative_examples",
   metadata_source = qualitative_source_path
@@ -1848,7 +1845,7 @@ nir_outputs <- export_figure(
   build_nir_training_negative_exposure(nir_source_path),
   "training_negative_exposure",
   width = 7.16,
-  height = 2.8,
+  height = 2.35,
   title = paste(tools::toTitleCase(nir_status), "NIR training-negative exposure results"),
   figure_id = "nir_training_negative_exposure",
   metadata_source = nir_source_path,

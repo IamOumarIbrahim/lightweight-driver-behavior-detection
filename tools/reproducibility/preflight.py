@@ -199,8 +199,8 @@ def repository_checks(checks: Checks) -> None:
         manuscript_reader = PdfReader(str(manuscript_pdf))
         manuscript_pages = len(manuscript_reader.pages)
         checks.check(
-            manuscript_pages <= 8,
-            f"Expanded review manuscript is at most eight pages ({manuscript_pages} pages)",
+            manuscript_pages <= 6,
+            f"Conference manuscript is at most six pages ({manuscript_pages} pages)",
         )
         pdf_version = float(manuscript_reader.pdf_header.removeprefix("%PDF-"))
         checks.check(
