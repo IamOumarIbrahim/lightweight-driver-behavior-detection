@@ -2,12 +2,12 @@ cff-version: 1.2.0
 message: "If you use this software or its research artifacts, please cite this repository release."
 title: "Subject-Disjoint Benchmarking of Lightweight Detectors for Visible Driver-Cue Localization"
 type: software
-version: 1.0.0
+version: 1.0.1
 date-released: 2026-08-30
-doi: "10.5281/zenodo.22172310"
+doi: "10.5281/zenodo.22172309"
 license: Apache-2.0
 repository-code: "https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection"
-repository-artifact: "https://doi.org/10.5281/zenodo.22172310"
+repository-artifact: "https://doi.org/10.5281/zenodo.22172309"
 url: "https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection"
 authors:
   - family-names: Ibrahim
