@@ -307,17 +307,11 @@ NIR avoids within-snippet duplication through one midpoint frame, but 1-FPS samp
 Finally, RTX 4060 timing excludes preprocessing and is not an embedded-hardware measurement. These boundaries define what the benchmark supports without removing its value as a transparent, reproducible comparison.
 
 \section{Conclusion and Future Work}
-This study presented a subject-disjoint RGB benchmark and a complementary NIR negative-exposure experiment for lightweight driver-cue detection. The central finding is that no single detector dominates all evaluation axes: coarse-IoU accuracy and throughput, strict-IoU localization, and calibrated-threshold detection reliability each favor a different system.
+Overall, this study evaluated lightweight object detectors for visible driver-cue localization using a subject-disjoint RGB benchmark and a complementary NIR negative-exposure experiment. The RGB results reveal distinct trade-offs among the evaluated systems. YOLO11n provides the highest mAP$_{50}$ and throughput, YOLO26n provides the highest strict-IoU localization performance, and D-FINE-N achieves the strongest $F_1$-based detection performance. Variation across held-out drivers exceeds seed variation in the present evaluation, emphasizing the importance of subject-level reporting when assessing generalization. The NIR results further show that increasing negative training exposure does not consistently improve performance across detector systems.
 
-For practitioners, the results suggest concrete selection criteria. When false alarms are costlier than missed cues --- for example, nuisance alerts that erode driver trust --- YOLO11n's lower $\fd$ and highest throughput make it a natural starting point. When precise spatial localization matters, such as feeding downstream gaze or posture models, YOLO26n's strict-IoU advantage is more relevant. When the deployment can absorb additional latency in exchange for stronger $F_1$ at the calibrated threshold, D-FINE-N offers the highest detection reliability. The large performance gap on the difficult held-out Subject~10 further underscores that aggregate metrics can mask deployment-critical failure modes; subject-level reporting should be standard practice.
+These findings indicate that lightweight detector selection should be guided by the intended deployment requirements rather than a single aggregate metric. Future work should increase the number and diversity of held-out drivers, incorporate independent annotation review, repeat the analysis across multiple subject partitions, and evaluate complete inference pipelines on embedded hardware.
 
-Future work should expand the number and demographic diversity of held-out drivers, incorporate independent annotation review to quantify semantic agreement, repeat the analysis across multiple subject partitions to separate split-specific effects, and evaluate complete inference pipelines on embedded hardware.
-
-\noindent\textbf{Data and code:} Authored annotations, frozen partitions and checksums,
-sanitized predictions, evaluation tools, and publication artifacts are archived in the
-versioned reproducibility release at \url{https://doi.org/10.5281/zenodo.22172310};
-ongoing development is hosted at \url{https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection}.
-Licensed DMD and Drive\&Act media and trained checkpoints remain local under their original access terms.
+\noindent\textbf{Data and code:} Versioned annotations, partitions, checksums, sanitized predictions, evaluation tools, and publication artifacts are archived at \url{https://doi.org/10.5281/zenodo.22172310}; development code is available at \url{https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection}. Licensed DMD and Drive\&Act media remain governed by their access terms; trained checkpoints remain local.
 
 \enlargethispage{2\baselineskip}
 \FloatBarrier
