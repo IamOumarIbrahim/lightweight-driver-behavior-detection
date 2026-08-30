@@ -1,9 +1,14 @@
-from tools.benchmark.paths import REPO_ROOT, result_dir, run_dir
+from tools.benchmark.paths import REPO_ROOT, RESULTS_ROOT, result_dir, run_dir
 
 
 def test_repo_root_is_checkout():
     assert (REPO_ROOT / ".git").is_dir()
     assert (REPO_ROOT / "README.md").is_file()
+
+
+def test_results_root_contains_only_organized_artifacts():
+    root_files = sorted(path.name for path in RESULTS_ROOT.iterdir() if path.is_file())
+    assert root_files == ["README.md"]
 
 
 def test_canonical_artifact_paths():

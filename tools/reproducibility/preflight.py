@@ -98,6 +98,15 @@ def repository_checks(checks: Checks) -> None:
         not [path for path in files if path.startswith("runs/")],
         "Local run artifacts are not tracked",
     )
+    result_root_files = [
+        path
+        for path in files
+        if Path(path).parent == Path("results") and path != "results/README.md"
+    ]
+    checks.check(
+        not result_root_files,
+        f"No ad hoc files are tracked directly under results: {result_root_files}",
+    )
     for folder in root_folders:
         checks.check(
             (REPO_ROOT / folder / "README.md").is_file(), f"{folder}/README.md exists"

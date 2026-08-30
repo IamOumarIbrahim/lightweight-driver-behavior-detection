@@ -122,7 +122,20 @@ def test_rgb_comparison_figure_precedes_results_section() -> None:
     assert "{tab:rgbresults}" in grouped_float
     assert "nearest human-labeled tracklet keyframes" in manuscript
     assert "Performance and Deployment Trade-offs" in manuscript
-    assert "This study presented a subject-disjoint RGB benchmark" in manuscript
+    assert r"\section{Conclusion and Future Work}" in manuscript
+    assert "Overall, this study evaluated lightweight object detectors" in manuscript
+
+
+def test_readme_paper_citation_matches_manuscript_title() -> None:
+    manuscript = (REPO_ROOT / "docs" / "manuscript" / "main.tex").read_text(
+        encoding="utf-8"
+    )
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+
+    title = re.search(r"\\title\{([^}]+)\}", manuscript)
+    assert title is not None
+    assert f"title     = {{{title.group(1)}}}" in readme
+    assert "bin Ishak, Mohamad Khairi" in readme
 
 
 def test_manuscript_formats_four_authors_and_marks_nir_ratio_winners() -> None:

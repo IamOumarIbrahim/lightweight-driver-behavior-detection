@@ -118,8 +118,8 @@ reproducibility release used by the manuscript is archived at
 
 ```bibtex
 @unpublished{ibrahim2026lightweight,
-  title     = {Subject-Disjoint Benchmarking of Lightweight Detectors for Visible Driver-Cue Localization},
-  author    = {Ibrahim, Oumar Mamoun and Bin Ishak, Mohamad Khairi and Ammar, Khalid and Mirza, Nada Masood},
+  title     = {Lightweight Object Detection for Driver Monitoring: A Subject-Disjoint Benchmark},
+  author    = {Ibrahim, Oumar Mamoun and bin Ishak, Mohamad Khairi and Ammar, Khalid and Mirza, Nada Masood},
   year      = {2026},
   note      = {Conference paper to be submitted to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026)}
 }
