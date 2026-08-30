@@ -4,8 +4,10 @@ title: "Subject-Disjoint Benchmarking of Lightweight Detectors for Visible Drive
 type: software
 version: 1.0.0
 date-released: 2026-08-30
+doi: "10.5281/zenodo.22172310"
 license: Apache-2.0
 repository-code: "https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection"
+repository-artifact: "https://doi.org/10.5281/zenodo.22172310"
 url: "https://github.com/IamOumarIbrahim/lightweight-driver-behavior-detection"
 authors:
   - family-names: Ibrahim

@@ -2,6 +2,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0"></a>
+  <a href="https://doi.org/10.5281/zenodo.22172310"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.22172310.svg" alt="DOI: 10.5281/zenodo.22172310"></a>
   <img src="https://img.shields.io/badge/Modality-RGB%20%7C%20NIR-blueviolet?style=flat" alt="Modality: RGB | NIR">
   <img src="https://img.shields.io/badge/Input-640%C3%97640-555?style=flat" alt="Input: 640×640">
   <img src="https://img.shields.io/badge/NIR%20Detectors-8%20native%20Windows%20systems-4c1?style=flat" alt="Eight NIR detector systems">
@@ -102,7 +103,9 @@ Only these six semantic folders are published. Local `runs`, `third_party`, and 
 
 Machine-readable citation metadata for the versioned research-software
 release is available in [`CITATION.cff`](./CITATION.cff). GitHub's
-**Cite this repository** control can export it as BibTeX or APA.
+**Cite this repository** control can export it as BibTeX or APA. The exact
+reproducibility release used by the manuscript is archived at
+[https://doi.org/10.5281/zenodo.22172310](https://doi.org/10.5281/zenodo.22172310).
 
 - **Oumar Mamoun Ibrahim** — Department of Computer Engineering, University of Sharjah<br>
   [U22200741@sharjah.ac.ae](mailto:U22200741@sharjah.ac.ae) · [ORCID 0009-0008-0312-1605](https://orcid.org/0009-0008-0312-1605)
