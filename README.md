@@ -1,5 +1,4 @@
 <h1 align="center">Subject-Disjoint Benchmarking of Lightweight Detectors for Visible Driver-Cue Localization</h1>
-> **Status:** conditionally accepted at CAISAIS 2026; major revision in progress. The `v1.0-submitted` tag is the version sent for review.
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0"></a>
   <a href="https://doi.org/10.5281/zenodo.22172309"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.22172309.svg" alt="DOI: 10.5281/zenodo.22172309 (all versions)"></a>
@@ -11,6 +10,9 @@
 <p align="center">
   <a href="https://raw.githubusercontent.com/IamOumarIbrahim/lightweight-driver-behavior-detection/main/docs/manuscript/main.pdf" download="main.pdf"><img src="https://img.shields.io/badge/📄_Manuscript-Download_PDF-e02424?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="Download the manuscript PDF"></a>
 </p>
+
+> **Status:** conditionally accepted at CAISAIS 2026; major revision in progress. The `v1.0-submitted` tag is the version sent for review.
+
 
 ## Table of Contents
 
