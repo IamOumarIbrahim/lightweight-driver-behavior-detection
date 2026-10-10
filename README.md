@@ -123,11 +123,11 @@ v1.0.0 release used by the manuscript remains available at
 For the conference manuscript itself, use:
 
 ```bibtex
-@unpublished{ibrahim2026lightweight,
-  title     = {Lightweight Object Detection for Driver Monitoring: A Subject-Disjoint Benchmark},
-  author    = {Ibrahim, Oumar Mamoun and bin Ishak, Mohamad Khairi and Ammar, Khalid and Mirza, Nada Masood},
-  year      = {2026},
-  note      = {Conference paper to be submitted to the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026)}
+@unpublished{ibrahim2026driver,
+  title  = {Lightweight Object Detection Models for Real-Time Driver Behavior Detection with Subject-Disjoint Evaluation},
+  author = {Ibrahim, Oumar Mamoun and {bin Ishak}, Mohamad Khairi},
+  year   = {2026},
+  note   = {Conditionally accepted at the 5th International Conference on Artificial Intelligence Science and Applications in Industry and Society (CAISAIS 2026); under revision}
 }
 ```
 
